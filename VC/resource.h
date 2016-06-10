@@ -60,13 +60,19 @@
 #define ID_Menu                         32837
 #define ID_Menu32838                    32838
 #define ID_NAVIGATE_SHOW_SIGNATURE      32839
+#define ID_OPTIONS_SETUP_LILYPOND       32842
+#define ID_VIEW_LILYPOND                32843
+#define ID_LILYPOND_CHANGEPATH          32844
+#define ID_LILYPOND_AUTOMATICREFRESH    32845
+#define ID_LILYPOND_SHOWIMAGE           32846
+#define ID_LILYPOND_DDELETECACHE        32847
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32841
+#define _APS_NEXT_COMMAND_VALUE         32850
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           311
 #endif

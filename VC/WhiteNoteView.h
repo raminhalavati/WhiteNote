@@ -32,6 +32,7 @@ public:
 		int		iPageSize;
 		bool	bBeep;
 		bool	bShowAllSignatureText;
+		CString	LilyPondPath;
 	} m_Defaults;
 
 	struct _Playing
@@ -96,7 +97,13 @@ public:
 	afx_msg void OnOptionsBeeponcommands();
 	afx_msg void OnOptionsAlwaysshowsignatures();
 	afx_msg void OnShowSignature();
-	
+	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+	afx_msg void OnLilypondChangepath();
+	afx_msg void OnLilypondAutomaticrefresh();
+	afx_msg void OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI);
+	afx_msg void OnLilypondShowimage();
+	afx_msg void OnLilypondDdeletecache();
+
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
 	CMyEdit		m_NarrationR;
@@ -104,6 +111,7 @@ public:
 	CMyEdit		m_Summary;
 	CButton		m_Image;
 	CStatic		m_NarrationLabel;
+	CImage		m_MeasureImage;
 
 	// Loads/Saves default values.
 	void SerializeDefaults(bool bLoad);
@@ -117,6 +125,10 @@ public:
 	int GetOtherBlock(char chWhat, bool bNext);
 	// Makes a sound
 	void VoiceMessage(CString What);
+	// Updates measure image.
+	void UpdateImage();
+	// Creates measure image.
+	void CreateImage();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

@@ -64,7 +64,9 @@ public:
 			CHKSTR( "MF" ,			MusicSheet::DIR_DYNAMIC_MF) ;
 			CHKSTR( "F" ,			MusicSheet::DIR_DYNAMIC_F) ;
 			CHKSTR( "FF" ,			MusicSheet::DIR_DYNAMIC_FF ) ;
-			CHKSTR( "FZ" ,			MusicSheet::DIR_DYNAMIC_SFZ) ;
+			CHKSTR("FFF",			MusicSheet::DIR_DYNAMIC_FFF);
+			CHKSTR( "FZ" ,			MusicSheet::DIR_DYNAMIC_FZ) ;
+			CHKSTR("FP",			MusicSheet::DIR_DYNAMIC_FP);
 			CHKSTR( "SF",			MusicSheet::DIR_DYNAMIC_SFZ);
 			CHKSTR( "SFZ" ,			MusicSheet::DIR_DYNAMIC_SFZ) ;
 			CHKSTR( "SFFZ" ,		MusicSheet::DIR_DYNAMIC_SFZ) ;

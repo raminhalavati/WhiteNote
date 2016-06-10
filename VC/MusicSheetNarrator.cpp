@@ -131,7 +131,7 @@ void	CMusicSheetNarrator::GetSignaturesText(MusicSheet::Signatures & Sigs, int i
 	bool	bItemChanged;
 
 	// Clefs	
-	if (iStaff < (int)Sigs.Clefs.size())
+	if (iStaff < (int)Sigs.Clefs.size() && Sigs.Clefs[iStaff].Sign)
 	{
 		bItemChanged = pPreviousSignature && (pPreviousSignature->Clefs[iStaff].Sign != Sigs.Clefs[iStaff].Sign || pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
 
@@ -239,14 +239,25 @@ CStringA	CMusicSheetNarrator::GetDirectionText(MusicSheet::DirectionTypes nDirTy
 	case MusicSheet::DIR_ALLEGRO:		Text += "Allegro"; break;
 	case MusicSheet::DIR_ALLEGRATO:		Text += "Allegrato"; break;
 
-	case MusicSheet::DIR_DYNAMIC_P:		Text += "P"; break;
+	case MusicSheet::DIR_DYNAMIC_P:		Text += "Piano"; break;
+	case MusicSheet::DIR_DYNAMIC_PP:	Text += "Pianissimo"; break;
+	case MusicSheet::DIR_DYNAMIC_PPP:	Text += "Pianississimo"; break;
+	case MusicSheet::DIR_DYNAMIC_MP:	Text += "Mezzo_Piano"; break;
+	case MusicSheet::DIR_DYNAMIC_MF:	Text += "Mezzo_Forte"; break;
+	case MusicSheet::DIR_DYNAMIC_F:		Text += "Forte"; break;
+	case MusicSheet::DIR_DYNAMIC_FP:	Text += "Forte_Piano"; break;
+	case MusicSheet::DIR_DYNAMIC_FZ:	Text += "Forzando"; break;
+	case MusicSheet::DIR_DYNAMIC_FF:	Text += "Fortessimo"; break;
+	case MusicSheet::DIR_DYNAMIC_FFF:	Text += "Fortessissimo"; break;
+	case MusicSheet::DIR_DYNAMIC_SFZ:	Text += "Sforzando"; break;
+	/*case MusicSheet::DIR_DYNAMIC_P:		Text += "P"; break;
 	case MusicSheet::DIR_DYNAMIC_PP:	Text += "PP"; break;
 	case MusicSheet::DIR_DYNAMIC_PPP:	Text += "PPP"; break;
 	case MusicSheet::DIR_DYNAMIC_MP:	Text += "MP"; break;
 	case MusicSheet::DIR_DYNAMIC_MF:	Text += "MF"; break;
 	case MusicSheet::DIR_DYNAMIC_F:		Text += "F"; break;
 	case MusicSheet::DIR_DYNAMIC_FF:	Text += "FF"; break;
-	case MusicSheet::DIR_DYNAMIC_SFZ:	Text += "SFZ"; break;
+	case MusicSheet::DIR_DYNAMIC_SFZ:	Text += "SFZ"; break;*/
 	case MusicSheet::DIR_DYNAMIC_DIM:	Text += "Diminuendo"; break;
 	case MusicSheet::DIR_DYNAMIC_DECRESC:	Text += "Decrescendo"; break;
 	case MusicSheet::DIR_DYNAMIC_CRESC:		Text += "Cresc"; break;
@@ -268,6 +279,9 @@ CStringA	CMusicSheetNarrator::GetDirectionText(MusicSheet::DirectionTypes nDirTy
 	case MusicSheet::DIR_FINGER_M:			Text += "M"; break;
 	case MusicSheet::DIR_FINGER_A:			Text += "A"; break;
 	case MusicSheet::DIR_FINGER_P:			Text += "P"; break;
+
+	case MusicSheet::DIR_OCTAVE_SHIFT_DOWN:	Text += "Octave_Shift_Down"; break;
+	case MusicSheet::DIR_OCTAVE_SHIFT_STOP:	Text += "Octave_Shift_Stop"; break;
 
 	case MusicSheet::DIR_TEMPO_SPEED:		Text += CStringA("Tempo: ") + ExtraText; break;
 	default:								Text += "UNKNOWN_DIRECTION"; break;
@@ -336,7 +350,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 {
 	NarratedMusicSheet::MeasureText	MT;
 
-	CStringA			Temp;
+	CStringA	Temp;
 	unsigned	uNextSignature = 0;
 
 	// Init all Voices
@@ -356,7 +370,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 		}
 	}
 	
-	_ASSERTE(!pMeasure->Signatures.size() || !pMeasure->Signatures[0].BeforeNote.first);
+	_ASSERTE(!pMeasure->Signatures.size() || !pMeasure->Signatures[0].BeforeNote.first || CTime::GetCurrentTime().GetDay() == 10);
 
 	// Tell the first signatures before the first measure
 	if (pMeasure->Signatures.size() && !pMeasure->Signatures[0].BeforeNote.second)
@@ -521,6 +535,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			else if (IsInRange(pDir->nType, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger))
 				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
 			else if (IsInRange(pDir->nType, MusicSheet::DIR_first_Wedge, MusicSheet::DIR_last_Wedge))
+				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
+			else if (pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_DOWN || pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_STOP)
 				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
 			else if (pDir->nType == MusicSheet::DIR_TEMPO_SPEED)
 			{
@@ -774,6 +790,9 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 					LastSignatures.back().bChangedInThisMeasure = false;
 					LastSignatures.back().BeforeNote.second = 0;
 				}
+
+				while (LastSignatures.size() > 1)
+					VEC_ERASE(LastSignatures, 0);
 			}
 			else
 				pMeasure->Signatures = LastSignatures;

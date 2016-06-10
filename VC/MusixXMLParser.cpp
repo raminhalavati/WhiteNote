@@ -514,6 +514,16 @@ int		CMusixXMLParser::GetDirectionType( TinyXML2::XMLElement * pNode , MusicShee
 				else if ( ! strcmp( pTypeName , "wedge" ) )
 					// Wedges
 					Dir.nType = StringToDirectionsType( pChild->Attribute( "type" ) ) ;
+				else if (!strcmp(pTypeName, "octave-shift"))
+				{
+					const char * pTypeName = pChild->Attribute("type");
+					if (!strcmp(pTypeName, "stop"))
+						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_STOP;
+					else if (!strcmp(pTypeName, "down"))
+						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_DOWN;
+					else
+						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UNKNOWN;
+				}
 			}
 		}
 

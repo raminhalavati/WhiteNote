@@ -81,26 +81,30 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("Decrescendo", L"دیکرشندو"));
 	m_Words.insert(make_pair("Diminuendo", L"دیمینو_اندو"));
 	m_Words.insert(make_pair("Legato", L"لِگاتو"));
-	m_Words.insert(make_pair("F", L"فورته"));
-	m_Words.insert(make_pair("FF", L"فورتیسیمو"));
-	m_Words.insert(make_pair("FFF", L"فورته_فورتیسیمو"));
-	m_Words.insert(make_pair("FP", L"فورته_پیانو"));
-	m_Words.insert(make_pair("FZ", L"فورزانتو"));
-	m_Words.insert(make_pair("MF", L"متزو_فورته"));
-	m_Words.insert(make_pair("MP", L"متزو_پیانو"));
-	m_Words.insert(make_pair("P", L"پیانو"));
-	m_Words.insert(make_pair("PP", L"پیانیسیمو"));
-	m_Words.insert(make_pair("PPP", L"پیانو_پیانیسیمو"));
-	m_Words.insert(make_pair("SFZ", L"اسفورزاندو"));
+	m_Words.insert(make_pair("Forte", L"فورته"));
+	m_Words.insert(make_pair("Fortessimo", L"فورتیسیمو"));
+	m_Words.insert(make_pair("Fortessissimo", L"فورته_فورتیسیمو"));
+	m_Words.insert(make_pair("Forte_Piano", L"فورته_پیانو"));
+	m_Words.insert(make_pair("Forzando", L"فورزاندو"));
+	m_Words.insert(make_pair("Mezzo_Forte", L"متزو_فورته"));
+	m_Words.insert(make_pair("Mezzo_Piano", L"متزو_پیانو"));
+	m_Words.insert(make_pair("Piano", L"پیانو"));
+	m_Words.insert(make_pair("Pianissimo", L"پیانیسیمو"));
+	m_Words.insert(make_pair("Pianississimo", L"پیانو_پیانیسیمو"));
+	m_Words.insert(make_pair("Sforzando", L"اسفورزاندو"));
 	m_Words.insert(make_pair("Stacatto", L"استکاتو"));
 
 	m_Words.insert(make_pair("Accord", L"آکورد"));
 	m_Words.insert(make_pair("Arpeggiate", L"آرپژ"));
 	m_Words.insert(make_pair("Bass", L"باس"));
 	m_Words.insert(make_pair("Begin_Repeat", L"دو_نقطه_تکرار_سمت_راست"));
+	m_Words.insert(make_pair("Change_To", L"تغییر_به"));
+	m_Words.insert(make_pair("Changes_To", L"تغییر_میکند_به"));
 	m_Words.insert(make_pair("Clarinet", L"کلارینت"));
 	m_Words.insert(make_pair("Clef_Bass", L"کلید فا"));
 	m_Words.insert(make_pair("Clef_Treble", L"کلید سُل"));
+	m_Words.insert(make_pair("Cresc.", L"کرشندو"));
+	m_Words.insert(make_pair("Staccato", L"استاکاتو"));
 	m_Words.insert(make_pair("Dynamic", L"دینامیک"));
 	m_Words.insert(make_pair("Dotted", L"نقطه_دار"));
 	m_Words.insert(make_pair("Double_Dotted", L"دو_نقطه_دار"));
@@ -111,7 +115,7 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("First_Volta_Start", L"شروع_ولت_یک"));
 	m_Words.insert(make_pair("For_Instrument", L"برای_ساز"));
 	m_Words.insert(make_pair("Key_Signature", L"علامت_سر_کلید"));
-	m_Words.insert(make_pair("Key_Signature_Changes_To", L"علامت_سر_کلید_تغییر_میکند_به"));
+	//m_Words.insert(make_pair("Key_Signature_Changes_To", L"علامت_سر_کلید_تغییر_میکند_به"));
 	m_Words.insert(make_pair("End_Bar_Line", L"دولا_خط_پایان"));
 	m_Words.insert(make_pair("End_Repeat", L"دو_نقطه_تکرار_سمت_چپ"));
 	m_Words.insert(make_pair("End_Tied_Line", L"پایان_خط_اتحاد"));
@@ -125,6 +129,8 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("Minor", L"مینور"));
 	m_Words.insert(make_pair("Note", L"نت"));
 	m_Words.insert(make_pair("Octave", L"اکتاو"));
+	m_Words.insert(make_pair("Octave_Shift_Down", L"شروع اکتاو پایین تر"));
+	m_Words.insert(make_pair("Octave_Shift_Stop", L"پایان اکتاو پایین تر"));
 	m_Words.insert(make_pair("Open_Handed", L"دست_باز"));
 	m_Words.insert(make_pair("on", L"روی"));
 	m_Words.insert(make_pair("Part", L"قطعه"));
@@ -229,7 +235,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 
 	CStringA		Prefix = "";
 	CStringA		Postfix = "";
-	CStringA		Codes = "*:[],\r\n";
+	CStringA		Codes = "*:[],\r\n\"";
 	
 	while (Statement.GetLength() && Codes.Find(Statement[0]) != -1)
 	{
@@ -247,20 +253,30 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 
 	if (m_Context.size())
 	{
-		if (m_Context.top() == "Clef")
+		bool	bFirst = true;
+		while (m_Context.size())
 		{
-			m_Context.pop();
-			if (Tokens.size())
+			if (bFirst)
 			{
-				Outs.push_back(T_("Clef_" + Tokens[0]));
-				Tokens.erase(Tokens.begin());
-			}			
+				Tokens[0] = m_Context.top() + Tokens[0];
+				bFirst = false;
+			}
+			else
+				Tokens.insert(Tokens.begin(), m_Context.top());
+			m_Context.pop();			
 		}
 	}
-
+	
 	if (EQ(1) && Tokens[0] == "Clef")
 	{
-		m_Context.push(Tokens[0]);
+		m_Context.push("Clef_");
+		Postfix = L"";
+	}
+	else if (EQ(3) && Tokens[0] == "Clef" && Tokens[1] == "Changes" && Tokens[2] == "To")
+	{
+		m_Context.push("Change");
+		m_Context.push("To");
+		m_Context.push("Clef_");
 		Postfix = L"";
 	}
 	else if (H_(Statement))
@@ -327,6 +343,3 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 	Output = CString(CA2W(Prefix)) + Output.Left(Output.GetLength() - 1) + CString(CA2W(Postfix));
 	return Output;
 }
-
-
-
