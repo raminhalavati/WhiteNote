@@ -130,7 +130,8 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("Note", L"نت"));
 	m_Words.insert(make_pair("Octave", L"اکتاو"));
 	m_Words.insert(make_pair("Octave_Shift_Down", L"شروع اکتاو پایین تر"));
-	m_Words.insert(make_pair("Octave_Shift_Stop", L"پایان اکتاو پایین تر"));
+	m_Words.insert(make_pair("Octave_Shift_Up", L"شروع اکتاو بالا تر"));
+	m_Words.insert(make_pair("Octave_Shift_Stop", L"پایان تغییر اکتاو "));
 	m_Words.insert(make_pair("Open_Handed", L"دست_باز"));
 	m_Words.insert(make_pair("on", L"روی"));
 	m_Words.insert(make_pair("Part", L"قطعه"));

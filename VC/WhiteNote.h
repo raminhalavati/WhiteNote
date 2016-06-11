@@ -20,6 +20,8 @@ public:
 	CWhiteNoteApp();
 
 	CString	m_Path;
+	CString	m_FileVersion;
+	bool	m_bNewVersionExists;
 // Overrides
 public:
 	virtual BOOL InitInstance();
@@ -29,6 +31,8 @@ public:
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnHelpHelp();
+	// Checks for update.
+	bool UpdateCheck();
 };
 
 extern CWhiteNoteApp theApp;

@@ -281,6 +281,7 @@ CStringA	CMusicSheetNarrator::GetDirectionText(MusicSheet::DirectionTypes nDirTy
 	case MusicSheet::DIR_FINGER_P:			Text += "P"; break;
 
 	case MusicSheet::DIR_OCTAVE_SHIFT_DOWN:	Text += "Octave_Shift_Down"; break;
+	case MusicSheet::DIR_OCTAVE_SHIFT_UP:	Text += "Octave_Shift_Up"; break;
 	case MusicSheet::DIR_OCTAVE_SHIFT_STOP:	Text += "Octave_Shift_Stop"; break;
 
 	case MusicSheet::DIR_TEMPO_SPEED:		Text += CStringA("Tempo: ") + ExtraText; break;
@@ -370,8 +371,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 		}
 	}
 	
-	_ASSERTE(!pMeasure->Signatures.size() || !pMeasure->Signatures[0].BeforeNote.first || CTime::GetCurrentTime().GetDay() == 10);
-
 	// Tell the first signatures before the first measure
 	if (pMeasure->Signatures.size() && !pMeasure->Signatures[0].BeforeNote.second)
 	{
@@ -536,7 +535,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
 			else if (IsInRange(pDir->nType, MusicSheet::DIR_first_Wedge, MusicSheet::DIR_last_Wedge))
 				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
-			else if (pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_DOWN || pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_STOP)
+			else if (pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_UP || pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_DOWN || pDir->nType == MusicSheet::DIR_OCTAVE_SHIFT_STOP)
 				Directions.push_back(InlineDirection(pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType));
 			else if (pDir->nType == MusicSheet::DIR_TEMPO_SPEED)
 			{

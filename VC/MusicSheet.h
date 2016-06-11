@@ -95,6 +95,7 @@ typedef struct _MusicSheet
 		DIR_FINGER_P,
 		DIR_last_guitar_Finger,
 
+		DIR_OCTAVE_SHIFT_UP,
 		DIR_OCTAVE_SHIFT_DOWN,
 		DIR_OCTAVE_SHIFT_STOP,
 		DIR_OCTAVE_SHIFT_UNKNOWN,

@@ -19,6 +19,7 @@
 #define IDC_NARRATION_LABEL             1042
 #define IDC_LABEL_2                     1043
 #define IDC_LABEL_6                     1047
+#define IDC_TITLE                       1048
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -73,7 +74,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
 #define _APS_NEXT_COMMAND_VALUE         32850
-#define _APS_NEXT_CONTROL_VALUE         1048
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

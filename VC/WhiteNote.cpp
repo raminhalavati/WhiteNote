@@ -10,6 +10,9 @@
 
 #include "WhiteNoteDoc.h"
 #include "WhiteNoteView.h"
+#include <afxinet.h>
+#include "afxwin.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -46,6 +49,26 @@ CWhiteNoteApp::CWhiteNoteApp()
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+	m_bNewVersionExists = false;
+	m_FileVersion = L"2.0";
+
+	try
+	{
+		HRSRC res = ::FindResource(NULL, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
+		DWORD size = ::SizeofResource(NULL, res);
+		HGLOBAL mem = ::LoadResource(NULL, res);
+		LPVOID raw_data = ::LockResource(mem);
+		for (unsigned i = 0; i < size / 2 - 20; i++)
+			if (!memcmp((TCHAR*)raw_data + i, L"FileVersion", strlen("FileVersion") * 2))
+			{
+				m_FileVersion = (TCHAR*)raw_data + i + 13;
+				break;
+			}
+		::FreeResource(mem);
+	}
+	catch (...)
+	{
+	}
 }
 
 // The one and only CWhiteNoteApp object
@@ -115,6 +138,11 @@ BOOL CWhiteNoteApp::InitInstance()
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
+	UpdateCheck();
+	// Truncate File Version
+	while (m_FileVersion.GetLength() > 2 && m_FileVersion.Right(2) == L".0")
+		m_FileVersion = m_FileVersion.Left(m_FileVersion.GetLength() - 2);
+
 	// Enable DDE Execute open
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
@@ -169,6 +197,9 @@ protected:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	CStatic m_Title;
+	virtual BOOL OnInitDialog();
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -178,10 +209,23 @@ CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_TITLE, m_Title);
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
+
+BOOL CAboutDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	CString	Title;
+	Title.Format(L"WhiteNote None Visual Access for Music Sheets, Version %s", theApp.m_FileVersion);
+	m_Title.SetWindowText(Title);
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+}
+
 
 // App command to run the dialog
 void CWhiteNoteApp::OnAppAbout()
@@ -205,3 +249,101 @@ SHELLEXECUTEINFOW	SHI;
 	
 	ShellExecuteExW(&SHI);
 }
+
+vector<int>	ParseVersion(CStringA Version)
+{
+	vector<int>	Result;
+	int		iCurPos = 0;
+	CStringA	Token = Version.Tokenize(".", iCurPos);
+	while (Token != L"")
+	{
+		Result.push_back(atoi(Token));
+		Token = Version.Tokenize(".", iCurPos);
+	}
+	return Result;
+}
+
+// Checks for update.
+bool CWhiteNoteApp::UpdateCheck()
+{
+	unsigned	uCheckDate;
+	// Check if check is needed.
+	{
+		CString	LastFile = GetProfileString(L"VersionCheck", L"LastSelfVersion");
+		// If the file is not changed, and we have previously found a newer version, just say it.
+		if (LastFile == m_FileVersion)
+		{
+			if (GetProfileInt(L"VersionCheck", L"NewerExists", 0))
+			{
+				m_bNewVersionExists = true;
+				return true;
+			}
+		}
+		else // If the file is changed, reset flags and check agagin.
+		{
+			WriteProfileInt(L"VersionCheck", L"NewerExists", 0);
+			WriteProfileInt(L"VersionCheck", L"LastCheck", 0);
+		}
+		
+		// Recently Checked?
+		{
+			CTime	Time = CTime::GetCurrentTime();
+			uCheckDate = (Time.GetYear() % 100) * 10000 + Time.GetMonth() * 100 + Time.GetDay();
+
+			if (uCheckDate < GetProfileInt(L"VersionCheck", L"LastCheck", 0) + 7)
+				return true;
+		}
+	}
+
+	// Get Version from Internet.
+	CStringA	WebsiteVersion;
+	try
+	{
+		CInternetSession	IS;
+		CStdioFile *	pFile = IS.OpenURL(L"http://white-note.com/version.htm", 1, INTERNET_FLAG_TRANSFER_BINARY);
+
+		if (pFile)
+		{
+			byte *	pBuffer = new byte[100];
+			int		iSize = pFile->Read(pBuffer, 99);
+			pBuffer[iSize] = 0;
+			WebsiteVersion = pBuffer;
+
+			delete pBuffer;
+			pFile->Close();
+			delete pFile;
+		}
+
+		if (WebsiteVersion.GetLength() < (int)strlen("WhiteNoteVersion: "))
+			return false;
+		else
+			WebsiteVersion = WebsiteVersion.Right(WebsiteVersion.GetLength() - strlen("WhiteNoteVersion: "));
+	}
+	catch (...)
+	{
+		return false;
+	}
+	
+	// Compare
+	{
+		vector<int>	Web = ParseVersion(WebsiteVersion);
+		vector<int> File = ParseVersion(CStringA(CW2A(m_FileVersion)));
+
+		for (unsigned i = 0; i < min(Web.size(), File.size()); i++)
+			if (Web[i] > File[i])
+			{
+				WriteProfileInt(L"VersionCheck", L"NewerExists", 1);
+				m_bNewVersionExists = true;
+				AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+			}
+			else
+				if (Web[i] < File[i])
+					break;
+	}
+
+	WriteProfileInt(L"VersionCheck", L"LastCheck", uCheckDate);
+	WriteProfileString(L"VersionCheck", L"LastSelfVersion", m_FileVersion);
+
+	return true;
+}
+

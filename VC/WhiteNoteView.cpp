@@ -114,7 +114,11 @@ void CWhiteNoteView::OnInitialUpdate()
 	if (!m_pNarration->Parts.size())
 	{
 		m_pNarration = NULL;
-		m_Summary.SetWindowText(L"WhiteNote 2.0.12 (None Visual Access to Music Sheets).\nOpen an XML or MXL music file to proceed.");
+		CString	Text, Version = theApp.m_FileVersion;
+		if (theApp.m_bNewVersionExists)
+			Version += L".\r\n\tNewer version exists in www.white-note.com.";
+		Text.Format(L"WhiteNote None Visual Access to Music Sheets, Version %s.\r\nOpen an XML or MXL music file to proceed.", Version);
+		m_Summary.SetWindowText(Text);
 #ifdef _DEBUG
 		m_Summary.SetWindowText(L"TODO: String Table.");
 #endif

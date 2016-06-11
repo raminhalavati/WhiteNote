@@ -287,32 +287,35 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 
 							int		iStaff = GetDirectionType( pCurNode , Dir ) ;
 
-							// If not told by direction type, give it to last staff
-							if (iStaff == -1)
+							if (iStaff != LONG_MIN)
 							{
-								iStaff = 0;
-								for each (pair<pair<int, int>, int> SV in SV2V)
-									iStaff = max(iStaff, SV.first.first);
-							}
+								// If not told by direction type, give it to last staff
+								if (iStaff == -1)
+								{
+									iStaff = 0;
+									for each (pair<pair<int, int>, int> SV in SV2V)
+										iStaff = max(iStaff, SV.first.first);
+								}
 
-							if ( Dir.nType != MusicSheet::DIR_UNKNWON || Dir.Text.GetLength() )
-							{
-								Dir.iStaff = iStaff ;
-								Dir.BeforeNote = LastNote;
-								// Check Staff, if it is not a new one and it is different with last staff, find original and keep it.
-								if (LastNote.first < (int)pCurMeasure->Voices.size())
-									if (pCurMeasure->Voices[LastNote.first].iStaff != iStaff)
-									{
-										for ALL(pCurMeasure->Voices, pVoice)
-											if (pVoice->iStaff == iStaff)
-											{
-												Dir.BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
-												Dir.BeforeNote.second = (int)pVoice->Notes.size();
-												break;
-											}
-									}
-									
-								pCurMeasure->Directions.push_back( Dir ) ;							
+								if (Dir.nType != MusicSheet::DIR_UNKNWON || Dir.Text.GetLength())
+								{
+									Dir.iStaff = iStaff;
+									Dir.BeforeNote = LastNote;
+									// Check Staff, if it is not a new one and it is different with last staff, find original and keep it.
+									if (LastNote.first < (int)pCurMeasure->Voices.size())
+										if (pCurMeasure->Voices[LastNote.first].iStaff != iStaff)
+										{
+											for ALL(pCurMeasure->Voices, pVoice)
+												if (pVoice->iStaff == iStaff)
+												{
+													Dir.BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
+													Dir.BeforeNote.second = (int)pVoice->Notes.size();
+													break;
+												}
+										}
+
+									pCurMeasure->Directions.push_back(Dir);
+								}
 							}
 						}
 						else if ( pName && ! strcmp( pName , "note" ) ) // Note
@@ -521,8 +524,11 @@ int		CMusixXMLParser::GetDirectionType( TinyXML2::XMLElement * pNode , MusicShee
 						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_STOP;
 					else if (!strcmp(pTypeName, "down"))
 						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_DOWN;
+					else if (!strcmp(pTypeName, "up"))
+						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UP;
 					else
 						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UNKNOWN;
+					iStaff = LONG_MIN;
 				}
 			}
 		}
