@@ -9,6 +9,7 @@
 #include "MyEdit.h"
 #include "WhiteNoteDoc.h"
 #include "Translator.h"
+#include "LilyPondWrapper.h"
 
 class CWhiteNoteView : public CFormView
 {
@@ -24,6 +25,7 @@ public:
 	CWhiteNoteDoc* GetDocument() const;
 	NarratedMusicSheet *	m_pNarration;
 	CTranslator				m_Translator;
+	CLilyPondWrapper		m_Lily;
 
 	struct _Defaults
 	{
@@ -33,6 +35,8 @@ public:
 		bool	bBeep;
 		bool	bShowAllSignatureText;
 		CString	LilyPondPath;
+		bool	bAutoRefreshImages;
+		bool	bAutoDeleteCache;
 	} m_Defaults;
 
 	struct _Playing
@@ -102,7 +106,10 @@ public:
 	afx_msg void OnLilypondAutomaticrefresh();
 	afx_msg void OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI);
 	afx_msg void OnLilypondShowimage();
-	afx_msg void OnLilypondDdeletecache();
+	afx_msg void OnDeletecacheCurrentsheet();
+	afx_msg void OnDeletecacheAllsheets();
+	afx_msg void OnDeletecacheAutodeleteonexit();
+	afx_msg void OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI);
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -129,6 +136,8 @@ public:
 	void UpdateImage();
 	// Creates measure image.
 	void CreateImage();
+	// Initializes LilyPond Wrapper
+	void InitializeLilyPond();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

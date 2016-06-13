@@ -63,6 +63,9 @@
     <ClInclude Include="Translator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LilyPondWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WhiteNote.cpp">
@@ -101,6 +104,9 @@
     <ClCompile Include="Translator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LilyPondWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WhiteNote.reg" />
@@ -108,6 +114,7 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Help\Help.htm" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WhiteNote.rc">

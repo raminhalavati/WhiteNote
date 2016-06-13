@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CWhiteNoteApp, CWinApp)
 	ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 	ON_COMMAND(ID_HELP_HELP, &CWhiteNoteApp::OnHelpHelp)
+	ON_COMMAND(ID_HELP_CHECKFORUPDATE, &CWhiteNoteApp::OnHelpCheckforupdate)
 END_MESSAGE_MAP()
 
 
@@ -240,7 +241,7 @@ void CWhiteNoteApp::OnHelpHelp()
 {
 	CString	Path = m_Path + L"\\Help\\help.htm";
 	
-SHELLEXECUTEINFOW	SHI;
+	SHELLEXECUTEINFOW	SHI;
 	
 	memset(&SHI, 0, sizeof(SHI));
 	SHI.cbSize = sizeof(SHI);
@@ -264,7 +265,7 @@ vector<int>	ParseVersion(CStringA Version)
 }
 
 // Checks for update.
-bool CWhiteNoteApp::UpdateCheck()
+bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 {
 	unsigned	uCheckDate;
 	// Check if check is needed.
@@ -347,3 +348,15 @@ bool CWhiteNoteApp::UpdateCheck()
 	return true;
 }
 
+
+
+void CWhiteNoteApp::OnHelpCheckforupdate()
+{
+	if (!UpdateCheck(true))
+		AfxMessageBox(L"Could not check for update.\r\nPlease check your internet connection or refer to www.white-note.com", MB_ICONERROR);
+	else
+		if (m_bNewVersionExists)
+			AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+		else
+			AfxMessageBox(L"Your application is the latest avaiable version.\r\nAutomatic check will be done next week.");	
+}

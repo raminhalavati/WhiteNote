@@ -23,6 +23,9 @@ public:
 			CHKSTR( "EIGHTH" ,	MusicSheet::TYPE_EIGHTH ) ;		// چنگ
 			CHKSTR( "16TH" ,	MusicSheet::TYPE_SIXTEENTH ) ;	// 
 			CHKSTR( "32ND" ,	MusicSheet::TYPE_32ND ) ;	// 
+			CHKSTR( "64TH",		MusicSheet::TYPE_64TH);	// 
+			CHKSTR( "128TH",	MusicSheet::TYPE_128TH);	// 
+			CHKSTR( "256TH",	MusicSheet::TYPE_256TH);	// 
 
 		}
 		else
@@ -100,6 +103,6 @@ public:
 	bool	ParsXML(CString FileName , MusicSheet & Sheet );
 
 	// Returns the direction type of a node and the staffs the will receive it.
-	int		CMusixXMLParser::GetDirectionType(TinyXML2::XMLElement * pNode , MusicSheet::Direction & Dir ) ;
+	int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode , vector<MusicSheet::Direction> & Directions ) ;
 };
 

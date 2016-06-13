@@ -31,8 +31,9 @@ public:
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnHelpHelp();
+	afx_msg void OnHelpCheckforupdate();
 	// Checks for update.
-	bool UpdateCheck();
+	bool UpdateCheck(bool bForceCheck=false);	
 };
 
 extern CWhiteNoteApp theApp;

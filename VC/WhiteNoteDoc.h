@@ -16,6 +16,7 @@ protected: // create from serialization only
 // Attributes
 public:
 	CString				m_FileName;
+	MusicSheet			m_MusicSheet;
 	NarratedMusicSheet	m_Narration;
 
 // Operations

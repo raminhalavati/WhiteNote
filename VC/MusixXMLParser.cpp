@@ -89,6 +89,7 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 {
 	try
 	{
+		Sheet.Reset();
 		TinyXML2::XMLDocument	Doc ;
 
 		if ( Doc.LoadFile( CW2A( FileName ) ) )
@@ -270,7 +271,7 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 								while (iClef >= (int)Sigs.Clefs.size())
 									Sigs.Clefs.push_back(MusicSheet::Signatures::Clef());
 								
-								Sigs.Clefs[iClef].Sign = _safe_first_upper(GetXMLNestedText(pClef, "sign"));
+								Sigs.Clefs[iClef].Sign = GetXMLNestedText(pClef, "sign");
 								Sigs.Clefs[iClef].iLine = _safe_atoi(GetXMLNestedText(pClef, "line"));
 
 								bValid = true ;
@@ -283,11 +284,10 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 						}
 						else if ( pName && ! strcmp( pName , "direction" ) ) // Directions
 						{	
-							MusicSheet::Direction	Dir ;
+							vector<MusicSheet::Direction>	Dirs ;
+							int		iStaff = GetDirectionTypes(pCurNode, Dirs);
 
-							int		iStaff = GetDirectionType( pCurNode , Dir ) ;
-
-							if (iStaff != LONG_MIN)
+							for ALL(Dirs, pDir)
 							{
 								// If not told by direction type, give it to last staff
 								if (iStaff == -1)
@@ -297,10 +297,10 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 										iStaff = max(iStaff, SV.first.first);
 								}
 
-								if (Dir.nType != MusicSheet::DIR_UNKNWON || Dir.Text.GetLength())
+								if (pDir->nType != MusicSheet::DIR_UNKNWON || pDir->Text.GetLength())
 								{
-									Dir.iStaff = iStaff;
-									Dir.BeforeNote = LastNote;
+									pDir->iStaff = iStaff;
+									pDir->BeforeNote = LastNote;
 									// Check Staff, if it is not a new one and it is different with last staff, find original and keep it.
 									if (LastNote.first < (int)pCurMeasure->Voices.size())
 										if (pCurMeasure->Voices[LastNote.first].iStaff != iStaff)
@@ -308,13 +308,13 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 											for ALL(pCurMeasure->Voices, pVoice)
 												if (pVoice->iStaff == iStaff)
 												{
-													Dir.BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
-													Dir.BeforeNote.second = (int)pVoice->Notes.size();
+													pDir->BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
+													pDir->BeforeNote.second = (int)pVoice->Notes.size();
 													break;
 												}
 										}
 
-									pCurMeasure->Directions.push_back(Dir);
+									pCurMeasure->Directions.push_back(*pDir);
 								}
 							}
 						}
@@ -469,101 +469,110 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 }
 
 // Returns the direction type of a node and the staffs the will receive it.
-int		CMusixXMLParser::GetDirectionType( TinyXML2::XMLElement * pNode , MusicSheet::Direction & Dir )
+int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<MusicSheet::Direction> & Directions)
 {
-	int		iStaff ;
+	int		iStaff = -1;
+	bool	bPlacementAbove = false;
+		
 
-	// Staff
+	// Placement
 	{
-		iStaff = _safe_atoi( GetXMLNestedText( pNode , "staff" ) ) ;
+		const char * pchPlacement = pNode->Attribute("placement");
 
-		if ( iStaff != -1 )
-			iStaff-- ;
+		if (pchPlacement)
+			if (!strcmp(pchPlacement, "above"))
+				bPlacementAbove = true;
+			else if (!strcmp(pchPlacement, "below"))
+				bPlacementAbove = false;
 	}
 
-	// Code
+	// Iterate all directions
+	for (XMLElem * pCurNode = pNode->FirstChildElement(); pCurNode; pCurNode = pCurNode->NextSiblingElement())
 	{
-		Dir.nType = MusicSheet::DIR_UNKNWON ;
-		Dir.Text = "" ;
+		MusicSheet::Direction Dir;
+		Dir.nType = MusicSheet::DIR_UNKNWON;
+		Dir.Text = pCurNode->Value();
 
-		// Has words?
+		// Staff
+		if (Dir.Text == "staff")
 		{
-			const char * pchWords = GetXMLNestedText( pNode , "direction-type" , "words" ) ;
+			iStaff = _safe_atoi(pCurNode->GetText());
 
-			if ( ! pchWords && GetXMLNestedText( pNode , "direction-type" , "other-direction" ) )
-				pchWords = GetXMLNestedElement( pNode , "direction-type" , "other-direction" )->GetText() ;
-
-			if ( pchWords && pchWords[ 0 ] )
-				Dir.nType = StringToDirectionsType( pchWords ) ;
-
-			Dir.Text = pchWords ;
+			if (iStaff != -1)
+				iStaff--;
+			continue;
 		}
-
-		if ( Dir.nType == MusicSheet::DIR_UNKNWON )
+		else if (Dir.Text == "direction-type")
 		{
-			XMLElem * pType = GetXMLNestedElement( pNode , "direction-type" ) ;
-			XMLElem * pChild = pType ? pType->FirstChildElement() : NULL ;
-
-			if ( pType &&  pChild )
+			// Has words?
 			{
-				const char * pTypeName = pChild->Name() ;
+				const char * pchWords = GetXMLNestedText(pCurNode, "words");
 
-				// Dynamics
-				if ( ! strcmp( pTypeName , "dynamics" ) )
-				{
-					if ( pChild->FirstChildElement() )
-						Dir.nType = StringToDirectionsType( pChild->FirstChildElement()->Name() ) ;
-				}
-				else if ( ! strcmp( pTypeName , "wedge" ) )
-					// Wedges
-					Dir.nType = StringToDirectionsType( pChild->Attribute( "type" ) ) ;
-				else if (!strcmp(pTypeName, "octave-shift"))
-				{
-					const char * pTypeName = pChild->Attribute("type");
-					if (!strcmp(pTypeName, "stop"))
-						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_STOP;
-					else if (!strcmp(pTypeName, "down"))
-						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_DOWN;
-					else if (!strcmp(pTypeName, "up"))
-						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UP;
-					else
-						Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UNKNOWN;
-					iStaff = LONG_MIN;
-				}
+				if (!pchWords && GetXMLNestedText(pCurNode, "direction-type", "other-direction"))
+					pchWords = GetXMLNestedElement(pCurNode, "direction-type", "other-direction")->GetText();
+
+				if (pchWords && pchWords[0])
+					Dir.nType = StringToDirectionsType(pchWords);
+
+				Dir.Text = pchWords;
 			}
-		}
-
-		if (Dir.nType == MusicSheet::DIR_UNKNWON)
-		{
-			// Tempo?
+			// Metronome?
+			if (Dir.nType == MusicSheet::DIR_UNKNWON && GetXMLNestedElement(pCurNode, "metronome"))
 			{
-				XMLElem * pChild = GetXMLNestedElement(pNode, "sound");
+				Dir.nType = MusicSheet::DIR_METRONOME;
+				Dir.Text.Format("%s|%s",
+					GetXMLNestedText(pCurNode, "metronome", "beat-unit"),
+					GetXMLNestedText(pCurNode, "metronome", "per-minute"));
+			}
+			if (Dir.nType == MusicSheet::DIR_UNKNWON)
+			{
+				XMLElem * pChild = pCurNode->FirstChildElement();
+
 				if (pChild)
 				{
-					CStringA Temp = pChild->Attribute("tempo");
+					const char * pTypeName = pChild->Name();
 
-					if (Temp != "")
+					// Dynamics
+					if (!strcmp(pTypeName, "dynamics"))
 					{
-						Dir.nType = MusicSheet::DIR_TEMPO_SPEED;
-						Dir.Text = Temp;
+						if (pChild->FirstChildElement())
+							Dir.nType = StringToDirectionsType(pChild->FirstChildElement()->Name());
+					}
+					else if (!strcmp(pTypeName, "wedge"))
+						// Wedges
+						Dir.nType = StringToDirectionsType(pChild->Attribute("type"));
+					else if (!strcmp(pTypeName, "octave-shift"))
+					{
+						const char * pTypeName = pChild->Attribute("type");
+						if (!strcmp(pTypeName, "stop"))
+							Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_STOP;
+						else if (!strcmp(pTypeName, "down"))
+							Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_DOWN;
+						else if (!strcmp(pTypeName, "up"))
+							Dir.nType = MusicSheet::DIR_OCTAVE_SHIFT_UP;
+						else
+						{
+							_RPTF1(_CRT_ERROR, "Unexpected direction type: %s", Dir.Text);
+							continue;
+						}
 					}
 				}
 			}
 		}
-	}
+		else if (Dir.Text == "sound")
+		{
+			Dir.nType = MusicSheet::DIR_SOUND;
+			pCurNode->Attribute("tempo");
 
-	// Placement
-	{
-		const char * pchPlacement = pNode->Attribute( "placement" ) ;
+			Dir.Text.Format("%s|%s", pCurNode->Attribute("tempo"), pCurNode->Attribute("dynamics"));
+		}
+		else
+		{
+			_RPTF1(_CRT_ERROR, "Unexpected direction type: %s", Dir.Text);
+			continue;
+		}
 
-		Dir.bAbove = false ;
-
-		if ( pchPlacement )
-			if ( ! strcmp( pchPlacement , "above" ) )
-				Dir.bAbove = true ;
-			else
-				if ( ! strcmp( pchPlacement , "below" ) )
-					Dir.bAbove = false ;
+		Directions.push_back(Dir);
 	}
 
 	return iStaff ;

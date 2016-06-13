@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="LilyPondWrapper.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MusicSheet.h" />
     <ClInclude Include="MusicSheetNarrator.h" />
@@ -127,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="LilyPondWrapper.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MusicSheetNarrator.cpp" />
     <ClCompile Include="MusixXMLParser.cpp" />
@@ -143,6 +145,7 @@
     <ClCompile Include="WhiteNoteView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="Help\Help.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>

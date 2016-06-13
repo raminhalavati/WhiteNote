@@ -5,7 +5,9 @@ using namespace std;
 
 typedef struct _MusicSheet
 {
-	typedef enum { TYPE_WHOLE, TYPE_HALF, TYPE_QUARTER, TYPE_EIGHTH, TYPE_SIXTEENTH, TYPE_32ND, TYPE_UNTOLD, TYPE_UNKNOWN }	NoteTypes;
+	typedef enum { TYPE_WHOLE, TYPE_HALF, TYPE_QUARTER, TYPE_EIGHTH, TYPE_SIXTEENTH, 
+		TYPE_32ND, TYPE_64TH, TYPE_128TH, TYPE_256TH, TYPE_UNTOLD, TYPE_UNKNOWN
+	}	NoteTypes;
 
 	typedef enum {
 		NE_CHORD,
@@ -98,9 +100,9 @@ typedef struct _MusicSheet
 		DIR_OCTAVE_SHIFT_UP,
 		DIR_OCTAVE_SHIFT_DOWN,
 		DIR_OCTAVE_SHIFT_STOP,
-		DIR_OCTAVE_SHIFT_UNKNOWN,
 
-		DIR_TEMPO_SPEED,
+		DIR_METRONOME,
+		DIR_SOUND,
 		DIR_UNKNWON
 	} DirectionTypes;
 
@@ -148,8 +150,8 @@ typedef struct _MusicSheet
 
 		struct Clef
 		{
-			char	Sign;
-			int		iLine;
+			CStringA	Sign;
+			int			iLine;
 		};
 		vector<Clef>	Clefs;
 
@@ -200,12 +202,13 @@ typedef struct _NarratedMusicSheet
 		vector<CStringA>	Text;
 		int					iStaff;
 		int					iVoice;
+		CStringA			Lily; // Text for LilyPond
 	};
 
 	struct MeasureText
 	{
 		vector<Voice>	Voices;	// Strings
-	} ;
+	}	;
 
 	struct PartText
 	{

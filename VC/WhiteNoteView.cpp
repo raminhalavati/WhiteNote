@@ -19,6 +19,7 @@
 
 #define RETURN_IF_NOT_LOADED if (!m_pNarration || ! m_pNarration->Parts.size()) return
 
+#define LILYPOND_ACTIVE
 // CWhiteNoteView
 
 IMPLEMENT_DYNCREATE(CWhiteNoteView, CFormView)
@@ -59,7 +60,10 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_LILYPOND_AUTOMATICREFRESH, &CWhiteNoteView::OnLilypondAutomaticrefresh)
 	ON_UPDATE_COMMAND_UI(ID_LILYPOND_AUTOMATICREFRESH, &CWhiteNoteView::OnUpdateLilypondAutomaticrefresh)
 	ON_COMMAND(ID_LILYPOND_SHOWIMAGE, &CWhiteNoteView::OnLilypondShowimage)
-	ON_COMMAND(ID_LILYPOND_DDELETECACHE, &CWhiteNoteView::OnLilypondDdeletecache)
+	ON_COMMAND(ID_DELETECACHE_CURRENTSHEET, &CWhiteNoteView::OnDeletecacheCurrentsheet)
+	ON_COMMAND(ID_DELETECACHE_ALLSHEETS, &CWhiteNoteView::OnDeletecacheAllsheets)
+	ON_COMMAND(ID_DELETECACHE_AUTODELETEONEXIT, &CWhiteNoteView::OnDeletecacheAutodeleteonexit)
+	ON_UPDATE_COMMAND_UI(ID_DELETECACHE_AUTODELETEONEXIT, &CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -74,6 +78,8 @@ CWhiteNoteView::CWhiteNoteView()
 
 CWhiteNoteView::~CWhiteNoteView()
 {
+	if (m_Defaults.bAutoDeleteCache)
+		m_Lily.DeleteCache(true);
 }
 
 void CWhiteNoteView::DoDataExchange(CDataExchange* pDX)
@@ -116,7 +122,7 @@ void CWhiteNoteView::OnInitialUpdate()
 		m_pNarration = NULL;
 		CString	Text, Version = theApp.m_FileVersion;
 		if (theApp.m_bNewVersionExists)
-			Version += L".\r\n\tNewer version exists in www.white-note.com.";
+			Version += L"\r\n\tNewer version exists in www.white-note.com";
 		Text.Format(L"WhiteNote None Visual Access to Music Sheets, Version %s.\r\nOpen an XML or MXL music file to proceed.", Version);
 		m_Summary.SetWindowText(Text);
 #ifdef _DEBUG
@@ -125,6 +131,9 @@ void CWhiteNoteView::OnInitialUpdate()
 	}
 	else
 	{
+#ifdef LILYPOND_ACTIVE
+		InitializeLilyPond();
+#endif
 		// Set Description
 		CString	Summary, Temp;
 		
@@ -173,9 +182,18 @@ void CWhiteNoteView::OnInitialUpdate()
 		
 		m_pNarrationTB->EnableWindow();
 		m_NarrationLabel.EnableWindow();
-		m_Summary.SetFocus();
-		CreateImage();
+		m_Summary.SetFocus();		
 	}	
+}
+
+// Initializes LilyPond Wrapper
+void CWhiteNoteView::InitializeLilyPond()
+{
+	m_Lily.Initialize(
+		m_Defaults.LilyPondPath,
+		m_pNarration,
+		GetDocument()->GetPathName(),
+		m_Defaults.bAutoRefreshImages);
 }
 
 
@@ -237,6 +255,8 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bBeep = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
 		m_Defaults.bShowAllSignatureText = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
 		m_Defaults.LilyPondPath = theApp.GetProfileString(L"Defaults", L"LilyPondPath", L"");
+		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
+		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
@@ -263,6 +283,8 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileInt(L"Defaults", L"Beep", m_Defaults.bBeep);
 		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Defaults.bShowAllSignatureText);
 		theApp.WriteProfileString(L"Defaults", L"LilyPondPath", m_Defaults.LilyPondPath);
+		theApp.WriteProfileInt(L"Defaults", L"AutoRefreshImages", m_Defaults.bAutoRefreshImages);
+		theApp.WriteProfileInt(L"Defaults", L"AutoDeleteCache", m_Defaults.bAutoDeleteCache);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -374,6 +396,8 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 	{
 		m_pNarrationTB->SetWindowText(L"Error");
 	}
+
+	UpdateImage();
 }
 
 void CWhiteNoteView::OnNavigatePreviousvoice()
@@ -847,12 +871,77 @@ void CWhiteNoteView::CreateImage()
 	if (!m_MeasureImage.IsNull())
 		m_MeasureImage.Destroy();
 	m_MeasureImage.Create(Rect.Width(), Rect.Height(), 32);
+	HDC hDC = m_MeasureImage.GetDC();
+	FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
+	m_MeasureImage.ReleaseDC();
 	UpdateImage();
 }
+
+void CWhiteNoteView::OnLilypondChangepath()
+{
+	CFileDialog	FDlg(true, L"exe", m_Defaults.LilyPondPath.GetLength() ? m_Defaults.LilyPondPath : L"LilyPond.exe", 6, L"Executable Files (*.exe)||");
+	if (FDlg.DoModal() == IDOK)
+		m_Defaults.LilyPondPath = FDlg.GetPathName();
+	else
+		return;
+
+	AfxMessageBox(L"LilyPond Path Saved.");
+	SerializeDefaults(false);
+	if (m_pNarration && m_pNarration->Parts.size())
+		InitializeLilyPond();
+}
+
+
+void CWhiteNoteView::OnLilypondAutomaticrefresh()
+{
+	m_Defaults.bAutoRefreshImages = !m_Defaults.bAutoRefreshImages;
+	SerializeDefaults(false);
+}
+
+
+void CWhiteNoteView::OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bAutoRefreshImages);
+}
+
+
+void CWhiteNoteView::OnDeletecacheCurrentsheet()
+{
+	m_Lily.DeleteCache(false);
+}
+
+
+void CWhiteNoteView::OnDeletecacheAllsheets()
+{
+	m_Lily.DeleteCache(true);
+}
+
+
+void CWhiteNoteView::OnDeletecacheAutodeleteonexit()
+{
+	m_Defaults.bAutoDeleteCache = !m_Defaults.bAutoDeleteCache;
+	SerializeDefaults(false);
+}
+
+void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bAutoDeleteCache);
+}
+
+
+void CWhiteNoteView::OnLilypondShowimage()
+{
+	// TODO: Add your command handler code here
+}
+
 
 // Updates measure image.
 void CWhiteNoteView::UpdateImage()
 {
+	if (m_MeasureImage.IsNull())
+		CreateImage();
+
+#ifdef LILYPOND_ACTIVE
 	HDC hDC = m_MeasureImage.GetDC();
 	FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
 	if (!m_Defaults.LilyPondPath.GetLength())
@@ -863,45 +952,5 @@ void CWhiteNoteView::UpdateImage()
 	}
 	m_MeasureImage.ReleaseDC();
 	m_Image.UpdateWindow();
-
-	// lilypond -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png myfile.ly
-}
-
-
-void CWhiteNoteView::OnLilypondChangepath()
-{
-	AfxMessageBox(L"Please select LilyPond's executable file (LilyPond.exe)", MB_OK);
-
-	CFileDialog	FDlg(true, L"exe", m_Defaults.LilyPondPath.GetLength() ? m_Defaults.LilyPondPath : L"LilyPond.exe", 6, L"Executable Files (*.exe)||");
-	if (FDlg.DoModal() == IDOK)
-		m_Defaults.LilyPondPath = FDlg.GetPathName();
-	else
-		return;
-
-	AfxMessageBox(L"LilyPond Path Saved.");
-	SerializeDefaults(false);
-}
-
-
-void CWhiteNoteView::OnLilypondAutomaticrefresh()
-{
-	// TODO: Add your command handler code here
-}
-
-
-void CWhiteNoteView::OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-}
-
-
-void CWhiteNoteView::OnLilypondShowimage()
-{
-	// TODO: Add your command handler code here
-}
-
-
-void CWhiteNoteView::OnLilypondDdeletecache()
-{
-	// TODO: Add your command handler code here
+#endif
 }

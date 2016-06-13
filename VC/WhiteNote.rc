@@ -116,19 +116,25 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        POPUP "&LilyPond"
+        POPUP "&LilyPond", INACTIVE
         BEGIN
             MENUITEM "&Change Path...",             ID_LILYPOND_CHANGEPATH
             MENUITEM "&Automatic Show",             ID_LILYPOND_AUTOMATICREFRESH
             MENUITEM "&Show Image\tCTRL+I",         ID_LILYPOND_SHOWIMAGE
-            MENUITEM "&Delete Cache",               ID_LILYPOND_DDELETECACHE
+            POPUP "&Delete Cache"
+            BEGIN
+                MENUITEM "&Current Sheet",              ID_DELETECACHE_CURRENTSHEET
+                MENUITEM "&All Sheets",                 ID_DELETECACHE_ALLSHEETS
+                MENUITEM "A&uto Delete on Exit",        ID_DELETECACHE_AUTODELETEONEXIT
+            END
         END
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About WhiteNote...",         ID_APP_ABOUT
-        MENUITEM "Help\tF1",                    ID_HELP_HELP
+        MENUITEM "&Check for Update",           ID_HELP_CHECKFORUPDATE
+        MENUITEM "&Help\tF1",                   ID_HELP_HELP
     END
 END
 
@@ -203,8 +209,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,12,0
- PRODUCTVERSION 2,0,12,0
+ FILEVERSION 2,1,1,0
+ PRODUCTVERSION 2,1,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -221,12 +227,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote"
-            VALUE "FileVersion", "2.0.12.0"
+            VALUE "FileVersion", "2.1.1.0"
             VALUE "InternalName", "WhiteNote.exe"
-            VALUE "LegalCopyright", "This is a free software."
+            VALUE "LegalCopyright", "This is a free and open source software."
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.0.12.0"
+            VALUE "ProductVersion", "2.1.1.0"
         END
     END
     BLOCK "VarFileInfo"
