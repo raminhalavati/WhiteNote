@@ -25,7 +25,7 @@ public:
 
 	CStringA	GetDirectionText(MusicSheet::DirectionTypes nDirType, CStringA & BufferText, MusicSheet::DirectionTypes nPreviousDir = MusicSheet::DIR_UNKNWON, CStringA ExtraText = "");
 
-	void		GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet=false);
+	void		GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet=false, CStringA * pChordLength = NULL);
 
 	CStringA	GetNoteTypeName(MusicSheet::Note & Note);
 

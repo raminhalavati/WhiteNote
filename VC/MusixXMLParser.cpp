@@ -567,10 +567,11 @@ int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<Mus
 			Dir.Text.Format("%s|%s", pCurNode->Attribute("tempo"), pCurNode->Attribute("dynamics"));
 		}
 		else
-		{
-			_RPTF1(_CRT_ERROR, "Unexpected direction type: %s", Dir.Text);
-			continue;
-		}
+			if (Dir.Text != "offset")
+			{
+				_RPTF1(_CRT_ERROR, "Unexpected direction type: %s", Dir.Text);
+				continue;
+			}
 
 		Directions.push_back(Dir);
 	}

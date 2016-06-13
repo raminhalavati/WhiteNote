@@ -126,7 +126,7 @@ void CWhiteNoteView::OnInitialUpdate()
 		Text.Format(L"WhiteNote None Visual Access to Music Sheets, Version %s.\r\nOpen an XML or MXL music file to proceed.", Version);
 		m_Summary.SetWindowText(Text);
 #ifdef _DEBUG
-		m_Summary.SetWindowText(L"TODO: String Table.");
+		m_Summary.SetWindowText(L"TODO: String Table.- Staff Names in Lily");
 #endif
 	}
 	else
@@ -194,6 +194,7 @@ void CWhiteNoteView::InitializeLilyPond()
 		m_pNarration,
 		GetDocument()->GetPathName(),
 		m_Defaults.bAutoRefreshImages);
+	m_CurrentImage = make_pair(-1, -1);
 }
 
 
@@ -950,6 +951,17 @@ void CWhiteNoteView::UpdateImage()
 		CString	Text(L"LilyPond is not found. Cannot create the image.");
 		TextOut(hDC, 10, 10, Text, Text.GetLength());
 	}
+	else
+		if (m_CurrentImage.first != m_Playing.iPart || m_CurrentImage.second != m_Playing.iMeasure)
+		{
+			CImage	Image;
+			if (m_Lily.GetMeasureImage(m_Playing.iPart, m_Playing.iMeasure, Image, false, false))
+			{
+				BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
+				Image.ReleaseDC();
+			}
+			m_CurrentImage = make_pair(m_Playing.iPart, m_Playing.iMeasure);
+		}
 	m_MeasureImage.ReleaseDC();
 	m_Image.UpdateWindow();
 #endif

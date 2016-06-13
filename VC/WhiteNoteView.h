@@ -48,6 +48,7 @@ public:
 		int		iMeasureEndPosition;
 		int		iMeasureTotalSize;
 	} m_Playing;
+	pair<int, int> m_CurrentImage;
 // Operations
 public:
 

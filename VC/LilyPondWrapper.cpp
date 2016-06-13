@@ -10,17 +10,27 @@ CLilyPondWrapper::CLilyPondWrapper()
 	m_CacheFolderRoot += L"WhiteNoteCache";
 	m_LilyPondPath = L"";
 	CreateDirectory(m_CacheFolderRoot, NULL);
+	m_ThreadCurrent = make_pair(-1, -1);
+	m_bThreadRunning = false;
+	m_bStopThread = false;
 }
 
 
 CLilyPondWrapper::~CLilyPondWrapper()
 {
+	m_bStopThread = true;
+	while (m_bThreadRunning)
+		Sleep(100);
 }
 
 
 // Initializes LilyPond image wrapper.
 void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pSheet, CString FilePath, bool bAutoRefresh)
 {
+	m_ThreadCurrent = make_pair(-1, -1);
+	m_bThreadRunning = false;
+	m_bStopThread = false;
+	m_FailedItems.clear();
 	m_LilyPondPath = LilyPondPath;
 	// Create Folder
 	{
@@ -51,16 +61,36 @@ void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pShe
 	// Check to see if file has changed
 	VerifyCheckSum();
 
-	CImage	Image;
-	GetMeasureImage(0, 0, Image);
-	Image.Save(L"L:\\Temp.png");
+	if (bAutoRefresh)
+	{
+		m_bThreadRunning = true;
+		_beginthread(CLilyPondWrapper::BufferBuilder, 0, (void *)this);
+	}
 }
 
+// Prepare Buffer
+void __cdecl CLilyPondWrapper::BufferBuilder(void * pParam)
+{
+	CLilyPondWrapper * pParent = (CLilyPondWrapper *)pParam;
+	CImage	Image;
+	for ALL_INDICES(pParent->m_pNarration->Parts, iPart)
+		for ALL_INDICES(pParent->m_pNarration->Parts[iPart].Measures, iMeasure)
+		{			
+			pParent->GetMeasureImage(iPart, iMeasure, Image, true);
+			if (pParent->m_bStopThread)
+			{
+				iPart = 1000;
+				break;
+			}
+		}
+	pParent->m_ThreadCurrent = make_pair(-1, -1);
+	pParent->m_bThreadRunning = false;
+}
 
 // Deletes cache for current image or all sheets.
 void CLilyPondWrapper::DeleteCache(bool bAllSheets)
 {
-	std::stack<CString>	Folders;
+	std::stack<CString>	Folders, RDList;
 
 	Folders.push(bAllSheets ? m_CacheFolderRoot : m_FileCacheFolder);
 
@@ -70,17 +100,27 @@ void CLilyPondWrapper::DeleteCache(bool bAllSheets)
 		Folders.pop();
 
 		WIN32_FIND_DATAW	FindData;
-		HANDLE	hFind = FindFirstFile(Current, &FindData);
+		HANDLE	hFind = FindFirstFile(Current + L"\\*.*", &FindData);
 				
 		if (hFind)
 			do
 			{ 
 				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-					Folders.push(Current + L"\\" + FindData.cFileName);
+				{
+					if (FindData.cFileName[0] != L'.')
+						Folders.push(Current + L"\\" + FindData.cFileName);
+				}
 				else
 					DeleteFile(Current + L"\\" + FindData.cFileName);				
 			} while (FindNextFile(hFind, &FindData));
-	}	
+		RDList.push(Current);
+	}
+
+	while (RDList.size())
+	{
+		RemoveDirectory(RDList.top());
+		RDList.pop();
+	}
 }
 
 
@@ -93,11 +133,27 @@ void CLilyPondWrapper::VerifyCheckSum()
 
 
 // Returns requested measures image, either from buffer or new creation.
-bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Image)
+bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Image, bool bCalledFromThread, bool bForceRecheck)
 {
+	if (bCalledFromThread)
+		m_ThreadCurrent = make_pair(iPartNo, iMeasureNo);
+	else
+		while (iPartNo == m_ThreadCurrent.first && iMeasureNo == m_ThreadCurrent.second)
+			Sleep(100);
+
 	// Check Validity
 	if (iPartNo >= (int)m_pNarration->Parts.size() || iMeasureNo >= (int)m_pNarration->Parts[iPartNo].Measures.size())
 		return false;
+	
+	pair<int, int> key = make_pair(iPartNo, iMeasureNo);
+	if (bForceRecheck)
+		m_FailedItems.erase(key);
+	else
+		if (m_FailedItems.find(key) != m_FailedItems.end())
+			return false;
+
+	if (!Image.IsNull())
+		Image.Destroy();
 
 	CString	ImageFileName, LilyFileName;
 	ImageFileName.Format(L"%s\\%i_%03i.png", m_FileCacheFolder, iPartNo, iMeasureNo);
@@ -117,27 +173,27 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 			"evenHeaderMarkup = \"\" "
 			"oddFooterMarkup = \"\" "
 			"evenFooterMarkup = \"\" "
-			"} ";
+			"} <<";
 	
 		for ALL(CM.Voices, pVoice)
 			Text += pVoice->Lily;
+		Text += " >>";
 
 		CFile File;
 		DeleteFile(LilyFileName);
 		if (!File.Open(LilyFileName, CFile::modeCreate | CFile::modeWrite))
+		{
+			m_FailedItems.insert(key);
 			return false;
+		}
 		File.Write(Text.GetBuffer(), Text.GetLength());
 		File.Close();
 	}
 
 	// Run Lily
 	{
-		CString	CurrentFolder;
-		GetCurrentDirectory(MAX_PATH, CurrentFolder.GetBufferSetLength(MAX_PATH));
-		SetCurrentDirectory(m_FileCacheFolder);
-
 		CString Command;
-		Command.Format(L"-dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
+		Command.Format(L"-l=ERROR -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
 
 		SHELLEXECUTEINFOW	SHI;
 		
@@ -145,14 +201,27 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		SHI.cbSize = sizeof(SHI);
 		SHI.lpFile = m_LilyPondPath.GetBuffer();
 		SHI.lpParameters = Command.GetBuffer();
+		SHI.lpDirectory = m_FileCacheFolder.GetBuffer();
 		SHI.nShow = SW_HIDE;
 
 		ShellExecuteExW(&SHI);
-		SetCurrentDirectory(CurrentFolder);
+		for (int i = 0; i < 30; i++)
+			if (Image.Load(ImageFileName) == S_OK)
+				break;
+			else
+			{
+				WIN32_FIND_DATA FindData;
+				if (FindFirstFile(LilyFileName.Left(LilyFileName.GetLength() - 2) + L".log", &FindData) != INVALID_HANDLE_VALUE &&
+					FindData.nFileSizeLow > 10)
+					break;
+				else
+					Sleep(100);
+			}
 		CleanTempFiles();
 	}
-	
-	return true;
+	if (Image.IsNull())
+		m_FailedItems.insert(key);
+	return (!Image.IsNull());
 }
 
 
