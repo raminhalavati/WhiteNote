@@ -21,6 +21,7 @@ public:
 
 	CString	m_Path;
 	CString	m_FileVersion;
+	CString m_WebsiteMessage;
 	bool	m_bNewVersionExists;
 // Overrides
 public:

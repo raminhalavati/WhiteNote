@@ -228,22 +228,22 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 							{
 								XMLElem *	pKey = GetXMLNestedElement( pCurNode , "key" ) ;
 
-								if ( pKey )
+								if (pKey)
 								{
-									Sigs.Key.iFifths	= _safe_atoi( GetXMLNestedText( pKey , "fifths" ) ) ;
+									Sigs.Key.iFifths = _safe_atoi(GetXMLNestedText(pKey, "fifths"));
 
-									const char * pchMode = GetXMLNestedText( pKey , "mode" ) ;
+									const char * pchMode = GetXMLNestedText(pKey, "mode");
 
-									if ( pchMode )
-										strncpy_s( 
-											Sigs.Key.Mode ,
-											 pchMode ,
-											sizeof( Sigs.Key.Mode ) ) ;
+									if (!strcmp(pchMode, "major"))
+										Sigs.Key.bMajor = true;
+									else if (!strcmp(pchMode, "minor"))
+										Sigs.Key.bMajor = false;
 									else
-										SETZ( Sigs.Key.Mode ) ;
-
-									bValid = true ;
+										_RPTF1(_CRT_WARN, "Unexpected Key Mode: ", pchMode);
+									bValid = true;
 								}
+								else
+									Sigs.Key.iFifths = -1;
 							}
 
 							// Time
@@ -567,7 +567,9 @@ int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<Mus
 			Dir.Text.Format("%s|%s", pCurNode->Attribute("tempo"), pCurNode->Attribute("dynamics"));
 		}
 		else
-			if (Dir.Text != "offset")
+			if (Dir.Text == "offset")
+				continue;
+			else
 			{
 				_RPTF1(_CRT_ERROR, "Unexpected direction type: %s", Dir.Text);
 				continue;

@@ -8,6 +8,7 @@
 #define IDR_MAINFRAME                   128
 #define IDR_WhiteNoteTYPE               130
 #define IDD_SIMPLEQUESTION              310
+#define IDD_PROGRESSREPORT              311
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -20,6 +21,7 @@
 #define IDC_LABEL_2                     1043
 #define IDC_LABEL_6                     1047
 #define IDC_TITLE                       1048
+#define IDC_PROGRESS                    1049
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -74,14 +76,16 @@
 #define ID_DELETECACHE_CURRENTSHEET     32854
 #define ID_DELETECACHE_ALLSHEETS        32855
 #define ID_DELETECACHE_AUTODELETEONEXIT 32856
+#define ID_LILYPOND_CREATEALLIMAGESONSTARTUP 32857
+#define ID_LILYPOND_PRECREATEALLIMAGES  32858
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32857
-#define _APS_NEXT_CONTROL_VALUE         1049
-#define _APS_NEXT_SYMED_VALUE           311
+#define _APS_NEXT_COMMAND_VALUE         32861
+#define _APS_NEXT_CONTROL_VALUE         1050
+#define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif

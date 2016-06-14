@@ -103,6 +103,19 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Show Signature Text\tCtrl+H", ID_NAVIGATE_SHOW_SIGNATURE
     END
+    POPUP "&Images"
+    BEGIN
+        MENUITEM "&Automatic Show",             ID_LILYPOND_AUTOMATICREFRESH
+        MENUITEM "&Show Image\tCTRL+I",         ID_LILYPOND_SHOWIMAGE
+        MENUITEM "&Precreate All Images\tCTRL+ALT+I", ID_LILYPOND_PRECREATEALLIMAGES
+        POPUP "&Delete Cache"
+        BEGIN
+            MENUITEM "&Current Sheet",              ID_DELETECACHE_CURRENTSHEET
+            MENUITEM "&All Sheets",                 ID_DELETECACHE_ALLSHEETS
+            MENUITEM "A&uto Delete on Exit",        ID_DELETECACHE_AUTODELETEONEXIT
+        END
+        MENUITEM "&Change LilyPond Path...",    ID_LILYPOND_CHANGEPATH
+    END
     POPUP "&Options"
     BEGIN
         MENUITEM "&Always Show Signatures",     ID_OPTIONS_ALWAYSSHOWSIGNATURES
@@ -116,18 +129,6 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        POPUP "&LilyPond"
-        BEGIN
-            MENUITEM "&Change Path...",             ID_LILYPOND_CHANGEPATH
-            MENUITEM "&Automatic Show",             ID_LILYPOND_AUTOMATICREFRESH
-            MENUITEM "&Show Image\tCTRL+I",         ID_LILYPOND_SHOWIMAGE
-            POPUP "&Delete Cache"
-            BEGIN
-                MENUITEM "&Current Sheet",              ID_DELETECACHE_CURRENTSHEET
-                MENUITEM "&All Sheets",                 ID_DELETECACHE_ALLSHEETS
-                MENUITEM "A&uto Delete on Exit",        ID_DELETECACHE_AUTODELETEONEXIT
-            END
-        END
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END
     POPUP "&Help"
@@ -149,6 +150,7 @@ BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEAS,         VIRTKEY, CONTROL, NOINVERT
     VK_F1,          ID_HELP_HELP,           VIRTKEY, NOINVERT
+    "I",            ID_LILYPOND_SHOWIMAGE,  VIRTKEY, CONTROL, NOINVERT
     "G",            ID_NAVIGATE_GOTO_MEASURE, VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        ID_NAVIGATE_LEFT_MEASURE, VIRTKEY, ALT, NOINVERT
     VK_DOWN,        ID_NAVIGATE_NEXTVOICE,  VIRTKEY, ALT, NOINVERT
@@ -157,7 +159,7 @@ BEGIN
     "M",            ID_NAVIGATE_SELECT_PART, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, CONTROL, NOINVERT
     "L",            ID_PLAY_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_LILYPOND_SHOWIMAGE,  VIRTKEY, CONTROL, NOINVERT
+    "I",            ID_LILYPOND_PRECREATEALLIMAGES, VIRTKEY, CONTROL, ALT, NOINVERT
 END
 
 
@@ -200,6 +202,14 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,78,19,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,131,19,50,14
     EDITTEXT        IDC_QUESTION,7,3,174,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+END
+
+IDD_PROGRESSREPORT DIALOGEX 0, 0, 321, 25
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Creating all images..."
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,307,11
 END
 
 
@@ -272,6 +282,14 @@ BEGIN
         RIGHTMARGIN, 181
         TOPMARGIN, 7
         BOTTOMMARGIN, 33
+    END
+
+    IDD_PROGRESSREPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 314
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 18
     END
 END
 #endif    // APSTUDIO_INVOKED

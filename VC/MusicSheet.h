@@ -139,7 +139,7 @@ typedef struct _MusicSheet
 		struct _Key
 		{
 			int			iFifths;
-			char		Mode[100];
+			bool		bMajor;
 		} Key;
 
 		struct _Time
@@ -203,6 +203,7 @@ typedef struct _NarratedMusicSheet
 		int					iStaff;
 		int					iVoice;
 		CStringA			Lily; // Text for LilyPond
+		CStringA			PendingLilyText;
 	};
 
 	struct MeasureText

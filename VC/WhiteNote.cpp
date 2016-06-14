@@ -52,7 +52,8 @@ CWhiteNoteApp::CWhiteNoteApp()
 	// Place all significant initialization in InitInstance
 	m_bNewVersionExists = false;
 	m_FileVersion = L"2.0";
-
+	m_WebsiteMessage = L"";
+	
 	try
 	{
 		HRSRC res = ::FindResource(NULL, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
@@ -140,6 +141,7 @@ BOOL CWhiteNoteApp::InitInstance()
 	ParseCommandLine(cmdInfo);
 
 	UpdateCheck();
+
 	// Truncate File Version
 	while (m_FileVersion.GetLength() > 2 && m_FileVersion.Right(2) == L".0")
 		m_FileVersion = m_FileVersion.Left(m_FileVersion.GetLength() - 2);
@@ -267,6 +269,8 @@ vector<int>	ParseVersion(CStringA Version)
 // Checks for update.
 bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 {
+	m_WebsiteMessage = GetProfileString(L"VersionCheck", L"WebsiteMessage", L"");
+
 	unsigned	uCheckDate;
 	// Check if check is needed.
 	{
@@ -297,33 +301,51 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 	}
 
 	// Get Version from Internet.
-	CStringA	WebsiteVersion;
+	CStringA	WebsiteVersion, Message;
 	try
 	{
 		CInternetSession	IS;
-		CStdioFile *	pFile = IS.OpenURL(L"http://white-note.com/version.htm", 1, INTERNET_FLAG_TRANSFER_BINARY);
+		CStdioFile *	pFile = IS.OpenURL(L"http://white-note.com/version2.htm", 1, INTERNET_FLAG_TRANSFER_BINARY);
+
+		CStringA	Text("");
 
 		if (pFile)
 		{
-			byte *	pBuffer = new byte[100];
-			int		iSize = pFile->Read(pBuffer, 99);
+			byte *	pBuffer = new byte[10000];
+			int		iSize = pFile->Read(pBuffer, 9999);
 			pBuffer[iSize] = 0;
-			WebsiteVersion = pBuffer;
+			Text = pBuffer;
 
 			delete pBuffer;
 			pFile->Close();
 			delete pFile;
 		}
 
-		if (WebsiteVersion.GetLength() < (int)strlen("WhiteNoteVersion: "))
+		int	iPos1, iPos2;
+		
+		iPos1 = Text.Find("WhiteNoteVersion{");
+		if (iPos1 == -1)
 			return false;
-		else
-			WebsiteVersion = WebsiteVersion.Right(WebsiteVersion.GetLength() - strlen("WhiteNoteVersion: "));
+		iPos1 += strlen("WhiteNoteVersion{");
+		iPos2 = Text.Find("}", iPos1);
+		if (iPos2 == -1)
+			return false;
+		WebsiteVersion = Text.Mid(iPos1, iPos2 - iPos1);
+
+		iPos1 = Text.Find("WhiteNoteMessage{");
+		if (iPos1 == -1)
+			return false;
+		iPos1 += strlen("WhiteNoteMessage{");
+		iPos2 = Text.Find("}", iPos1);
+		if (iPos2 == -1)
+			return false;
+		Message = Text.Mid(iPos1, iPos2 - iPos1);
 	}
 	catch (...)
 	{
 		return false;
 	}
+	m_WebsiteMessage = CA2W(Message);
 	
 	// Compare
 	{
@@ -344,6 +366,7 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 
 	WriteProfileInt(L"VersionCheck", L"LastCheck", uCheckDate);
 	WriteProfileString(L"VersionCheck", L"LastSelfVersion", m_FileVersion);
+	WriteProfileString(L"VersionCheck", L"WebsiteMessage", m_WebsiteMessage);
 
 	return true;
 }

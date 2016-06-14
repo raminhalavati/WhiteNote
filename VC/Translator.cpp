@@ -97,7 +97,7 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("sforzando", L"اسفورزاندو"));
 	m_Words.insert(make_pair("stacatto", L"استکاتو"));
 
-	m_Words.insert(make_pair("accord", L"آکورد"));
+	m_Words.insert(make_pair("chord", L"آکورد"));
 	m_Words.insert(make_pair("arpeggiate", L"آرپژ"));
 	m_Words.insert(make_pair("bass", L"باس"));
 	m_Words.insert(make_pair("begin_repeat", L"دو_نقطه_تکرار_سمت_راست"));

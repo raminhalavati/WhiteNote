@@ -64,6 +64,8 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_DELETECACHE_ALLSHEETS, &CWhiteNoteView::OnDeletecacheAllsheets)
 	ON_COMMAND(ID_DELETECACHE_AUTODELETEONEXIT, &CWhiteNoteView::OnDeletecacheAutodeleteonexit)
 	ON_UPDATE_COMMAND_UI(ID_DELETECACHE_AUTODELETEONEXIT, &CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit)
+	ON_COMMAND(ID_LILYPOND_PRECREATEALLIMAGES, &CWhiteNoteView::OnLilypondPrecreateallimages)
+	ON_UPDATE_COMMAND_UI(ID_LILYPOND_PRECREATEALLIMAGES, &CWhiteNoteView::OnUpdateLilypondPrecreateallimages)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -74,6 +76,7 @@ CWhiteNoteView::CWhiteNoteView()
 	m_OriginalSize.cx = m_OriginalSize.cy = 0;
 	m_pNarration = NULL;
 	m_pNarrationTB = NULL;
+	m_CurrentImage = make_pair(-1, -1);
 }
 
 CWhiteNoteView::~CWhiteNoteView()
@@ -123,6 +126,12 @@ void CWhiteNoteView::OnInitialUpdate()
 		CString	Text, Version = theApp.m_FileVersion;
 		if (theApp.m_bNewVersionExists)
 			Version += L"\r\n\tNewer version exists in www.white-note.com";
+		if (theApp.m_WebsiteMessage.GetLength())
+			if (theApp.m_WebsiteMessage[0] == L'!' || theApp.m_bNewVersionExists)
+			{
+				CString	Message = theApp.m_WebsiteMessage.Right(theApp.m_WebsiteMessage.GetLength() - (theApp.m_WebsiteMessage[0] == L'!' ? 1 : 0));
+				Version += L"\r\n\t" + Message;
+			}
 		Text.Format(L"WhiteNote None Visual Access to Music Sheets, Version %s.\r\nOpen an XML or MXL music file to proceed.", Version);
 		m_Summary.SetWindowText(Text);
 #ifdef _DEBUG
@@ -182,7 +191,8 @@ void CWhiteNoteView::OnInitialUpdate()
 		
 		m_pNarrationTB->EnableWindow();
 		m_NarrationLabel.EnableWindow();
-		m_Summary.SetFocus();		
+		m_Summary.SetFocus();
+		CreateImage();
 	}	
 }
 
@@ -192,8 +202,7 @@ void CWhiteNoteView::InitializeLilyPond()
 	m_Lily.Initialize(
 		m_Defaults.LilyPondPath,
 		m_pNarration,
-		GetDocument()->GetPathName(),
-		m_Defaults.bAutoRefreshImages);
+		GetDocument()->GetPathName());
 	m_CurrentImage = make_pair(-1, -1);
 }
 
@@ -240,6 +249,7 @@ void CWhiteNoteView::OnSize(UINT nType, int cx, int cy)
 		RESIZE_ITEM(m_NarrationL, 1, 0);
 		RESIZE_ITEM(m_NarrationR, 1, 0);
 		RESIZE_ITEM(m_Image, 1, 1);
+		m_CurrentImage = make_pair(-1, -1);
 		CreateImage();
 	}
 }
@@ -258,7 +268,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.LilyPondPath = theApp.GetProfileString(L"Defaults", L"LilyPondPath", L"");
 		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
-
+		
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -392,13 +402,13 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			Sound = m_Playing.iLastMeasure == m_Playing.iMeasure ? L"VoiceChange" : L"MeasureChange";
 		VoiceMessage(Sound);
 		m_Playing.iLastMeasure = m_Playing.iMeasure;
+		if (m_Defaults.bAutoRefreshImages)
+			UpdateImage();
 	}
 	catch (...)
 	{
 		m_pNarrationTB->SetWindowText(L"Error");
 	}
-
-	UpdateImage();
 }
 
 void CWhiteNoteView::OnNavigatePreviousvoice()
@@ -781,6 +791,16 @@ void CWhiteNoteView::OnUpdateOptionsAlwaysshowsignatures(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(m_Defaults.bShowAllSignatureText);
 }
 
+void CWhiteNoteView::OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_Lily.m_bReady && m_pNarration);
+}
+
+void CWhiteNoteView::OnLilypondPrecreateallimages()
+{
+	m_Lily.CreateAllImages();
+}
+
 // Returns the index of Previous/Next measure/hand/voice, -1 if not available.
 int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 {
@@ -875,7 +895,8 @@ void CWhiteNoteView::CreateImage()
 	HDC hDC = m_MeasureImage.GetDC();
 	FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
 	m_MeasureImage.ReleaseDC();
-	UpdateImage();
+	if (m_Defaults.bAutoRefreshImages)
+		UpdateImage();
 }
 
 void CWhiteNoteView::OnLilypondChangepath()
@@ -932,37 +953,48 @@ void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
 
 void CWhiteNoteView::OnLilypondShowimage()
 {
-	// TODO: Add your command handler code here
+	UpdateImage(true);
 }
 
 
 // Updates measure image.
-void CWhiteNoteView::UpdateImage()
+void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 {
 	if (m_MeasureImage.IsNull())
-		CreateImage();
+		return;
 
 #ifdef LILYPOND_ACTIVE
+	// Get DC
 	HDC hDC = m_MeasureImage.GetDC();
 	FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
-	if (!m_Defaults.LilyPondPath.GetLength())
+	
+	if (m_Lily.m_bReady)
 	{
-		SetBkMode(hDC, TRANSPARENT);
-		CString	Text(L"LilyPond is not found. Cannot create the image.");
-		TextOut(hDC, 10, 10, Text, Text.GetLength());
-	}
-	else
-		if (m_CurrentImage.first != m_Playing.iPart || m_CurrentImage.second != m_Playing.iMeasure)
+		// If image is changed or asked to be refreshed
+		if (m_CurrentImage.first != m_Playing.iPart || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh)
 		{
+			// Get and show new image.
 			CImage	Image;
-			if (m_Lily.GetMeasureImage(m_Playing.iPart, m_Playing.iMeasure, Image, false, false))
+			// Ask for reload of the image if you are on current image.
+			if (m_Lily.GetMeasureImage(m_Playing.iPart, m_Playing.iMeasure, Image, 
+				m_CurrentImage.first == m_Playing.iPart && m_CurrentImage.second == m_Playing.iMeasure))
 			{
 				BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
 				Image.ReleaseDC();
 			}
 			m_CurrentImage = make_pair(m_Playing.iPart, m_Playing.iMeasure);
 		}
+	}
+	else
+	{
+		// Warning if lilypond is not found
+		SetBkMode(hDC, TRANSPARENT);
+		CString	Text(L"You can downlaoad and install LilyPond from www.LilyPond.org to have images.");
+		TextOut(hDC, 10, 10, Text, Text.GetLength());
+	}
+
+	// Release DC and update window.
 	m_MeasureImage.ReleaseDC();
-	m_Image.UpdateWindow();
+	m_Image.Invalidate();
 #endif
 }

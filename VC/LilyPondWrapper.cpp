@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LilyPondWrapper.h"
+#include "ProgressReport.h"
 #include <stack>
 
 CLilyPondWrapper::CLilyPondWrapper()
@@ -10,26 +11,19 @@ CLilyPondWrapper::CLilyPondWrapper()
 	m_CacheFolderRoot += L"WhiteNoteCache";
 	m_LilyPondPath = L"";
 	CreateDirectory(m_CacheFolderRoot, NULL);
-	m_ThreadCurrent = make_pair(-1, -1);
-	m_bThreadRunning = false;
-	m_bStopThread = false;
+	m_bReady = false;
 }
 
 
 CLilyPondWrapper::~CLilyPondWrapper()
 {
-	m_bStopThread = true;
-	while (m_bThreadRunning)
-		Sleep(100);
 }
 
 
 // Initializes LilyPond image wrapper.
-void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pSheet, CString FilePath, bool bAutoRefresh)
+void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pSheet, CString FilePath)
 {
-	m_ThreadCurrent = make_pair(-1, -1);
-	m_bThreadRunning = false;
-	m_bStopThread = false;
+	m_bReady = false;
 	m_FailedItems.clear();
 	m_LilyPondPath = LilyPondPath;
 	// Create Folder
@@ -60,31 +54,7 @@ void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pShe
 
 	// Check to see if file has changed
 	VerifyCheckSum();
-
-	if (bAutoRefresh)
-	{
-		m_bThreadRunning = true;
-		_beginthread(CLilyPondWrapper::BufferBuilder, 0, (void *)this);
-	}
-}
-
-// Prepare Buffer
-void __cdecl CLilyPondWrapper::BufferBuilder(void * pParam)
-{
-	CLilyPondWrapper * pParent = (CLilyPondWrapper *)pParam;
-	CImage	Image;
-	for ALL_INDICES(pParent->m_pNarration->Parts, iPart)
-		for ALL_INDICES(pParent->m_pNarration->Parts[iPart].Measures, iMeasure)
-		{			
-			pParent->GetMeasureImage(iPart, iMeasure, Image, true);
-			if (pParent->m_bStopThread)
-			{
-				iPart = 1000;
-				break;
-			}
-		}
-	pParent->m_ThreadCurrent = make_pair(-1, -1);
-	pParent->m_bThreadRunning = false;
+	m_bReady = true;
 }
 
 // Deletes cache for current image or all sheets.
@@ -133,13 +103,10 @@ void CLilyPondWrapper::VerifyCheckSum()
 
 
 // Returns requested measures image, either from buffer or new creation.
-bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Image, bool bCalledFromThread, bool bForceRecheck)
+bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Image, bool bForceRecheck)
 {
-	if (bCalledFromThread)
-		m_ThreadCurrent = make_pair(iPartNo, iMeasureNo);
-	else
-		while (iPartNo == m_ThreadCurrent.first && iMeasureNo == m_ThreadCurrent.second)
-			Sleep(100);
+	if (!m_bReady)
+		return false;
 
 	// Check Validity
 	if (iPartNo >= (int)m_pNarration->Parts.size() || iMeasureNo >= (int)m_pNarration->Parts[iPartNo].Measures.size())
@@ -163,6 +130,7 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 	if (Image.Load(ImageFileName) == S_OK)
 		return true;
 
+	
 	// Create Lily Text File
 	{
 		NarratedMusicSheet::MeasureText & CM = m_pNarration->Parts[iPartNo].Measures[iMeasureNo];
@@ -195,16 +163,7 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		CString Command;
 		Command.Format(L"-l=ERROR -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
 
-		SHELLEXECUTEINFOW	SHI;
-		
-		memset(&SHI, 0, sizeof(SHI));
-		SHI.cbSize = sizeof(SHI);
-		SHI.lpFile = m_LilyPondPath.GetBuffer();
-		SHI.lpParameters = Command.GetBuffer();
-		SHI.lpDirectory = m_FileCacheFolder.GetBuffer();
-		SHI.nShow = SW_HIDE;
-
-		ShellExecuteExW(&SHI);
+		ShellExecute(NULL, NULL, m_LilyPondPath, Command, m_FileCacheFolder, SW_HIDE);
 		for (int i = 0; i < 30; i++)
 			if (Image.Load(ImageFileName) == S_OK)
 				break;
@@ -224,11 +183,64 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 	return (!Image.IsNull());
 }
 
-
 // Removes temporary LilyPond files.
 void CLilyPondWrapper::CleanTempFiles()
 {
 	CString Command;
 	Command.Format(L"DEL \"%s\\*.eps\";DEL \"%s\\*.tex*\";DEL \"%s\\*.count\"", m_FileCacheFolder, m_FileCacheFolder, m_FileCacheFolder);
 	system(CW2A(Command));
+}
+
+
+// Creats all images for all parts and measures.
+void CLilyPondWrapper::CreateAllImages()
+{
+	if (!m_bReady)
+	{
+		AfxMessageBox(L"LilyPond is not ready.", MB_ICONERROR);
+		return;
+	}
+
+	m_ThreadData.bRunnung = true;
+	m_ThreadData.bStop = false;
+	m_ThreadData.iProgress = 0;
+
+	CProgressReport	PRDlg;
+	PRDlg.m_pbStop = &m_ThreadData.bStop;
+	PRDlg.m_pbRunning = &m_ThreadData.bRunnung;
+	PRDlg.m_piProgress = &m_ThreadData.iProgress;
+
+	_beginthread(CLilyPondWrapper::ImageCreationThread, 0, (void *)this);
+	PRDlg.DoModal();
+	if (m_ThreadData.bAllDone)
+		AfxMessageBox(L"All images are ready.", MB_OK);
+	else
+		AfxMessageBox(L"Process canceled by user.", MB_OK | MB_ICONINFORMATION);
+}
+
+// Prepare Buffer
+void __cdecl CLilyPondWrapper::ImageCreationThread(void * pParam)
+{
+	CLilyPondWrapper * pParent = (CLilyPondWrapper *)pParam;
+	CImage	Image;
+	vector<pair<int, int>> Tasks;
+	pair<int, int> Task;
+
+	for (Task.first = 0; Task.first < (int)pParent->m_pNarration->Parts.size(); Task.first++)
+		for (Task.second = 0; Task.second < (int)pParent->m_pNarration->Parts[Task.first].Measures.size(); Task.second++)
+			Tasks.push_back(Task);
+
+	pParent->m_ThreadData.bAllDone = true;
+	for ALL_INDICES(Tasks, i)
+	{	
+		pParent->m_ThreadData.iProgress = (100 * i) / (int)Tasks.size();
+
+		pParent->GetMeasureImage(Tasks[i].first, Tasks[i].second, Image);
+		if (pParent->m_ThreadData.bStop)
+		{
+			pParent->m_ThreadData.bAllDone = false;
+			break;
+		}
+	}
+	pParent->m_ThreadData.bRunnung = false;
 }

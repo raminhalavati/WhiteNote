@@ -154,18 +154,18 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 		case	MusicSheet::TYPE_128TH:		Temp = "128"; break;
 		case	MusicSheet::TYPE_256TH:		Temp = "256"; break;
 		default:							Temp = "\\maxima"; break;
-		}
+		}		
+		// Dot
+		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOT))
+			Temp += ".";
+
+		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOUBLE_DOT))
+			Temp += "..";
+
 		if (pChordLength)
 			*pChordLength = Temp;
 		else
 			Text += Temp;
-
-		// Dot
-		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOT))
-			Text += ".";
-
-		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOUBLE_DOT))
-			Text += "..";
 
 		// Fermata
 		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_FERMATA))
@@ -180,11 +180,18 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 			Text += "\\accent";
 
 		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_GRUPPETTO))
-			_RPTF1(_CRT_WARN, "Lily misses %s", "Gruppetto.");
+			Text += "\\turn";
 		
 		// Grace
 		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_GRACE))
 			_RPTF1(_CRT_WARN, "Lily misses %s", "Grace");
+
+		// Texts should come after a note!
+		if (Voice.PendingLilyText.GetLength())
+		{
+			Text += Voice.PendingLilyText;
+			Voice.PendingLilyText = "";
+		}
 
 		// Slur-End
 		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_SLUR_END))
@@ -298,9 +305,9 @@ void	CMusicSheetNarrator::GetSignaturesText(MusicSheet::Signatures & Sigs, int i
 	}
 
 	// Key Signature
-	if (Sigs.Key.iFifths)
+	if (Sigs.Key.iFifths != -1)
 	{
-		bItemChanged = pPreviousSignature && pPreviousSignature->Key.iFifths != Sigs.Key.iFifths;
+		bItemChanged = pPreviousSignature && (pPreviousSignature->Key.iFifths != Sigs.Key.iFifths || pPreviousSignature->Key.bMajor != Sigs.Key.bMajor);
 	
 		Text = CStringA((pPreviousSignature && !bItemChanged) ? "*" : "" ) + "Key_Signature";
 
@@ -309,28 +316,61 @@ void	CMusicSheetNarrator::GetSignaturesText(MusicSheet::Signatures & Sigs, int i
 		else
 			Text += ": ";
 
+		T1 = "";
 		switch (Sigs.Key.iFifths)
 		{
-		case 1:	Text += "F#";					break;
-		case 2:	Text += "F#_C#";				break;
-		case 3:	Text += "F#_C#_G#";				break;
-		case 4:	Text += "F#_C#_G#_D#";			break;
-		case 5:	Text += "F#_C#_G#_D#_A#";		break;
-		case 6:	Text += "F#_C#_G#_D#_A#_E#";	break;
-		case -1:	Text += "Bb";				break;
-		case -2:	Text += "Bb_Eb";			break;
-		case -3:	Text += "Bb_Eb_Ab";			break;
-		case -4:	Text += "Bb_Eb_Ab_Db";			break;
-		case -5:	Text += "Bb_Eb_Ab_Db_Gb";		break;
-		case -6:	Text += "Bb_Eb_Ab_Db_Gb_Cb";	break;
-
-		default:	Text += "UNKNOWN_KEY";
+		case 0:
+			T1 = Sigs.Key.bMajor ? "C" : "A";
+			break;
+		case 7:	T1 = "_#C";
+		case 6:	T1 = "_E#" + T1;
+		case 5:	T1 = "_A#" + T1;
+		case 4:	T1 = "_D#" + T1;
+		case 3:	T1 = "_G#" + T1;
+		case 2:	T1 = "_C#" + T1;
+		case 1:	T1 = "F#" + T1;	
+			break;		
+		case -7:	T1 = "_Fb";
+		case -6:	T1 = "_Cb";
+		case -5:	T1 = "_Gb";		
+		case -4:	T1 = "_Db";			
+		case -3:	T1 = "_Ab";			
+		case -2:	T1 = "_Eb";			
+		case -1:	T1 = "Bb";
+			break;
+		
+		default:	T1 += "UNKNOWN_KEY";
 		}
 
-		Voice.Text.push_back(Text);
+		Voice.Text.push_back(Text + T1 + "_" + (Sigs.Key.bMajor? "Major" : "Minor"));
 
-		//\key d \major or \key c \minor
-		Voice.Lily += "";
+		// LILY
+		switch (Sigs.Key.iFifths)
+		{
+		case 0:	T1 = Sigs.Key.bMajor ? "c" : "a"; break;
+		case 1:	T1 = Sigs.Key.bMajor ? "g" : "e"; break;
+		case 2:	T1 = Sigs.Key.bMajor ? "d" : "b"; break;
+		case 3:	T1 = Sigs.Key.bMajor ? "a" : "fis"; break;
+		case 4:	T1 = Sigs.Key.bMajor ? "e" : "cis"; break;
+		case 5:	T1 = Sigs.Key.bMajor ? "b" : "gis"; break;
+		case 6:	T1 = Sigs.Key.bMajor ? "fis" : "dis"; break;
+		case 7:	T1 = Sigs.Key.bMajor ? "cis" : "dis"; break;
+		case -1:	T1 = Sigs.Key.bMajor ? "f" : "d"; break;
+		case -2:	T1 = Sigs.Key.bMajor ? "bes" : "g"; break;
+		case -3:	T1 = Sigs.Key.bMajor ? "ees" : "c"; break;
+		case -4:	T1 = Sigs.Key.bMajor ? "aes" : "f"; break;
+		case -5:	T1 = Sigs.Key.bMajor ? "des" : "bes"; break;
+		case -6:	T1 = Sigs.Key.bMajor ? "ges" : "ees"; break;
+		case -7:	T1 = Sigs.Key.bMajor ? "ces" : "aes"; break;
+		default:	T1 = "";
+		}
+
+		if (T1.GetLength())
+		{
+			T2.Format("\\key %s \\%s\r\n", T1, Sigs.Key.bMajor ? "major" : "minor");
+			Voice.Lily += T2;
+		}
+		
 	}
 
 	// Time Signature
@@ -571,7 +611,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 	{
 		// Reorder Fingers
 		{
-			// Transfer Accord Fingers to the end.
+			// Transfer Chord Fingers to the end.
 			for ALL(pMeasure->Directions, pDir)
 				if (IsInRange(pDir->nType, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger))
 				{
@@ -581,12 +621,12 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					if (iNote >= (int)InVoice.Notes.size())
 						continue;
 
-					bool	bInAccord = (FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD));
+					bool	bInChord = (FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD));
 
-					if (!bInAccord && iNote + 1 < (int)InVoice.Notes.size())
-						bInAccord = (FOUND_IN_SET(InVoice.Notes[iNote + 1].Extras, MusicSheet::NE_CHORD));
+					if (!bInChord && iNote + 1 < (int)InVoice.Notes.size())
+						bInChord = (FOUND_IN_SET(InVoice.Notes[iNote + 1].Extras, MusicSheet::NE_CHORD));
 
-					if (bInAccord)
+					if (bInChord)
 						while (++iNote < (int)InVoice.Notes.size())
 							if (FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD))
 								pDir->BeforeNote.second++;
@@ -594,7 +634,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 								break;
 				}
 
-			// Sort Fingers in one Accord
+			// Sort Fingers in one Chord
 			for ALL(pMeasure->Directions, pDir)
 				if (IsInRange(pDir->nType, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger))
 				{
@@ -658,8 +698,11 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				}
 
 				if (pDir->Text.GetLength())
-					MT.Voices[0].Text.push_back(CStringA("\"") + pDir->Text + CStringA("\"")); // "\"\n"
-					// TODO: ----> LILY
+				{
+					MT.Voices[0].Text.push_back(pDir->Text);	//MT.Voices[0].Text.push_back(CStringA("\"") + pDir->Text + CStringA("\""));
+					Temp.Format("%s\\markup {%s} ", pDir->bAbove ? "^" : "_", pDir->Text);
+					MT.Voices[0].PendingLilyText += Temp;
+				}
 			}
 			else if (m_bProcessingGuitar && IsInRange(pDir->nType, MusicSheet::DIR_first_guitar_Finger, MusicSheet::DIR_last_guitar_Finger))
 				GuitarFingers += GetDirectionText(pDir->nType, Temp);
@@ -687,21 +730,21 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						int		n = 0;
 
 						for ALL_INDICES(pMeasure->Voices[v].Notes, i)
-							if (abs(pMeasure->Voices[v].Notes[i].iXPos - iXPos) < // If in an accord, get the first one.
+							if (abs(pMeasure->Voices[v].Notes[i].iXPos - iXPos) < // If in an chord, get the first one.
 								abs(pMeasure->Voices[v].Notes[n].iXPos - iXPos))
 								n = i;
 
 						// If it is not under a rest, put it
 						if (pMeasure->Voices[v].Notes[n].chStep != 'R')
 						{
-							//// If it is inside an accord, move to last:
+							//// If it is inside an chord, move to last:
 							//if (FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD) ||
 							//	(n < (int)pMeasure->Voices[v].Notes.size() - 1 &&
 							//	FOUND_IN_SET(pMeasure->Voices[v].Notes[n + 1].Extras, MusicSheet::NE_CHORD)))
 							//	while (n < (int)pMeasure->Voices[v].Notes.size() - 1 &&
 							//		FOUND_IN_SET(pMeasure->Voices[v].Notes[n + 1].Extras, MusicSheet::NE_CHORD))
 							//		n++;
-							// If it is inside an accord, move to first:
+							// If it is inside an chord, move to first:
 							while (n && FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD))
 									n--;
 
@@ -760,10 +803,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 		}
 
 		int			iInTuplet = 0;
-		bool		bEndAccord = false;
+		bool		bEndChord = false;
 		bool		bEndTuplet = false;
-		CStringA	LilyAccordLength, *pLAL = NULL;
-		bool		bAccordIsArpeggio;
+		CStringA	LilyChordLength, *pLAL = NULL;
+		bool		bChordIsArpeggio;
 		
 		for ALL_INDICES(InVoice.Notes, i)
 		{
@@ -787,26 +830,26 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						nLastDirection = pDir->nType;
 					}
 
-			// Accord Start?
-			bool	bInAccord = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD);
-			bool	bAccordStart = (!bInAccord &&
+			// Chord Start?
+			bool	bInChord = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD);
+			bool	bChordStart = (!bInChord &&
 				i + 1 < (int)InVoice.Notes.size() &&
 				FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD));
 
-			if (bAccordStart)
+			if (bChordStart)
 			{
 				if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_ARPEGGIATE))
 				{
 					OutVoice.Text.push_back("Arpeggiate");
-					bAccordIsArpeggio = true;
+					bChordIsArpeggio = true;
 				}
 				else
 				{
-					OutVoice.Text.push_back("Accord");
-					bAccordIsArpeggio = false;
+					OutVoice.Text.push_back("Chord");
+					bChordIsArpeggio = false;
 				}
-				bEndAccord = true;
-				pLAL = &LilyAccordLength;
+				bEndChord = true;
+				pLAL = &LilyChordLength;
 			}
 
 			if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_TUPLET))
@@ -816,10 +859,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				iInTuplet = 3;
 			}
 
-			if (bAccordStart || iInTuplet == 3)
+			if (bChordStart || iInTuplet == 3)
 			{
 				OutVoice.Text.push_back("[");
-				if (bAccordStart)
+				if (bChordStart)
 					OutVoice.Lily += " < ";
 				else
 					OutVoice.Lily += " { ";
@@ -828,12 +871,12 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			bEndTuplet = (iInTuplet == 1);
 			GetNoteText(InVoice.Notes[i], OutVoice, iInTuplet-- > 0, pLAL);
 
-			// If current note has ARPEGGIATE and is in accord, remove the flag from the next ones. 
+			// If current note has ARPEGGIATE and is in chord, remove the flag from the next ones. 
 			if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_ARPEGGIATE))
-				if (bAccordStart || bInAccord)
+				if (bChordStart || bInChord)
 					// For all next notes...
 					for DRANGE(j, i + 1, (int)InVoice.Notes.size())
-						// If it is in this accord,...
+						// If it is in this chord,...
 						if (FOUND_IN_SET(InVoice.Notes[j].Extras, MusicSheet::NE_CHORD))
 						{
 							// If it has ARPEGGIATE, remove it.
@@ -843,19 +886,19 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						else
 							break;
 
-			// Accord Continuem or End?
-			if (iInTuplet <= 0 && (bAccordStart || bInAccord))
+			// Chord Continuem or End?
+			if (iInTuplet <= 0 && (bChordStart || bInChord))
 				if ((i + 1 < (int)InVoice.Notes.size() && FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD)))
 					OutVoice.Text.push_back(",");
 				else
 					if (i + 1 < (int)InVoice.Notes.size())
 					{
 						OutVoice.Text.push_back(" ]");
-						OutVoice.Lily += " > " + LilyAccordLength;
-						if (bAccordIsArpeggio)
+						OutVoice.Lily += " > " + LilyChordLength;
+						if (bChordIsArpeggio)
 							OutVoice.Lily += "\\arpeggio";
 						pLAL = NULL;
-						bEndAccord = false;						
+						bEndChord = false;						
 					}
 
 			if (bEndTuplet)
@@ -876,11 +919,11 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				}
 		}
 
-		if (bEndAccord)
+		if (bEndChord)
 		{
 			OutVoice.Text.push_back(" ]");
-			OutVoice.Lily += " > " + LilyAccordLength;
-			if (bAccordIsArpeggio)
+			OutVoice.Lily += " > " + LilyChordLength;
+			if (bChordIsArpeggio)
 				OutVoice.Lily += "\\arpeggio";
 			pLAL = NULL;
 		}
@@ -919,10 +962,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 #ifdef _DEBUG
 	for ALL(MT.Voices, pVoice)
 		for ALL_INDICES(pVoice->Text, i)
-			if (pVoice->Text[i].Left(6) == "Accord")
+			if (pVoice->Text[i].Left(6) == "Chord")
 				if (pVoice->Text[i].Find("Fermata") != -1 || (i + 1 < (int)pVoice->Text.size() && pVoice->Text[i + 1].Find("Fermata") != -1))
-					AfxMessageBox(L"FOUND ONE ACCORD CHANGE");
-	//Text.Replace( "Accord Fermata on" , "Fermata on Accord" ) ;
+					AfxMessageBox(L"FOUND ONE CHORD CHANGE");
+	//Text.Replace( "Chord Fermata on" , "Fermata on Chord" ) ;
 #endif
 	return MT;
 }

@@ -111,6 +111,7 @@ public:
 	afx_msg void OnDeletecacheAllsheets();
 	afx_msg void OnDeletecacheAutodeleteonexit();
 	afx_msg void OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI);
+	afx_msg void OnLilypondPrecreateallimages();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -134,11 +135,12 @@ public:
 	// Makes a sound
 	void VoiceMessage(CString What);
 	// Updates measure image.
-	void UpdateImage();
+	void UpdateImage(bool bForceRefresh=false);
 	// Creates measure image.
 	void CreateImage();
 	// Initializes LilyPond Wrapper
 	void InitializeLilyPond();
+	afx_msg void OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

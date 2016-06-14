@@ -116,6 +116,7 @@
     <ClInclude Include="MusicSheetNarrator.h" />
     <ClInclude Include="MusixXMLParser.h" />
     <ClInclude Include="MyEdit.h" />
+    <ClInclude Include="ProgressReport.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleQuestion.h" />
     <ClInclude Include="stdafx.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="MusicSheetNarrator.cpp" />
     <ClCompile Include="MusixXMLParser.cpp" />
     <ClCompile Include="MyEdit.cpp" />
+    <ClCompile Include="ProgressReport.cpp" />
     <ClCompile Include="SimpleQuestion.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
