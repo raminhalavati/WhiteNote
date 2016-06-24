@@ -19,13 +19,14 @@ public:
 
 	NarratedMusicSheet::MeasureText	GetMeasureText(MusicSheet::Measure * pMeasure, MusicSheet::Signatures * & pPreviousSignature);
 
-	void		GetSignaturesText(MusicSheet::Signatures & Sigs, int iStaff, MusicSheet::Signatures * pPreviousSignature, NarratedMusicSheet::Voice & Voice);
+	void	GetSignaturesText(NarratedMusicSheet::Voice & Voice, MusicSheet::Signatures & Sigs, int iStaff, MusicSheet::Signatures * pPreviousSignature);
 
-	CStringA	GetBarLineText(MusicSheet::BarLine & BL);
+	void	GetBarLineText(NarratedMusicSheet::Voice & Voice, MusicSheet::BarLine & BL);
 
-	CStringA	GetDirectionText(MusicSheet::DirectionTypes nDirType, CStringA & BufferText, MusicSheet::DirectionTypes nPreviousDir = MusicSheet::DIR_UNKNWON, CStringA ExtraText = "");
+	void	GetDirectionText(NarratedMusicSheet::Voice & Voice, MusicSheet::DirectionTypes nDirType, CStringA & BufferText,
+		MusicSheet::DirectionTypes nPreviousDir = MusicSheet::DIR_UNKNWON, CStringA ExtraText = "", bool bAbove = true);
 
-	void		GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet=false, CStringA * pChordLength = NULL);
+	void	GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet, bool &bInGrace, CStringA * pChordLength);
 
 	CStringA	GetNoteTypeName(MusicSheet::Note & Note);
 

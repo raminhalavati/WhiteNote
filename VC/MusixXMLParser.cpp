@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "MusixXMLParser.h"
 
-typedef	TinyXML2::XMLElement XMLElem ;
 
 CMusixXMLParser::CMusixXMLParser(void)
 {
@@ -9,49 +8,6 @@ CMusixXMLParser::CMusixXMLParser(void)
 
 CMusixXMLParser::~CMusixXMLParser(void)
 {
-}
-
-#define ALL_NODES1( pVar , pParent , Text1 )							( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 ) ;							pVar ;	pVar = pVar##->NextSiblingElement( Text1 ) )
-#define ALL_NODES2( pVar , pParent , Text1 , Text2 )					( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 ) ;					pVar ;	pVar = pVar##->NextSiblingElement( Text2 ) )
-#define ALL_NODES3( pVar , pParent , Text1 , Text2 , Text3 )			( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 , Text3 ) ;			pVar ;	pVar = pVar##->NextSiblingElement( Text3 ) )
-#define ALL_NODES4( pVar , pParent , Text1 , Text2 , Text3 , Text4 )	( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 , Text3 , Text4 ) ;	pVar ;	pVar = pVar##->NextSiblingElement( Text4 ) )
-
-int	_safe_atoi( const char * pchText )
-{
-	if ( pchText && pchText[ 0 ] )
-		return Round( atof( pchText ) ) ;
-	else
-		return -1 ;
-}
-
-char _safe_first_upper( const char * pchText )
-{
-	if ( pchText )
-		return toupper( pchText[ 0 ] ) ;
-	else
-		return 0 ;
-}
-
-CStringA	NodeToText( XMLElem * pNode )
-{
-	CStringA	Text = "[" ;
-
-	Text += pNode->Name() ;
-
-	const TinyXML2::XMLAttribute * pAttr = pNode->FirstAttribute() ;
-
-	if ( pAttr )
-	{
-		Text += " " ;
-		Text += pAttr->Name() ;
-		Text += "=" ;
-		Text += pAttr->Value() ;
-		Text += " " ;
-	}
-
-	Text += "]" ;
-
-	return Text ;
 }
 
 void	ReportError( XMLElem * pNode , CString Title )
@@ -95,6 +51,7 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 		if ( Doc.LoadFile( CW2A( FileName ) ) )
 			return false ;
 
+		// Read Credits
 		for ALL_NODES2( pCredit , & Doc , "score-partwise" , "credit" )
 		{		
 			XMLElem *	pWords = GetXMLNestedElement( pCredit , "credit-words" ) ;
@@ -128,21 +85,67 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 				return false ;
 			}
 
-			MusicSheet::Part *	pCurPart = & Sheet.Parts[ iPartNo ] ;
+			MusicSheet::Part *	pCurPart = &Sheet.Parts[iPartNo];
+
+			// Iteration 1, find voice to staff assignments
+			map<int, pair<int, int>>	V2VS;	// Original Voice ID to Voice Index and Staff Index
+			{
+				vector<map<int, int>>	Counts;
+				map<int, int>			EmptyMap;
+				for ALL_NODES1(pMeasure, pPart, "measure")
+					for (XMLElem *	pCurNode = pMeasure->FirstChildElement();
+						pCurNode; pCurNode = pCurNode->NextSiblingElement())
+						if (CStringA(pCurNode->Name()) == "note")
+						{
+							int iStaff = max(0, _safe_atoi(GetXMLNestedText(pCurNode, "staff")) - 1);
+							int iVoice = _safe_atoi(GetXMLNestedText(pCurNode, "voice"));
+							_ASSERTE(iVoice >= 0);
+
+							while ((int)Counts.size() <= iVoice)
+								Counts.push_back(EmptyMap);
+							if (Counts[iVoice].find(iStaff) == Counts[iVoice].end())
+								Counts[iVoice].insert(make_pair(iStaff, 1));
+							else
+								Counts[iVoice].find(iStaff)->second += 1;
+						}
+				vector<pair<int, int>> Originals;
+				for ALL_INDICES(Counts, v)
+					if (Counts[v].size())
+					{
+						int	iStaff = -1;
+						int iNotesCount = 0;
+						for ALL(Counts[v], pStaff)
+							if (pStaff->second > iNotesCount)
+							{
+								iNotesCount = pStaff->second;
+								iStaff = pStaff->first;
+							}
+						Originals.push_back(make_pair(v, iStaff));
+					}
+				// SORT
+				for ALL_INDICES(Originals, i)
+					for ALL_INDICES_EXCEPT_LAST(Originals, j)
+						if (Originals[j].second > Originals[j + 1].second)
+							swap(Originals[j], Originals[j + 1]);
+				for ALL_INDICES(Originals, i)
+					V2VS.insert(make_pair(Originals[i].first, make_pair(i, Originals[i].second)));
+			}
 
 			// Read All Measures
 			for ALL_NODES1( pMeasure , pPart , "measure" )
 			{
 				pCurPart->Measures.push_back( MusicSheet::Measure() ) ;
-				
 				MusicSheet::Measure	*	pCurMeasure = & pCurPart->Measures.back() ;
-				map<pair<int, int>, int>	SV2V;
-				pCurMeasure->iNumber = pCurPart->Measures.size() - 1; //--> atoi(pMeasure->Attribute("number"));
+				pCurMeasure->iNumber = pCurPart->Measures.size() - 1;
 
+				// Create all voices and set their staff numbers.
+				for ALL(V2VS, pVoices)
+					pCurMeasure->Voices.push_back(MusicSheet::Voice());
+				for ALL(V2VS, pVoices)
+					pCurMeasure->Voices[pVoices->second.first].iStaff = pVoices->second.second;
+				
 				int	iLastX = 0 ;
-				pair<int, int> LastNote = make_pair(0, 0);
-
-				bool	bBackedUp = false ; // A flag indicating that after the last seen note, a backup is issued.
+				pair<int, int> LastVoiceNote = make_pair(0, 0);
 
 				// Iterate All Nodes
 				for ( XMLElem *	pCurNode = pMeasure->FirstChildElement() ;
@@ -151,7 +154,8 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 					{
 						const char * pName = pCurNode->Name() ;
 
-						if ( pName && ! strcmp( pName , "barline" ) ) // Barline
+						// Barline
+						if ( pName && ! strcmp( pName , "barline" ) )
 						{
 							MusicSheet::BarLine	BL ;
 
@@ -211,12 +215,12 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 											BL.nType = MusicSheet::BarLine::BL_END ;
 									}
 								}
-
 								pCurMeasure->BarLines.push_back( BL ) ;
 							}
 						}
 
-						if ( pName && ! strcmp( pName , "attributes" ) )	// Attribtutes
+						// Attribtutes
+						if ( pName && ! strcmp( pName , "attributes" ) )
 						{
 							MusicSheet::Signatures	Sigs ;
 
@@ -234,12 +238,16 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 
 									const char * pchMode = GetXMLNestedText(pKey, "mode");
 
-									if (!strcmp(pchMode, "major"))
+									if (pchMode && !strcmp(pchMode, "major"))
 										Sigs.Key.bMajor = true;
-									else if (!strcmp(pchMode, "minor"))
+									else if (pchMode && !strcmp(pchMode, "minor"))
 										Sigs.Key.bMajor = false;
 									else
+									{
 										_RPTF1(_CRT_WARN, "Unexpected Key Mode: ", pchMode);
+										Sigs.Key.bMajor = true;	// <----- ASSUMED DEFAULT
+									}
+
 									bValid = true;
 								}
 								else
@@ -277,7 +285,7 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 								bValid = true ;
 							}							
 					
-							Sigs.BeforeNote = LastNote;
+							Sigs.BeforeNote = LastVoiceNote;
 
 							if ( bValid )
 								pCurMeasure->Signatures.push_back( Sigs ) ;
@@ -285,44 +293,44 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 						else if ( pName && ! strcmp( pName , "direction" ) ) // Directions
 						{	
 							vector<MusicSheet::Direction>	Dirs ;
-							int		iStaff = GetDirectionTypes(pCurNode, Dirs);
+							pair<int, int> SV = GetDirectionTypes(pCurNode, Dirs);
+							int		iStaff = SV.first;
+							int		iVoice = SV.second;
 
 							for ALL(Dirs, pDir)
 							{
 								// If not told by direction type, give it to last staff
 								if (iStaff == -1)
-								{
-									iStaff = 0;
-									for each (pair<pair<int, int>, int> SV in SV2V)
-										iStaff = max(iStaff, SV.first.first);
-								}
+									iStaff = pCurMeasure->Voices[LastVoiceNote.first].iStaff;
 
 								if (pDir->nType != MusicSheet::DIR_UNKNWON || pDir->Text.GetLength())
 								{
 									pDir->iStaff = iStaff;
-									pDir->BeforeNote = LastNote;
-									// Check Staff, if it is not a new one and it is different with last staff, find original and keep it.
-									if (LastNote.first < (int)pCurMeasure->Voices.size())
-										if (pCurMeasure->Voices[LastNote.first].iStaff != iStaff)
-										{
-											for ALL(pCurMeasure->Voices, pVoice)
-												if (pVoice->iStaff == iStaff)
-												{
-													pDir->BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
-													pDir->BeforeNote.second = (int)pVoice->Notes.size();
-													break;
-												}
-										}
+									pDir->iVoice = iVoice;
+									pDir->BeforeNote = LastVoiceNote;
+
+									// Check Staff, if it is different from last staff, find original and keep it.									
+									if (pCurMeasure->Voices[LastVoiceNote.first].iStaff != iStaff)
+									{
+										for ALL(pCurMeasure->Voices, pVoice)
+											if (pVoice->iStaff == iStaff)
+											{
+												pDir->BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
+												pDir->BeforeNote.second = (int)pVoice->Notes.size();
+												break;
+											}
+									}
 
 									pCurMeasure->Directions.push_back(*pDir);
 								}
 							}
 						}
-						else if ( pName && ! strcmp( pName , "note" ) ) // Note
+						// Note
+						else if ( pName && ! strcmp( pName , "note" ) ) 
 						{
 							MusicSheet::Note	NewNote ;
 
-							int		iStaff, iVoice ;
+							int		iVoice ;
 
 							// Get Data
 							{
@@ -331,14 +339,8 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 								NewNote.iOctave			= _safe_atoi( GetXMLNestedText( pCurNode , "pitch" , "octave" ) ) ;
 								NewNote.Type			= StringToNoteType( GetXMLNestedText( pCurNode , "type" ) ) ;						
 								NewNote.chStep			= _safe_first_upper( GetXMLNestedText( pCurNode , "pitch" , "step" ) ) ;
-								iStaff					= _safe_atoi( GetXMLNestedText( pCurNode , "staff" ) ) - 1 ;
-								iVoice					= _safe_atoi(GetXMLNestedText(pCurNode, "voice")) - 1;
+								iVoice					= V2VS.find(_safe_atoi(GetXMLNestedText(pCurNode, "voice")))->second.first;
 								
-								if ( iStaff == -2 )	// Looks as if when there is only one staff (as in Guitar), it is not stated.
-									iStaff = 0 ;
-								if (iVoice == -2)
-									iVoice = 0;
-
 								// Double Accidental
 								NewNote.bAccdidentalDouble = 
 									( NewNote.chAccidental && 
@@ -366,68 +368,65 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 									NewNote.Extras.insert( MusicSheet::NE_GRACE ) ;
 
 								// Notations
-
-								// Slur
+								if (GetXMLNestedElement(pCurNode, "notations"))
+									for (XMLElem * pNotation = GetXMLNestedElement(pCurNode, "notations")->FirstChildElement();
+										pNotation; pNotation = pNotation->NextSiblingElement())
 								{
-									XMLElem *	pSlur = GetXMLNestedElement ( pCurNode , "notations" , "slur" ) ;
+									CStringA Name = pNotation->Name();
 
-									if ( pSlur )
+									if (Name == "slur")
 									{
-										const char *	pchType = pSlur->Attribute( "type" ) ;
+										const char *	pchType = pNotation->Attribute("type");
 
-										if ( pchType )
-											if ( ! strcmp( pchType , "start" ) )	NewNote.Extras.insert( MusicSheet::NE_SLUR_START ) ;
-											else
-												if ( ! strcmp( pchType , "stop" ) )		NewNote.Extras.insert( MusicSheet::NE_SLUR_END ) ;
+										if (pchType)
+											if (!strcmp(pchType, "start"))
+												NewNote.Extras.insert(MusicSheet::NE_SLUR_START);
+											else if (!strcmp(pchType, "stop"))
+												NewNote.Extras.insert(MusicSheet::NE_SLUR_END);
 									}
+									else if (Name == "tied")
+									{
+										const char *	pchType = pNotation->Attribute("type");
+
+										if (pchType)
+											if (!strcmp(pchType, "start"))
+												NewNote.Extras.insert(MusicSheet::NE_TIED_START);
+											else if (!strcmp(pchType, "stop"))
+												NewNote.Extras.insert(MusicSheet::NE_TIED_END);
+									}
+									else if (Name == "arpeggiate")
+										NewNote.Extras.insert(MusicSheet::NE_ARPEGGIATE);
+									else if (Name == "tuplet")
+									{
+										if (!strcmp(pNotation->Attribute("type"), "start"))
+											NewNote.Extras.insert(MusicSheet::NE_TUPLET_START);
+										else if (!strcmp(pNotation->Attribute("type"), "stop"))
+											NewNote.Extras.insert(MusicSheet::NE_TUPLET_STOP);
+									}
+									else if (Name == "ornaments")
+									{
+										if (GetXMLNestedElement(pNotation, "turn"))
+											NewNote.Extras.insert(MusicSheet::NE_GRUPPETTO);
+									}
+									else if (Name == "articulations")
+									{
+										if (GetXMLNestedElement(pNotation, "staccato"))
+											NewNote.Extras.insert(MusicSheet::NE_STACCATO);
+										else if (GetXMLNestedElement(pNotation, "staccatissimo"))
+											NewNote.Extras.insert(MusicSheet::NE_STACCATISSIMO);
+										else if (GetXMLNestedElement(pNotation, "accent"))
+											NewNote.Extras.insert(MusicSheet::NE_ACCENT);
+										else if (GetXMLNestedElement(pNotation, "strong-accent"))
+											NewNote.Extras.insert(MusicSheet::NE_STRONG_ACCENT);
+									}
+									else if (Name == "fermata")
+										NewNote.Extras.insert(MusicSheet::NE_FERMATA);
 								}
-
-								// Tied
-								for ALL_NODES2( pTied , pCurNode , "notations" , "tied"  )
-								{
-									const char *	pchType = pTied->Attribute( "type" ) ;
-
-									if ( pchType )
-										if ( ! strcmp( pchType , "start" ) )	NewNote.Extras.insert( MusicSheet::NE_TIED_START ) ;
-										else
-											if ( ! strcmp( pchType , "stop" ) )		NewNote.Extras.insert( MusicSheet::NE_TIED_END ) ;									
-								}
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "arpeggiate" ) )
-									NewNote.Extras.insert( MusicSheet::NE_ARPEGGIATE ) ;
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "tuplet" ) )
-								{
-									XMLElem * pTuplet = GetXMLNestedElement( pCurNode , "notations" , "tuplet" ) ;
-
-									if ( ! strcmp( pTuplet->Attribute( "type" ) , "start" ) )
-										NewNote.Extras.insert( MusicSheet::NE_TUPLET ) ;
-								}
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "ornaments" , "turn" ) )
-									NewNote.Extras.insert( MusicSheet::NE_GRUPPETTO ) ;
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "articulations" , "staccato" ) )
-									NewNote.Extras.insert( MusicSheet::NE_STACCATO ) ;
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "articulations" , "staccatissimo" ) )
-									NewNote.Extras.insert( MusicSheet::NE_STACCATISSIMO ) ;
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "articulations" , "accent" ) )
-									NewNote.Extras.insert( MusicSheet::NE_ACCENT) ;
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "articulations" , "strong-accent" ) )
-									NewNote.Extras.insert( MusicSheet::NE_STRONG_ACCENT) ;
-
-
-								if ( GetXMLNestedElement( pCurNode , "notations" , "fermata" ) )
-									NewNote.Extras.insert( MusicSheet::NE_FERMATA ) ;
 							}
 
 							// Check
 							if ( NewNote.Type == MusicSheet::DIR_UNKNWON ||
 								 NewNote.chStep == NULL ||
-								 iStaff < 0 || 
 								 ( NewNote.chStep != 'R' && NewNote.iOctave == -1 ) )
 							{
 								ReportError( pCurNode , L"Wiered Note" ) ;
@@ -435,20 +434,14 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 							}
 
 							// Add It
-							pair<int, int> SV = make_pair(iStaff, iVoice);
-							if (SV2V.find(SV) == SV2V.end())
-							{
-								SV2V.insert(make_pair(SV, pCurMeasure->Voices.size()));
-								pCurMeasure->Voices.push_back(MusicSheet::Voice());
-								pCurMeasure->Voices.back().iStaff = iStaff;
-							}
-							LastNote.first = SV2V.find(SV)->second;
-							pCurMeasure->Voices[LastNote.first].Notes.push_back(NewNote);
-							LastNote.second = pCurMeasure->Voices[LastNote.first].Notes.size();
-							bBackedUp = false ;							
+							pCurMeasure->Voices[iVoice].Notes.push_back(NewNote);
+
+							LastVoiceNote.first = iVoice;
+							LastVoiceNote.second = pCurMeasure->Voices[iVoice].Notes.size();
 						}
-						else if ( pName && ! strcmp( pName , "backup" ) ) // backup
-							bBackedUp = true ;
+						else if (pName && !strcmp(pName, "backup"))
+						{
+						} // backup
 					}
 					catch(...)
 					{
@@ -468,10 +461,11 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 	}
 }
 
-// Returns the direction type of a node and the staffs the will receive it.
-int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<MusicSheet::Direction> & Directions)
+// Returns the direction type of a node and its (staff,voice)
+pair<int, int>	CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<MusicSheet::Direction> & Directions)
 {
 	int		iStaff = -1;
+	int		iVoice = -1;
 	bool	bPlacementAbove = false;
 		
 
@@ -500,6 +494,11 @@ int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<Mus
 
 			if (iStaff != -1)
 				iStaff--;
+			continue;
+		}
+		else if (Dir.Text == "voice")
+		{
+			iVoice = _safe_atoi(pCurNode->GetText());
 			continue;
 		}
 		else if (Dir.Text == "direction-type")
@@ -578,5 +577,5 @@ int		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode, vector<Mus
 		Directions.push_back(Dir);
 	}
 
-	return iStaff ;
+	return make_pair(iStaff, iVoice) ;
 }

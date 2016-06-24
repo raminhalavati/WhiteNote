@@ -11,7 +11,9 @@ typedef struct _MusicSheet
 
 	typedef enum {
 		NE_CHORD,
-		NE_TUPLET,
+		NE_TUPLET_START,
+		//NE_TUPLET_MIDDLE,
+		NE_TUPLET_STOP,
 		NE_ARPEGGIATE,
 		NE_ACCENT,
 		NE_STRONG_ACCENT,
@@ -122,6 +124,7 @@ typedef struct _MusicSheet
 	typedef struct _Direction
 	{
 		int				iStaff;
+		int				iVoice; // Optional
 		pair<int, int>	BeforeNote;	// Before which notes of which voice it is told? (voice, note)
 		bool			bAbove;
 		DirectionTypes	nType;

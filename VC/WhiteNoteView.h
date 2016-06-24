@@ -37,6 +37,7 @@ public:
 		CString	LilyPondPath;
 		bool	bAutoRefreshImages;
 		bool	bAutoDeleteCache;
+		bool	bShowVoicesOnDifferentStaffs;
 	} m_Defaults;
 
 	struct _Playing
@@ -141,6 +142,8 @@ public:
 	// Initializes LilyPond Wrapper
 	void InitializeLilyPond();
 	afx_msg void OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI);
+	afx_msg void OnImagesShowvoicesonseparatestaffs();
+	afx_msg void OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

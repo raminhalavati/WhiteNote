@@ -9,6 +9,7 @@ public:
 	CLilyPondWrapper();
 	~CLilyPondWrapper();
 
+	bool					m_bShowVoicesOnDifferentStaffs;
 	bool					m_bReady;
 	NarratedMusicSheet *	m_pNarration;
 	CString					m_CacheFolderRoot;

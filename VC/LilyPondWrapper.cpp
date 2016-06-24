@@ -130,7 +130,6 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 	if (Image.Load(ImageFileName) == S_OK)
 		return true;
 
-	
 	// Create Lily Text File
 	{
 		NarratedMusicSheet::MeasureText & CM = m_pNarration->Parts[iPartNo].Measures[iMeasureNo];
@@ -141,11 +140,28 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 			"evenHeaderMarkup = \"\" "
 			"oddFooterMarkup = \"\" "
 			"evenFooterMarkup = \"\" "
-			"} <<";
+			"}\r\n<<\r\n";
 	
+		int		iLastStaff = -1;
+		bool	bOpen = false;
 		for ALL(CM.Voices, pVoice)
-			Text += pVoice->Lily;
-		Text += " >>";
+			if (pVoice->Lily.GetLength())
+			{
+				if (m_bShowVoicesOnDifferentStaffs || iLastStaff != pVoice->iStaff)
+				{
+					if (bOpen)
+						Text += ">>\r\n";
+					Text += "\\new Staff\r\n<<\r\n";
+					iLastStaff = pVoice->iStaff;
+					bOpen = true;
+				}
+				else
+					Text += "\\new Voice\n\r\n";
+				Text += pVoice->Lily;
+			}
+		if (bOpen)
+			Text += ">>\r\n";
+		Text += ">>\r\n";
 
 		CFile File;
 		DeleteFile(LilyFileName);
@@ -164,7 +180,7 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		Command.Format(L"-l=ERROR -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
 
 		ShellExecute(NULL, NULL, m_LilyPondPath, Command, m_FileCacheFolder, SW_HIDE);
-		for (int i = 0; i < 30; i++)
+		for (int i = 0; i < 100; i++)
 			if (Image.Load(ImageFileName) == S_OK)
 				break;
 			else

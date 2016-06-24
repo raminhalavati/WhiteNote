@@ -126,3 +126,14 @@ const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 = NULL ,
 
 // Unzip
 void UnZipFile(CString strSrc, CString strDest) ;
+
+#define CHKSTR( T , N ) if ( Name == T ) return N ;
+typedef	TinyXML2::XMLElement XMLElem;
+#define ALL_NODES1( pVar , pParent , Text1 )							( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 ) ;							pVar ;	pVar = pVar##->NextSiblingElement( Text1 ) )
+#define ALL_NODES2( pVar , pParent , Text1 , Text2 )					( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 ) ;					pVar ;	pVar = pVar##->NextSiblingElement( Text2 ) )
+#define ALL_NODES3( pVar , pParent , Text1 , Text2 , Text3 )			( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 , Text3 ) ;			pVar ;	pVar = pVar##->NextSiblingElement( Text3 ) )
+#define ALL_NODES4( pVar , pParent , Text1 , Text2 , Text3 , Text4 )	( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 , Text3 , Text4 ) ;	pVar ;	pVar = pVar##->NextSiblingElement( Text4 ) )
+
+int	_safe_atoi(const char * pchText);
+char _safe_first_upper(const char * pchText);
+CStringA	NodeToText(XMLElem * pNode);

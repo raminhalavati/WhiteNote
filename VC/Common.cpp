@@ -204,3 +204,41 @@ void UnZipFile(CString strSrc, CString strDest)
 
 	CoUninitialize();
 }
+
+int	_safe_atoi(const char * pchText)
+{
+	if (pchText && pchText[0])
+		return Round(atof(pchText));
+	else
+		return -1;
+}
+
+char _safe_first_upper(const char * pchText)
+{
+	if (pchText)
+		return toupper(pchText[0]);
+	else
+		return 0;
+}
+
+CStringA	NodeToText(XMLElem * pNode)
+{
+	CStringA	Text = "[";
+
+	Text += pNode->Name();
+
+	const TinyXML2::XMLAttribute * pAttr = pNode->FirstAttribute();
+
+	if (pAttr)
+	{
+		Text += " ";
+		Text += pAttr->Name();
+		Text += "=";
+		Text += pAttr->Value();
+		Text += " ";
+	}
+
+	Text += "]";
+
+	return Text;
+}
