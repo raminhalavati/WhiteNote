@@ -12,6 +12,7 @@
 #include "WhiteNoteDoc.h"
 #include "WhiteNoteView.h"
 #include "SimpleQuestion.h"
+#include "CommentDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -75,6 +76,13 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_FILE_RELOAD, &CWhiteNoteView::OnFileReload)
 	ON_COMMAND(ID_HELP_LILYPONDWEBSITE, &CWhiteNoteView::OnHelpLilypondwebsite)
 	ON_COMMAND(ID_HELP_DOWNLOADLILYPOND, &CWhiteNoteView::OnHelpDownloadlilypond)
+	ON_COMMAND(ID_COMMENTS_SHOW, &CWhiteNoteView::OnCommentsShow)
+	ON_UPDATE_COMMAND_UI(ID_COMMENTS_SHOW, &CWhiteNoteView::OnUpdateCommentsShow)
+	ON_COMMAND(ID_COMMENTS_ADD, &CWhiteNoteView::OnCommentsAdd)
+	ON_COMMAND(ID_COMMENTS_SELECT_FILE, &CWhiteNoteView::OnCommentsSelectFile)
+	ON_UPDATE_COMMAND_UI(ID_COMMENTS_AUTOSAVE, &CWhiteNoteView::OnUpdateCommentsAutosave)
+	ON_COMMAND(ID_COMMENTS_AUTOSAVE, &CWhiteNoteView::OnCommentsAutosave)
+	ON_COMMAND(ID_COMMENTS_SAVE, &CWhiteNoteView::OnCommentsSave)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -206,6 +214,12 @@ void CWhiteNoteView::OnInitialUpdate()
 		m_Summary.SetFocus();
 		m_CurrentImage = make_pair(-1, -1);
 		CreateImage();
+
+		// Comments File
+		m_Comments.FileName = ((CWhiteNoteDoc*) m_pDocument)->m_FilePath;
+		if (m_Comments.FileName.GetLength() > 4)
+			m_Comments.FileName = m_Comments.FileName.Left(m_Comments.FileName.GetLength() - 3) + L".comments.txt";
+		LoadComments(m_Comments.FileName);
 	}	
 }
 
@@ -278,10 +292,19 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.Language = theApp.GetProfileString(L"Defaults", L"Language", L"");
 		if (m_Defaults.Language == L"")
 		{
-			m_Defaults.Language = (AfxMessageBox(L"Do you want to set the language to Persian?", MB_YESNO | MB_ICONQUESTION) == IDNO) ? L"EN" : L"FA";
-			if (m_Defaults.Language == L"EN")
-				AfxMessageBox(L"You can change language later in Options/Language menu.", MB_ICONINFORMATION);
+			if (AfxMessageBox(L"Do you want to set the language to Persian?", MB_YESNO | MB_ICONQUESTION) == IDNO)
+			{
+				m_Defaults.Language = L"EN";
+				m_Defaults.bLTR = true;
+			}
+			else
+			{
+				m_Defaults.Language = L"FA";
+				m_Defaults.bLTR = false;
+			}
+
 			theApp.WriteProfileString(L"Defaults", L"Language", m_Defaults.Language);
+			theApp.WriteProfileInt(L"Defaults", L"LTR", m_Defaults.bLTR);
 		}
 		m_Defaults.bLTR = (theApp.GetProfileInt(L"Defaults", L"LTR", 1) != 0);
 		m_Defaults.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
@@ -293,7 +316,8 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
 		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
-				
+		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
+
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -331,6 +355,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", m_Defaults.bShowVoicesOnDifferentStaffs);
 		theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
 		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Defaults.bDetailedText);
+		theApp.WriteProfileInt(L"Defaults", L"AutoSaveComments", m_Defaults.bAutoSaveComments);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -440,6 +465,9 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		m_Playing.iLastMeasure = m_Playing.iMeasure;
 		if (m_Defaults.bAutoRefreshImages)
 			UpdateImage();
+
+		if (GetSetComment().GetLength())
+			VoiceMessage(L"Comment");
 	}
 	catch (...)
 	{
@@ -1146,4 +1174,114 @@ void CWhiteNoteView::OnHelpLilypondwebsite()
 void CWhiteNoteView::OnHelpDownloadlilypond()
 {
 	theApp.OpenInBrowser(L"http://download.linuxaudio.org/lilypond/binaries/mingw/lilypond-2.18.2-1.mingw.exe");
+}
+
+// Loads the comments file.
+bool CWhiteNoteView::LoadComments(CString FilePath)
+{
+	try
+	{
+		m_Comments.Texts.clear();
+		FILE * hFile;
+		if (_wfopen_s(&hFile, m_Comments.FileName, L"r, ccs=UTF-8"))
+			throw 0;
+		int	iCount;
+		fwscanf_s(hFile, L"%i\n", &iCount);
+		while (iCount--)
+		{
+			int	m, v;
+			CString	Text;
+
+			fwscanf_s(hFile, L"%i,%i\n%s\n", &m, &v, Text.GetBufferSetLength(1000), 1000);
+			Text.ReleaseBuffer();
+			m_Comments.Texts.insert(make_pair(make_pair(m, v), Text));
+		}
+		fclose(hFile);
+	}
+	catch (...)
+	{
+	}
+	return false;
+}
+
+// Returns current position's comments.
+CString CWhiteNoteView::GetSetComment(CString *pNewValue)
+{
+	pair<int, int> key = make_pair(m_Playing.iMovement * 1000 + m_Playing.iMeasure, m_Playing.iVoice);
+
+	if (pNewValue)
+		m_Comments.Texts.insert(make_pair(key, *pNewValue));
+	else
+		if (m_Comments.Texts.find(key) != m_Comments.Texts.end())
+			return m_Comments.Texts.find(key)->second;
+	return L"";
+}
+
+
+void CWhiteNoteView::OnCommentsShow()
+{
+	ShowComment(false, GetSetComment());
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsShow(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GetSetComment().GetLength());
+}
+
+
+void CWhiteNoteView::OnCommentsAdd()
+{
+	CString Text = ShowComment(true, GetSetComment());
+	if (Text != L"-1")
+	{
+		GetSetComment(&Text);
+		if (m_Defaults.bAutoSaveComments)
+			OnCommentsSave();
+	}
+}
+
+
+void CWhiteNoteView::OnCommentsSelectFile()
+{
+	CFileDialog	FDlg(true, L"txt", m_Comments.FileName, 6, L"Text Files (*.txt)|*.txt|All Files (*.*)|*.*||");
+	if (FDlg.DoModal() == IDOK)
+	{
+		m_Comments.FileName = FDlg.GetPathName();
+	}
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsAutosave(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bAutoSaveComments);
+}
+
+
+void CWhiteNoteView::OnCommentsAutosave()
+{
+	m_Defaults.bAutoSaveComments = !m_Defaults.bAutoSaveComments;
+	SerializeDefaults(false);
+}
+
+
+void CWhiteNoteView::OnCommentsSave()
+{
+	try
+	{
+		FILE * hFile;
+		if (_wfopen_s(&hFile, m_Comments.FileName, L"w, ccs=UTF-8"))
+			throw 0;
+		fwprintf_s(hFile, L"%i\n", m_Comments.Texts.size());
+		for ALL(m_Comments.Texts, pItem)
+			fwprintf_s(hFile, L"%i,%i\n%s\n", 
+				pItem->first.first , 
+				pItem->first.second ,
+				pItem->second.GetBuffer());
+		fclose(hFile);
+	}
+	catch (...)
+	{
+		AfxMessageBox(L"Could not save comments file.", MB_ICONERROR);
+	}
 }

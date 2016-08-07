@@ -65,7 +65,7 @@ void CWhiteNoteDoc::Serialize(CArchive& ar)
 		m_Narration.Clear();
 		m_FileName = ar.GetFile()->GetFileName();
 		CString FilePath = ar.GetFile()->GetFilePath();
-
+		m_FilePath = FilePath;
 		if (m_FileName.GetLength() > 3 && m_FileName.Right(3).MakeLower() == "mxl")
 			FilePath = GetXMLFromMXL(FilePath);
 		ReadXMLFile(FilePath);

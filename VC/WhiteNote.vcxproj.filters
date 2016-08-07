@@ -69,6 +69,9 @@
     <ClInclude Include="ProgressReport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CommentDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WhiteNote.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProgressReport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommentDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

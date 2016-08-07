@@ -9,6 +9,7 @@
 #define IDR_WhiteNoteTYPE               130
 #define IDD_SIMPLEQUESTION              310
 #define IDD_PROGRESSREPORT              311
+#define IDD_COMMENTDIALOG               312
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -22,6 +23,7 @@
 #define IDC_LABEL_6                     1047
 #define IDC_TITLE                       1048
 #define IDC_PROGRESS                    1049
+#define IDC_TEXT                        1050
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -84,14 +86,21 @@
 #define ID_FILE_RELOAD                  32864
 #define ID_HELP_LILYPONDWEBSITE         32865
 #define ID_HELP_DOWNLOADLILYPOND        32866
+#define ID_COMMENTS                     32867
+#define ID_COMMENTS_SHOW                32868
+#define ID_COMMENTS_ADD                 32869
+#define ID_COMMENTS_SELECT_FILE         32870
+#define ID_COMMENTS_AUTOSAVE            32871
+#define ID_COMMENTS_SAVECOMMENTS        32872
+#define ID_COMMENTS_SAVE                32873
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32867
-#define _APS_NEXT_CONTROL_VALUE         1050
-#define _APS_NEXT_SYMED_VALUE           312
+#define _APS_NEXT_RESOURCE_VALUE        311
+#define _APS_NEXT_COMMAND_VALUE         32877
+#define _APS_NEXT_CONTROL_VALUE         1051
+#define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif

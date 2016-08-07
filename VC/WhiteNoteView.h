@@ -40,7 +40,14 @@ public:
 		bool	bAutoDeleteCache;
 		bool	bShowVoicesOnDifferentStaffs;
 		bool	bDetailedText;
+		bool	bAutoSaveComments;
 	} m_Defaults;
+
+	struct _Comments
+	{
+		map<pair<int, int>, CString>	Texts;
+		CString							FileName;
+	} m_Comments;
 
 	struct _Playing
 	{
@@ -125,6 +132,13 @@ public:
 	afx_msg void OnFileReload();
 	afx_msg void OnHelpLilypondwebsite();
 	afx_msg void OnHelpDownloadlilypond();
+	afx_msg void OnCommentsShow();
+	afx_msg void OnUpdateCommentsShow(CCmdUI *pCmdUI);
+	afx_msg void OnCommentsAdd();
+	afx_msg void OnCommentsSelectFile();
+	afx_msg void OnUpdateCommentsAutosave(CCmdUI *pCmdUI);
+	afx_msg void OnCommentsAutosave();
+	afx_msg void OnCommentsSave();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -155,6 +169,10 @@ public:
 	void InitializeLilyPond();
 	// Chooses a temp folder automatically.
 	void AutomaticallyChooseTemp();
+	// Loads the comments file.
+	bool LoadComments(CString FilePath);
+	// Returns current position's comments.
+	CString GetSetComment(CString *pNewValue=NULL);
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

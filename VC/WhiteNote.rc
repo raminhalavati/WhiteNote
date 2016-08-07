@@ -109,8 +109,8 @@ BEGIN
     POPUP "&Images"
     BEGIN
         MENUITEM "&Automatic Show",             ID_LILYPOND_AUTOMATICREFRESH
-        MENUITEM "&Show Image\tCTRL+I",         ID_LILYPOND_SHOWIMAGE
-        MENUITEM "&Precreate All Images\tCTRL+ALT+I", ID_LILYPOND_PRECREATEALLIMAGES
+        MENUITEM "&Show Image\tCtrl+I",         ID_LILYPOND_SHOWIMAGE
+        MENUITEM "&Precreate All Images\tCtrl+Alt+I", ID_LILYPOND_PRECREATEALLIMAGES
         POPUP "&Delete Cache"
         BEGIN
             MENUITEM "&Current Sheet",              ID_DELETECACHE_CURRENTSHEET
@@ -121,7 +121,14 @@ BEGIN
         MENUITEM "&Change LilyPond Path...",    ID_LILYPOND_CHANGEPATH
         MENUITEM "Change &Temp Folder",         ID_IMAGES_CHANGETEMPFOLDER
     END
-    MENUITEM "&Comments",                   0
+    POPUP "&Comments"
+    BEGIN
+        MENUITEM "&Show\tCtrl+W",               ID_COMMENTS_SHOW
+        MENUITEM "&Add/Edit\tCtrl+E",           ID_COMMENTS_ADD
+        MENUITEM "Select &File...",             ID_COMMENTS_SELECT_FILE, INACTIVE
+        MENUITEM "A&uto Save",                  ID_COMMENTS_AUTOSAVE
+        MENUITEM "Sa&ve\tCtrl+Alt+S",           ID_COMMENTS_SAVE
+    END
     POPUP "&Options"
     BEGIN
         MENUITEM "&Always Show Signatures",     ID_OPTIONS_ALWAYSSHOWSIGNATURES
@@ -159,6 +166,7 @@ BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEAS,         VIRTKEY, CONTROL, NOINVERT
     VK_F1,          ID_HELP_HELP,           VIRTKEY, NOINVERT
+    "I",            ID_LILYPOND_PRECREATEALLIMAGES, VIRTKEY, CONTROL, ALT, NOINVERT
     "I",            ID_LILYPOND_SHOWIMAGE,  VIRTKEY, CONTROL, NOINVERT
     "G",            ID_NAVIGATE_GOTO_MEASURE, VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        ID_NAVIGATE_LEFT_MEASURE, VIRTKEY, ALT, NOINVERT
@@ -168,7 +176,9 @@ BEGIN
     "M",            ID_NAVIGATE_SELECT_MOVEMENT, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, CONTROL, NOINVERT
     "L",            ID_PLAY_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_LILYPOND_PRECREATEALLIMAGES, VIRTKEY, CONTROL, ALT, NOINVERT
+    "E",            ID_COMMENTS_ADD,        VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_COMMENTS_SAVE,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "W",            ID_COMMENTS_SHOW,       VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -219,6 +229,16 @@ CAPTION "Creating all images..."
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,307,11
+END
+
+IDD_COMMENTDIALOG DIALOGEX 0, 0, 320, 82
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_TEXT,7,7,306,54,ES_CENTER | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,108,66,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,162,66,50,14
 END
 
 
@@ -300,8 +320,27 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 18
     END
+
+    IDD_COMMENTDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_COMMENTDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////

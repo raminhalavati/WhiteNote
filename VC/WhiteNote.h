@@ -24,6 +24,7 @@ public:
 	CString m_WebsiteMessage;
 	CString m_LatestFileLocation;
 	bool	m_bNewVersionExists;
+	bool	m_bTerminateToUpdate;
 // Overrides
 public:
 	virtual BOOL InitInstance();
@@ -41,6 +42,7 @@ public:
 	void OpenInBrowser(CString Path);
 	// Is called when a newer version is available.
 	int NewVersionAvailable();
+	virtual BOOL OnIdle(LONG lCount);
 };
 
 extern CWhiteNoteApp theApp;

@@ -53,7 +53,7 @@ CWhiteNoteApp::CWhiteNoteApp()
 	m_bNewVersionExists = false;
 	m_FileVersion = L"2.0";
 	m_WebsiteMessage = L"";
-	
+	m_bTerminateToUpdate = false;
 	try
 	{
 		HRSRC res = ::FindResource(NULL, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
@@ -378,9 +378,7 @@ void CWhiteNoteApp::OnHelpCheckforupdate()
 	if (!UpdateCheck(true))
 		AfxMessageBox(L"Could not check for update.\r\nPlease check your internet connection or refer to www.white-note.com", MB_ICONERROR);
 	else
-		if (m_bNewVersionExists)
-			NewVersionAvailable();
-		else
+		if (!m_bNewVersionExists)
 			AfxMessageBox(L"Your application is the latest avaiable version.\r\nAutomatic check will be done next week.");	
 }
 
@@ -401,14 +399,25 @@ void CWhiteNoteApp::OpenInBrowser(CString Path)
 int CWhiteNoteApp::NewVersionAvailable()
 {
 	if (m_LatestFileLocation.GetLength())
+	{
 		if (AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com. Do you want to do it now?", MB_YESNO | MB_ICONQUESTION) == IDYES)
 		{
 			AfxMessageBox(L"WhiteNote will close and new installer will be downloaded. Run it to update WhiteNote.", MB_ICONINFORMATION);
 			OpenInBrowser(m_LatestFileLocation);
-			m_pMainWnd->PostMessage(WM_QUIT, 0, 0);
+			m_bTerminateToUpdate = true;
 			return 1;
 		}
-		else
-			AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+	}
+	else
+		AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
 	return 0;
+}
+
+
+BOOL CWhiteNoteApp::OnIdle(LONG lCount)
+{
+	if (m_bTerminateToUpdate)
+		m_pMainWnd->PostMessage(WM_QUIT, 0, 0);
+
+	return CWinApp::OnIdle(lCount);
 }
