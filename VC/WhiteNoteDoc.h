@@ -55,4 +55,6 @@ public:
 
 	// Reads the XML File stored in FilePath
 	bool ReadXMLFile(CString FilePath);
+	// Reloads a document to reflect external or settings changes.
+	bool Reload();
 };

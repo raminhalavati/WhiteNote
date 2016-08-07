@@ -6,6 +6,17 @@
 CTranslator::CTranslator()
 {
 	m_Language = L"EN";
+
+	m_NoteWords.push_back("whole");
+	m_NoteWords.push_back("half");
+	m_NoteWords.push_back("quarter");
+	m_NoteWords.push_back("eighth");
+	m_NoteWords.push_back("sixteenth");
+	m_NoteWords.push_back("32nd");
+	m_NoteWords.push_back("64th");
+	m_NoteWords.push_back("128th");
+	m_NoteWords.push_back("256th");
+	m_NoteWords.push_back("whole_bar");
 }
 
 
@@ -120,7 +131,8 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("dynamic", L"دینامیک"));
 	m_Words.insert(make_pair("dotted", L"نقطه_دار"));
 	m_Words.insert(make_pair("double_dotted", L"دو_نقطه_دار"));
-	m_Words.insert(make_pair("fermata", L"علامت_فرمات_"));
+	m_Words.insert(make_pair("equal_to", L"مساوی_با"));
+	m_Words.insert(make_pair("fermata", L"علامت_فرمات"));
 	m_Words.insert(make_pair("finger", L"انگشت"));
 	m_Words.insert(make_pair("fingers", L"انگشتان"));
 	m_Words.insert(make_pair("first_volta_end", L"پایان_ولت_یک"));
@@ -284,7 +296,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 		// Don't convert original statement if it exists
 		Statement = L"";
 	}
-	
+
 	if (EQ(1) && Tokens[0] == "clef")
 	{
 		m_Context.push("clef_");\
@@ -326,6 +338,12 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 //			Outs.push_back(T_(Statement));
 		else
 		{
+			// See if there is a "note" in the text
+			int	iNote = VEC_INDEX(find(Tokens.begin(), Tokens.end(), "note"), Tokens);
+			if (iNote != (int)Tokens.size())
+				if (iNote > 0 && find(m_NoteWords.begin(), m_NoteWords.end(), Tokens[iNote - 1]) != m_NoteWords.end())
+					swap(Tokens[iNote - 1], Tokens[iNote]);
+			
 			while (Tokens.size())
 				for (int i = (int)Tokens.size(); i > 0; i--)
 				{

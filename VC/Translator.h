@@ -37,6 +37,7 @@ public:
 	inline CString	TranslateWord(CStringA Word);
 
 	map<CStringA, CString>	m_Words;
+	vector<CStringA>			m_NoteWords;
 	stack<CStringA>			m_Context;
 };
 

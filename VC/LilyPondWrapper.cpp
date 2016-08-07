@@ -6,11 +6,7 @@
 CLilyPondWrapper::CLilyPondWrapper()
 {
 	m_pNarration= NULL;
-	GetTempPath(MAX_PATH, m_CacheFolderRoot.GetBufferSetLength(MAX_PATH));
-	m_CacheFolderRoot.ReleaseBuffer();
-	m_CacheFolderRoot += L"WhiteNoteCache";
-	m_LilyPondPath = L"";
-	CreateDirectory(m_CacheFolderRoot, NULL);
+	m_CacheFolderRoot = m_LilyPondPath = L"";
 	m_bReady = false;
 }
 
@@ -21,11 +17,14 @@ CLilyPondWrapper::~CLilyPondWrapper()
 
 
 // Initializes LilyPond image wrapper.
-void CLilyPondWrapper::Initialize(CString LilyPondPath, NarratedMusicSheet* pSheet, CString FilePath)
+void CLilyPondWrapper::Initialize(CString LilyPondPath, CString TempPath, NarratedMusicSheet* pSheet, CString FilePath)
 {
 	m_bReady = false;
 	m_FailedItems.clear();
 	m_LilyPondPath = LilyPondPath;
+	m_CacheFolderRoot = TempPath + L"WhiteNoteCache";
+	CreateDirectory(m_CacheFolderRoot, NULL);
+
 	// Create Folder
 	{
 		m_FileCacheFolder = m_CacheFolderRoot + L"\\";
@@ -103,16 +102,16 @@ void CLilyPondWrapper::VerifyCheckSum()
 
 
 // Returns requested measures image, either from buffer or new creation.
-bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Image, bool bForceRecheck)
+bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage & Image, bool bForceRecheck)
 {
 	if (!m_bReady)
 		return false;
 
 	// Check Validity
-	if (iPartNo >= (int)m_pNarration->Parts.size() || iMeasureNo >= (int)m_pNarration->Parts[iPartNo].Measures.size())
+	if (iMovementNo >= (int)m_pNarration->Movements.size() || iMeasureNo >= (int)m_pNarration->Movements[iMovementNo].Measures.size())
 		return false;
 	
-	pair<int, int> key = make_pair(iPartNo, iMeasureNo);
+	pair<int, int> key = make_pair(iMovementNo, iMeasureNo);
 	if (bForceRecheck)
 		m_FailedItems.erase(key);
 	else
@@ -123,8 +122,8 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		Image.Destroy();
 
 	CString	ImageFileName, LilyFileName;
-	ImageFileName.Format(L"%s\\%i_%03i.png", m_FileCacheFolder, iPartNo, iMeasureNo);
-	LilyFileName.Format(L"%s\\%i_%03i.ly", m_FileCacheFolder, iPartNo, iMeasureNo);
+	ImageFileName.Format(L"%s\\%i_%03i.png", m_FileCacheFolder, iMovementNo, iMeasureNo);
+	LilyFileName.Format(L"%s\\%i_%03i.ly", m_FileCacheFolder, iMovementNo, iMeasureNo);
 	
 	// See if it exists...
 	if (Image.Load(ImageFileName) == S_OK)
@@ -132,7 +131,7 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 
 	// Create Lily Text File
 	{
-		NarratedMusicSheet::MeasureText & CM = m_pNarration->Parts[iPartNo].Measures[iMeasureNo];
+		NarratedMusicSheet::MeasureText & CM = m_pNarration->Movements[iMovementNo].Measures[iMeasureNo];
 		CStringA	Text = "\\version \"2.18.2\" "
 			"\\paper { "
 			"indent = 0\\mm "
@@ -172,6 +171,12 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		}
 		File.Write(Text.GetBuffer(), Text.GetLength());
 		File.Close();
+
+		// Check Open
+		if (!File.Open(LilyFileName, CFile::modeRead))
+			AfxMessageBox(L"File creation failed.");
+		else
+			File.Close();
 	}
 
 	// Run Lily
@@ -180,7 +185,8 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 		Command.Format(L"-l=ERROR -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
 
 		ShellExecute(NULL, NULL, m_LilyPondPath, Command, m_FileCacheFolder, SW_HIDE);
-		for (int i = 0; i < 100; i++)
+		int i;
+		for (i = 0; i < 100; i++)
 			if (Image.Load(ImageFileName) == S_OK)
 				break;
 			else
@@ -188,7 +194,10 @@ bool CLilyPondWrapper::GetMeasureImage(int iPartNo, int iMeasureNo, CImage & Ima
 				WIN32_FIND_DATA FindData;
 				if (FindFirstFile(LilyFileName.Left(LilyFileName.GetLength() - 2) + L".log", &FindData) != INVALID_HANDLE_VALUE &&
 					FindData.nFileSizeLow > 10)
+				{
+					AfxMessageBox(L"Failed log found");
 					break;
+				}
 				else
 					Sleep(100);
 			}
@@ -242,8 +251,8 @@ void __cdecl CLilyPondWrapper::ImageCreationThread(void * pParam)
 	vector<pair<int, int>> Tasks;
 	pair<int, int> Task;
 
-	for (Task.first = 0; Task.first < (int)pParent->m_pNarration->Parts.size(); Task.first++)
-		for (Task.second = 0; Task.second < (int)pParent->m_pNarration->Parts[Task.first].Measures.size(); Task.second++)
+	for (Task.first = 0; Task.first < (int)pParent->m_pNarration->Movements.size(); Task.first++)
+		for (Task.second = 0; Task.second < (int)pParent->m_pNarration->Movements[Task.first].Measures.size(); Task.second++)
 			Tasks.push_back(Task);
 
 	pParent->m_ThreadData.bAllDone = true;

@@ -69,7 +69,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\WhiteNote.ico"
+
 IDR_WhiteNoteTYPE       ICON                    "res\\WhiteNoteDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -82,6 +84,7 @@ BEGIN
     BEGIN
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Save As...\tCtrl+S",         ID_FILE_SAVEAS
+        MENUITEM "&Reload\tCtrl+R",             ID_FILE_RELOAD
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
@@ -90,7 +93,7 @@ BEGIN
     POPUP "&Navigate"
     BEGIN
         MENUITEM "&Goto Measure\tCtrl+G",       ID_NAVIGATE_GOTO_MEASURE
-        MENUITEM "G&oto Movement\tCtrl+M",      ID_NAVIGATE_SELECT_PART
+        MENUITEM "G&oto Movement\tCtrl+M",      ID_NAVIGATE_SELECT_MOVEMENT
         MENUITEM SEPARATOR
         MENUITEM "&Previous Measure\t Alt+Left", ID_NAVIGATE_LEFT_MEASURE
         MENUITEM "&Next Measure\tAlt+Right",    ID_NAVIGATE_RIGHT_MEASURE
@@ -114,9 +117,11 @@ BEGIN
             MENUITEM "&All Sheets",                 ID_DELETECACHE_ALLSHEETS
             MENUITEM "A&uto Delete on Exit",        ID_DELETECACHE_AUTODELETEONEXIT
         END
-        MENUITEM "&Change LilyPond Path...",    ID_LILYPOND_CHANGEPATH
         MENUITEM "Show &Voices on Separate Staffs", ID_IMAGES_SHOWVOICESONSEPARATESTAFFS
+        MENUITEM "&Change LilyPond Path...",    ID_LILYPOND_CHANGEPATH
+        MENUITEM "Change &Temp Folder",         ID_IMAGES_CHANGETEMPFOLDER
     END
+    MENUITEM "&Comments",                   0
     POPUP "&Options"
     BEGIN
         MENUITEM "&Always Show Signatures",     ID_OPTIONS_ALWAYSSHOWSIGNATURES
@@ -127,6 +132,7 @@ BEGIN
             MENUITEM "&English",                    ID_SETTINGS_LANGUAGE_ENGLISH
             MENUITEM "&Persian",                    ID_SETTINGS_LANGUAGE_FARSI
         END
+        MENUITEM "&Detailed Text",              ID_OPTIONS_DETAILEDTEXT
     END
     POPUP "&View"
     BEGIN
@@ -136,6 +142,8 @@ BEGIN
     BEGIN
         MENUITEM "&About WhiteNote...",         ID_APP_ABOUT
         MENUITEM "&Check for Update",           ID_HELP_CHECKFORUPDATE
+        MENUITEM "LilyPond Website...",         ID_HELP_LILYPONDWEBSITE
+        MENUITEM "Download LilyPond...",        ID_HELP_DOWNLOADLILYPOND
         MENUITEM "&Help\tF1",                   ID_HELP_HELP
     END
 END
@@ -157,7 +165,7 @@ BEGIN
     VK_DOWN,        ID_NAVIGATE_NEXTVOICE,  VIRTKEY, ALT, NOINVERT
     VK_UP,          ID_NAVIGATE_PREVIOUSVOICE, VIRTKEY, ALT, NOINVERT
     VK_RIGHT,       ID_NAVIGATE_RIGHT_MEASURE, VIRTKEY, ALT, NOINVERT
-    "M",            ID_NAVIGATE_SELECT_PART, VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_NAVIGATE_SELECT_MOVEMENT, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, CONTROL, NOINVERT
     "L",            ID_PLAY_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
     "I",            ID_LILYPOND_PRECREATEALLIMAGES, VIRTKEY, CONTROL, ALT, NOINVERT
@@ -220,8 +228,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,1,3,0
- PRODUCTVERSION 2,1,2,0
+ FILEVERSION 2,1,6,0
+ PRODUCTVERSION 2,1,6,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -238,12 +246,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote"
-            VALUE "FileVersion", "2.1.3.0"
+            VALUE "FileVersion", "2.1.6.0"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software."
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.1.2.0"
+            VALUE "ProductVersion", "2.1.6.0"
         END
     END
     BLOCK "VarFileInfo"

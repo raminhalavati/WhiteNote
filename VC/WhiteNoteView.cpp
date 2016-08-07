@@ -17,7 +17,7 @@
 #define new DEBUG_NEW
 #endif
 #define BETA_VERSION
-#define RETURN_IF_NOT_LOADED if (!m_pNarration || ! m_pNarration->Parts.size()) return
+#define RETURN_IF_NOT_LOADED if (!m_pNarration || ! m_pNarration->Movements.size()) return
 
 #define LILYPOND_ACTIVE
 // CWhiteNoteView
@@ -28,9 +28,9 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_WM_SIZE()
 	ON_MESSAGE(WM_USER + 0, OnChildKeyPress)
 	ON_COMMAND(ID_SETTINGS_CHANGE_PAGE_SIZE, &CWhiteNoteView::OnPlayChangepagesize)
-	ON_COMMAND(ID_NAVIGATE_SELECT_PART, &CWhiteNoteView::OnPlaySelectPart)
+	ON_COMMAND(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnPlaySelectMovement)
 	ON_COMMAND(ID_NAVIGATE_GOTO_MEASURE, &CWhiteNoteView::OnPlayGotomeasure)
-	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_SELECT_PART, &CWhiteNoteView::OnUpdateSelectPart)
+	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnUpdateSelectMovement)
 	ON_COMMAND(ID_FILE_SAVEAS, &CWhiteNoteView::OnFileSaveas)
 	ON_COMMAND(ID_NAVIGATE_RIGHT_MEASURE, &CWhiteNoteView::OnRightMeasure)
 	ON_COMMAND(ID_NAVIGATE_LEFT_MEASURE, &CWhiteNoteView::OnLeftMeasure)
@@ -68,6 +68,13 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_UPDATE_COMMAND_UI(ID_LILYPOND_PRECREATEALLIMAGES, &CWhiteNoteView::OnUpdateLilypondPrecreateallimages)
 	ON_COMMAND(ID_IMAGES_SHOWVOICESONSEPARATESTAFFS, &CWhiteNoteView::OnImagesShowvoicesonseparatestaffs)
 	ON_UPDATE_COMMAND_UI(ID_IMAGES_SHOWVOICESONSEPARATESTAFFS, &CWhiteNoteView::OnUpdateImagesShowvoicesonseparatestaffs)
+	ON_COMMAND(ID_IMAGES_CHANGETEMPFOLDER, &CWhiteNoteView::OnImagesChangetempfolder)
+	ON_COMMAND(ID_OPTIONS_DETAILEDTEXT, &CWhiteNoteView::OnOptionsDetailedtext)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DETAILEDTEXT, &CWhiteNoteView::OnUpdateOptionsDetailedtext)
+	ON_UPDATE_COMMAND_UI(ID_FILE_RELOAD, &CWhiteNoteView::OnUpdateFileReload)
+	ON_COMMAND(ID_FILE_RELOAD, &CWhiteNoteView::OnFileReload)
+	ON_COMMAND(ID_HELP_LILYPONDWEBSITE, &CWhiteNoteView::OnHelpLilypondwebsite)
+	ON_COMMAND(ID_HELP_DOWNLOADLILYPOND, &CWhiteNoteView::OnHelpDownloadlilypond)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -122,7 +129,7 @@ void CWhiteNoteView::OnInitialUpdate()
 
 	SerializeDefaults(true);
 	
-	if (!m_pNarration->Parts.size())
+	if (!m_pNarration->Movements.size())
 	{
 		m_pNarration = NULL;
 		CString	Text, Version = theApp.m_FileVersion;
@@ -159,40 +166,40 @@ void CWhiteNoteView::OnInitialUpdate()
 			Summary += Temp;
 		}
 
-		if (m_pNarration->Parts.size() > 1)
+		if (m_pNarration->Movements.size() > 1)
 		{
-			Temp.Format(L"\r\nMovements: %i ", m_pNarration->Parts.size());
+			Temp.Format(L"\r\nMovements: %i ", m_pNarration->Movements.size());
 			Summary += Temp;
 			bool	bHasName = false;
-			for ALL(m_pNarration->Parts, pPart)
-				if (pPart->PartName.GetLength())
+			for ALL(m_pNarration->Movements, pMovement)
+				if (pMovement->MovementName.GetLength())
 					bHasName = true;
 			if (bHasName)
-				for ALL_INDICES(m_pNarration->Parts, i)
+				for ALL_INDICES(m_pNarration->Movements, i)
 				{
-					Temp.Format(L", %i: %s", i + 1, m_pNarration->Parts[i].PartName.GetLength() ? m_pNarration->Parts[i].PartName : L"No Name");
+					Temp.Format(L", %i: %s", i + 1, m_pNarration->Movements[i].MovementName.GetLength() ? m_pNarration->Movements[i].MovementName : L"No Name");
 					Summary += Temp;
 				}
 		}
-		else if (m_pNarration->Parts[0].PartName.GetLength())
+		else if (m_pNarration->Movements[0].MovementName.GetLength())
 		{
-			Temp.Format(L"\r\nMovement Name: %s", m_pNarration->Parts[0].PartName);
+			Temp.Format(L"\r\nMovement Name: %s", m_pNarration->Movements[0].MovementName);
 			Summary += Temp;
 		}
 
 		Summary += L"\r\nMeasures Count: ";
 		Temp = L"";
-		for ALL(m_pNarration->Parts, pPart)
+		for ALL(m_pNarration->Movements, pMovement)
 		{	
-			Temp.Format(L"%s%i", Temp.GetLength() ? L", " : L"", pPart->Measures.size());
+			Temp.Format(L"%s%i", Temp.GetLength() ? L", " : L"", pMovement->Measures.size());
 			Summary += Temp;
 		}
 
-		Temp.Format(L"\r\nVoices: %i ", m_pNarration->Parts[0].Measures[0].Voices.size());
+		Temp.Format(L"\r\nVoices: %i ", m_pNarration->Movements[0].Measures[0].Voices.size());
 		Summary += Temp;		
 
 		m_Summary.SetWindowText(Summary);
-		SetPart(0);
+		SetMovement(0);
 		
 		m_pNarrationTB->EnableWindow();
 		m_NarrationLabel.EnableWindow();
@@ -205,10 +212,12 @@ void CWhiteNoteView::OnInitialUpdate()
 // Initializes LilyPond Wrapper
 void CWhiteNoteView::InitializeLilyPond()
 {
-	m_Lily.Initialize(
-		m_Defaults.LilyPondPath,
-		m_pNarration,
-		GetDocument()->GetPathName());
+	if (m_Defaults.LilyPondPath.GetLength() && m_Defaults.TempFolder.GetLength() && m_pNarration)
+		m_Lily.Initialize(
+			m_Defaults.LilyPondPath,
+			m_Defaults.TempFolder,
+			m_pNarration,
+			GetDocument()->GetPathName());
 	m_CurrentImage = make_pair(-1, -1);
 }
 
@@ -266,7 +275,14 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 {
 	if (bLoad)
 	{
-		m_Defaults.Language = theApp.GetProfileString(L"Defaults", L"Language", L"EN");
+		m_Defaults.Language = theApp.GetProfileString(L"Defaults", L"Language", L"");
+		if (m_Defaults.Language == L"")
+		{
+			m_Defaults.Language = (AfxMessageBox(L"Do you want to set the language to Persian?", MB_YESNO | MB_ICONQUESTION) == IDNO) ? L"EN" : L"FA";
+			if (m_Defaults.Language == L"EN")
+				AfxMessageBox(L"You can change language later in Options/Language menu.", MB_ICONINFORMATION);
+			theApp.WriteProfileString(L"Defaults", L"Language", m_Defaults.Language);
+		}
 		m_Defaults.bLTR = (theApp.GetProfileInt(L"Defaults", L"LTR", 1) != 0);
 		m_Defaults.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
 		m_Defaults.bBeep = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
@@ -275,7 +291,9 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
-		
+		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
+		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
+				
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -292,6 +310,13 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 				}
 			}
 		}
+
+		if (!m_Defaults.TempFolder.GetLength())
+		{
+			AutomaticallyChooseTemp();
+			if (m_Defaults.TempFolder.GetLength())
+				theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
+		}
 	}
 	else
 	{
@@ -304,11 +329,13 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileInt(L"Defaults", L"AutoRefreshImages", m_Defaults.bAutoRefreshImages);
 		theApp.WriteProfileInt(L"Defaults", L"AutoDeleteCache", m_Defaults.bAutoDeleteCache);
 		theApp.WriteProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", m_Defaults.bShowVoicesOnDifferentStaffs);
+		theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
+		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Defaults.bDetailedText);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
 	
-	if (m_pNarration && m_pNarration->Parts.size())
+	if (m_pNarration && m_pNarration->Movements.size())
 	{
 		m_NarrationR.ShowWindow(m_Defaults.bLTR ? SW_HIDE : SW_SHOW);
 		m_NarrationL.ShowWindow(m_Defaults.bLTR ? SW_SHOW : SW_HIDE);
@@ -331,7 +358,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 
 	try
 	{
-		NarratedMusicSheet::MeasureText & CurMeasure = m_pNarration->Parts[m_Playing.iPart].Measures[m_Playing.iMeasure];
+		NarratedMusicSheet::MeasureText & CurMeasure = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iMeasure];
 		
 		CStringA	Temp, LineText = "";
 		{
@@ -393,7 +420,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		CString	Sound(L"");
 		if (m_Playing.iLastMeasure != -1)
 		{
-			NarratedMusicSheet::MeasureText & PrevMeasure = m_pNarration->Parts[m_Playing.iPart].Measures[m_Playing.iLastMeasure];
+			NarratedMusicSheet::MeasureText & PrevMeasure = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iLastMeasure];
 			for ALL_INDICES(CurMeasure.Voices, v)
 			{
 				bool	bCurHas = CurMeasure.Voices[v].Text.size() > 2;
@@ -496,7 +523,7 @@ LRESULT CWhiteNoteView::OnChildKeyPress(WPARAM wParam, LPARAM lParam)
 		case VK_END:
 			if (bCtrl)
 			{
-				m_Playing.iMeasure = (int)m_pNarration->Parts[m_Playing.iPart].Measures.size() - 1;
+				m_Playing.iMeasure = (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size() - 1;
 				RefreshNarration(true);
 				return 1;
 			}
@@ -540,20 +567,20 @@ void CWhiteNoteView::OnPlayChangepagesize()
 }
 
 
-void CWhiteNoteView::OnPlaySelectPart()
+void CWhiteNoteView::OnPlaySelectMovement()
 {
 	RETURN_IF_NOT_LOADED;
 
 	CString	Text;
-	Text.Format(L"Select part number between 1 and %i", 1, m_pNarration->Parts.size());
+	Text.Format(L"Select part number between 1 and %i", m_pNarration->Movements.size());
 
-	int	iPartNo = AskQuestion(Text, m_Playing.iPart + 1) - 1;
+	int	iMovementNo = AskQuestion(Text, m_Playing.iMovement + 1) - 1;
 
-	if (iPartNo == -2)
+	if (iMovementNo == -2)
 		return;
 	else
-		if (IsInRange(iPartNo, 0, (int)m_pNarration->Parts.size()-1))
-			SetPart(iPartNo);
+		if (IsInRange(iMovementNo, 0, (int)m_pNarration->Movements.size()-1))
+			SetMovement(iMovementNo);
 		else
 			AfxMessageBox(L"Selection is out of range.", MB_ICONERROR);
 }
@@ -564,14 +591,14 @@ void CWhiteNoteView::OnPlayGotomeasure()
 	RETURN_IF_NOT_LOADED;
 
 	CString	Text;
-	Text.Format(L"Select measure number between 1 and %i:", (int)m_pNarration->Parts[m_Playing.iPart].Measures.size());
+	Text.Format(L"Select measure number between 1 and %i:", (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size());
 
 	int	iMeasure = AskQuestion(Text, m_Playing.iMeasure + 1) - 1;
 
 	if (iMeasure == -2)
 		return;
 	else
-		if (IsInRange(iMeasure, 0 , (int)m_pNarration->Parts[m_Playing.iPart].Measures.size()-1))
+		if (IsInRange(iMeasure, 0 , (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size()-1))
 		{
 			m_Playing.iMeasure = iMeasure;
 			RefreshNarration(false);
@@ -605,19 +632,19 @@ void CWhiteNoteView::OnFileSaveas()
 		}
 
 		if (m_pNarration->Credits.GetLength())
-			fwprintf_s(hFile, L"%s\r\n", m_pNarration->Credits);
+			fwprintf_s(hFile, L"%s\r\n", (LPCTSTR) m_pNarration->Credits);
 
-		for ALL_INDICES(m_pNarration->Parts, p)
+		for ALL_INDICES(m_pNarration->Movements, p)
 		{
 			CStringA	Text;
-			if (m_pNarration->Parts.size() || m_pNarration->Parts[p].PartName.GetLength())
+			if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
 			{
-				Text.Format("Part %i: %S\r\n", p + 1, m_pNarration->Parts[p].PartName);
+				Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName);
 				fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
 			}
 			
-			for ALL_INDICES(m_pNarration->Parts[p].Measures, m)
-				for ALL(m_pNarration->Parts[p].Measures[m].Voices, pVoice)
+			for ALL_INDICES(m_pNarration->Movements[p].Measures, m)
+				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice)
 				{
 					Text.Format("Staff %i; Voice %i; ", pVoice->iStaff + 1, pVoice->iVoice);
 					fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
@@ -666,7 +693,7 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 				_ASSERTE(!bGoToEnd);
 				m_Playing.iMeasure += ((bNext) ? +1 : -1) * m_Defaults.iPageSize;
 				m_Playing.iMeasure = max(m_Playing.iMeasure, 0);
-				m_Playing.iMeasure = min(m_Playing.iMeasure, (int)m_pNarration->Parts[m_Playing.iPart].Measures.size() - 1);
+				m_Playing.iMeasure = min(m_Playing.iMeasure, (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size() - 1);
 				m_Playing.iVoice = 0;
 				RefreshNarration(true, bGoToEnd);
 				_ASSERTE(!bGoToEnd);
@@ -687,10 +714,10 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 	}
 }
 
-// Sets the Current Part
-void CWhiteNoteView::SetPart(int iPartNo)
+// Sets the Current Movement
+void CWhiteNoteView::SetMovement(int iMovementNo)
 {
-	m_Playing.iPart = iPartNo;
+	m_Playing.iMovement = iMovementNo;
 	m_Playing.iMeasure = m_Playing.iVoice = 0;
 	m_Playing.iLastMeasure = -1;
 	RefreshNarration(true);
@@ -744,12 +771,12 @@ void CWhiteNoteView::OnUpdateLanguageFarsi(CCmdUI *pCmdUI)
 
 void CWhiteNoteView::OnUpdateActiveWhenLoaded(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_pNarration && m_pNarration->Parts.size());
+	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size());
 }
 
-void CWhiteNoteView::OnUpdateSelectPart(CCmdUI *pCmdUI)
+void CWhiteNoteView::OnUpdateSelectMovement(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_pNarration && m_pNarration->Parts.size() > 1);
+	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size() > 1);
 }
 
 void CWhiteNoteView::OnUpdateLeftMeasure(CCmdUI *pCmdUI)
@@ -827,14 +854,14 @@ int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 {
 	RETURN_IF_NOT_LOADED - 1;
 
-	vector<NarratedMusicSheet::Voice> & Voices = m_pNarration->Parts[m_Playing.iPart].Measures[m_Playing.iMeasure].Voices;
+	vector<NarratedMusicSheet::Voice> & Voices = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iMeasure].Voices;
 
 	switch (chWhat)
 	{
 	case 'm':
 		if (bNext)
 		{
-			if (m_Playing.iMeasure + 1 < (int)m_pNarration->Parts[m_Playing.iPart].Measures.size())
+			if (m_Playing.iMeasure + 1 < (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size())
 				return m_Playing.iMeasure + 1;
 		}
 		else
@@ -930,7 +957,7 @@ void CWhiteNoteView::OnLilypondChangepath()
 
 	AfxMessageBox(L"LilyPond Path Saved.");
 	SerializeDefaults(false);
-	if (m_pNarration && m_pNarration->Parts.size())
+	if (m_pNarration && m_pNarration->Movements.size())
 		InitializeLilyPond();
 }
 
@@ -972,6 +999,39 @@ void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
 }
 
 
+
+void CWhiteNoteView::OnOptionsDetailedtext()
+{
+	m_Defaults.bDetailedText = !m_Defaults.bDetailedText;
+	SerializeDefaults(false);
+	if (m_pNarration)
+		OnFileReload();
+}
+
+
+void CWhiteNoteView::OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bDetailedText);
+}
+
+
+void CWhiteNoteView::OnUpdateFileReload(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration != NULL);
+}
+
+
+void CWhiteNoteView::OnFileReload()
+{
+	if (GetDocument()->Reload())
+		RefreshNarration(true, false, true);
+	else
+	{
+		AfxMessageBox(L"File was not read correctly. WhiteNote should close.", MB_ICONERROR);
+		PostMessage(WM_QUIT);
+	}
+}
+
 void CWhiteNoteView::OnLilypondShowimage()
 {
 	UpdateImage(true);
@@ -991,20 +1051,20 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 	if (m_Lily.m_bReady)
 	{
 		// If image is changed or asked to be refreshed
-		if (m_CurrentImage.first != m_Playing.iPart || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh)
+		if (m_CurrentImage.first != m_Playing.iMovement || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh)
 		{
 			FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
 
 			// Get and show new image.
 			CImage	Image;
 			// Ask for reload of the image if you are on current image.
-			if (m_Lily.GetMeasureImage(m_Playing.iPart, m_Playing.iMeasure, Image, 
-				m_CurrentImage.first == m_Playing.iPart && m_CurrentImage.second == m_Playing.iMeasure))
+			if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image, 
+				m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure))
 			{
 				BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
 				Image.ReleaseDC();
 			}
-			m_CurrentImage = make_pair(m_Playing.iPart, m_Playing.iMeasure);
+			m_CurrentImage = make_pair(m_Playing.iMovement, m_Playing.iMeasure);
 		}
 	}
 	else
@@ -1020,4 +1080,70 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 	m_MeasureImage.ReleaseDC();
 	m_Image.Invalidate();
 #endif
+}
+
+
+void CWhiteNoteView::OnImagesChangetempfolder()
+{
+	// TODO: Add your command handler code here
+}
+
+
+// Chooses a temp folder automatically.
+void CWhiteNoteView::AutomaticallyChooseTemp()
+{
+	CString	Temp, Current;
+
+	GetTempPath(MAX_PATH, Temp.GetBufferSetLength(MAX_PATH));
+	Temp.ReleaseBuffer();
+
+	GetCurrentDirectory(MAX_PATH, Current.GetBufferSetLength(MAX_PATH));
+	Current.ReleaseBuffer();
+
+	for (TCHAR drive = L'C'; drive <= 'X'; drive++)
+		try
+		{
+			// Check if it exists
+		bool	bTempExists = (SetCurrentDirectory(Temp) == TRUE);
+			// If not exists, create it
+			if (!bTempExists)
+				CreateDirectory(Temp, NULL);
+
+			// Check if it's writable.
+			FILE * hFile;
+			bool	bWritable = (!_wfopen_s(& hFile, Temp + L"WhiteNoteTemp.txt", L"wb"));
+			if (bWritable)
+			{
+				fclose(hFile);
+				DeleteFile(Temp + L"WhiteNoteTemp.txt");
+			}
+			
+			SetCurrentDirectory(Current);
+
+			if (!bTempExists)
+				RemoveDirectory(Temp);
+
+			if (bWritable)
+			{
+				m_Defaults.TempFolder = Temp;
+				return;
+			}
+			// Check Next
+			Temp.Format(L"%c:\\Temp\\", drive);
+		}
+	catch (...)
+	{ 
+	}
+}
+
+
+void CWhiteNoteView::OnHelpLilypondwebsite()
+{
+	theApp.OpenInBrowser(L"http://www.lilypond.org/windows.html");
+}
+
+
+void CWhiteNoteView::OnHelpDownloadlilypond()
+{
+	theApp.OpenInBrowser(L"http://download.linuxaudio.org/lilypond/binaries/mingw/lilypond-2.18.2-1.mingw.exe");
 }

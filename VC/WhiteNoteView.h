@@ -35,14 +35,16 @@ public:
 		bool	bBeep;
 		bool	bShowAllSignatureText;
 		CString	LilyPondPath;
+		CString	TempFolder;
 		bool	bAutoRefreshImages;
 		bool	bAutoDeleteCache;
 		bool	bShowVoicesOnDifferentStaffs;
+		bool	bDetailedText;
 	} m_Defaults;
 
 	struct _Playing
 	{
-		int		iPart;
+		int		iMovement;
 		int		iVoice;
 		int		iMeasure;
 		int		iLastMeasure;
@@ -77,7 +79,7 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnChildKeyPress(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnPlayChangepagesize();
-	afx_msg void OnPlaySelectPart();
+	afx_msg void OnPlaySelectMovement();
 	afx_msg void OnPlayGotomeasure();
 	afx_msg void OnFileSaveas();
 	afx_msg void OnRightMeasure();
@@ -87,7 +89,7 @@ public:
 	afx_msg void OnUpdateLanguageEnglish(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateLanguageFarsi(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateActiveWhenLoaded(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateSelectPart(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSelectMovement(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateLeftMeasure(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateRightMeasure(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateNavigatePrevioushand(CCmdUI *pCmdUI);
@@ -113,6 +115,16 @@ public:
 	afx_msg void OnDeletecacheAutodeleteonexit();
 	afx_msg void OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI);
 	afx_msg void OnLilypondPrecreateallimages();
+	afx_msg void OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI);
+	afx_msg void OnImagesShowvoicesonseparatestaffs();
+	afx_msg void OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI);
+	afx_msg void OnImagesChangetempfolder();
+	afx_msg void OnOptionsDetailedtext();
+	afx_msg void OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFileReload(CCmdUI *pCmdUI);
+	afx_msg void OnFileReload();
+	afx_msg void OnHelpLilypondwebsite();
+	afx_msg void OnHelpDownloadlilypond();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -129,8 +141,8 @@ public:
 	void RefreshNarration(bool bStaffChanged, bool bGoToEnd = false, bool bForceSingatures = false);
 	// Page/Measure/Staff
 	bool Move(char chWhat, bool bNext, bool bGoToEnd = false); // 'p'age , 'm'easure  ,'s'taff
-	// Sets the Current Part
-	void SetPart(int iPartNo);
+	// Sets the Current Movement
+	void SetMovement(int iMovementNo);
 	// Returns the index of Previous/Next measure/hand/voice, -1 if not available.
 	int GetOtherBlock(char chWhat, bool bNext);
 	// Makes a sound
@@ -141,9 +153,8 @@ public:
 	void CreateImage();
 	// Initializes LilyPond Wrapper
 	void InitializeLilyPond();
-	afx_msg void OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI);
-	afx_msg void OnImagesShowvoicesonseparatestaffs();
-	afx_msg void OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI);
+	// Chooses a temp folder automatically.
+	void AutomaticallyChooseTemp();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

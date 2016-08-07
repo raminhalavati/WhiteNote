@@ -22,6 +22,7 @@ public:
 	CString	m_Path;
 	CString	m_FileVersion;
 	CString m_WebsiteMessage;
+	CString m_LatestFileLocation;
 	bool	m_bNewVersionExists;
 // Overrides
 public:
@@ -35,6 +36,11 @@ public:
 	afx_msg void OnHelpCheckforupdate();
 	// Checks for update.
 	bool UpdateCheck(bool bForceCheck=false);	
+public:
+	// Opens a file/website in browser
+	void OpenInBrowser(CString Path);
+	// Is called when a newer version is available.
+	int NewVersionAvailable();
 };
 
 extern CWhiteNoteApp theApp;

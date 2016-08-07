@@ -9,7 +9,7 @@ public:
 	~CMusicSheetNarrator(void);
 
 	// Converts the sheet into text
-	bool	ConvertToText(MusicSheet & Sheet, NarratedMusicSheet & Narration);
+	bool	ConvertToText(MusicSheet & Sheet, NarratedMusicSheet & Narration, bool bDetailed=true);
 
 	// Makes All necessary changes before Narration.
 	void	PreprocessSheet(MusicSheet & Sheet);
@@ -31,5 +31,6 @@ public:
 	CStringA	GetNoteTypeName(MusicSheet::Note & Note);
 
 	bool		m_bProcessingGuitar;
+	bool		m_bDetailedText;
 };
 

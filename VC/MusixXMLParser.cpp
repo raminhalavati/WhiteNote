@@ -60,39 +60,39 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 				Sheet.Credits.push_back( CStringA( pWords->GetText() ) )  ;
 		}
 
-		// Get Parts Count and Names
-		for ALL_NODES3( pPart  , & Doc , "score-partwise" , "part-list" , "score-part" )
+		// Get Movements Count and Names
+		for ALL_NODES3( pMovement  , & Doc , "score-partwise" , "part-list" , "score-part" )
 		{
-			XMLElem *	pName = GetXMLNestedElement( pPart , "part-name" ) ;
+			XMLElem *	pName = GetXMLNestedElement( pMovement , "part-name" ) ;
 
 			if ( pName )
 			{
-				MusicSheet::Part	NewPart ;
+				MusicSheet::Movement	NewMovement ;
 
-				Sheet.Parts.push_back( NewPart ) ;
-				Sheet.Parts.back().Name = pName->GetText() ;
+				Sheet.Movements.push_back( NewMovement ) ;
+				Sheet.Movements.back().Name = pName->GetText() ;
 			}
 		}
 
-		// Read All Parts
-		int	iPartNo = 0 ;
+		// Read All Movements
+		int	iMovementNo = 0 ;
 
-		for ALL_NODES2( pPart , & Doc , "score-partwise" , "part" )
+		for ALL_NODES2( pMovement , & Doc , "score-partwise" , "part" )
 		{
-			if ( iPartNo >= ( int ) Sheet.Parts.size() )
+			if ( iMovementNo >= ( int ) Sheet.Movements.size() )
 			{	
 				AfxMessageBox( L"Abnormal parts count." , MB_ICONERROR ) ;
 				return false ;
 			}
 
-			MusicSheet::Part *	pCurPart = &Sheet.Parts[iPartNo];
+			MusicSheet::Movement *	pCurMovement = &Sheet.Movements[iMovementNo];
 
 			// Iteration 1, find voice to staff assignments
 			map<int, pair<int, int>>	V2VS;	// Original Voice ID to Voice Index and Staff Index
 			{
 				vector<map<int, int>>	Counts;
 				map<int, int>			EmptyMap;
-				for ALL_NODES1(pMeasure, pPart, "measure")
+				for ALL_NODES1(pMeasure, pMovement, "measure")
 					for (XMLElem *	pCurNode = pMeasure->FirstChildElement();
 						pCurNode; pCurNode = pCurNode->NextSiblingElement())
 						if (CStringA(pCurNode->Name()) == "note")
@@ -132,11 +132,11 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 			}
 
 			// Read All Measures
-			for ALL_NODES1( pMeasure , pPart , "measure" )
+			for ALL_NODES1( pMeasure , pMovement , "measure" )
 			{
-				pCurPart->Measures.push_back( MusicSheet::Measure() ) ;
-				MusicSheet::Measure	*	pCurMeasure = & pCurPart->Measures.back() ;
-				pCurMeasure->iNumber = pCurPart->Measures.size() - 1;
+				pCurMovement->Measures.push_back( MusicSheet::Measure() ) ;
+				MusicSheet::Measure	*	pCurMeasure = & pCurMovement->Measures.back() ;
+				pCurMeasure->iNumber = pCurMovement->Measures.size() - 1;
 
 				// Create all voices and set their staff numbers.
 				for ALL(V2VS, pVoices)
@@ -450,7 +450,7 @@ bool CMusixXMLParser::ParsXML(CString FileName , MusicSheet & Sheet )
 					}
 			}
 
-			iPartNo++ ;
+			iMovementNo++ ;
 		}
 		
 		return true ;

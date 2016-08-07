@@ -210,13 +210,21 @@ CString CWhiteNoteDoc::GetXMLFromMXL(CString MXLFilePath)
 // Reads the XML File stored in FilePath
 bool CWhiteNoteDoc::ReadXMLFile(CString FilePath)
 {
+	bool	bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
+
 	if (!CMusixXMLParser().ParsXML(FilePath, m_MusicSheet))
 		AfxMessageBox(L"File not loaded.", MB_ICONERROR);
 	else
-		if (!CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration))
+		if (!CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration, bDetailedText))
 			AfxMessageBox(L"Could not narrate file.", MB_ICONERROR);
 		else
 			return true;		
 
 	return false;
+}
+
+// Reloads a document to reflect external or settings changes.
+bool CWhiteNoteDoc::Reload()
+{
+	return ReadXMLFile(m_strPathName);
 }

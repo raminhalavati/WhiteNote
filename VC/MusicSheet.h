@@ -137,7 +137,7 @@ typedef struct _MusicSheet
 		vector<Note>		Notes;
 	} Voice;
 
-	typedef struct
+	typedef struct _Signatures
 	{
 		struct _Key
 		{
@@ -156,7 +156,7 @@ typedef struct _MusicSheet
 			CStringA	Sign;
 			int			iLine;
 		};
-		vector<Clef>	Clefs;
+		vector<_Signatures::Clef>	Clefs;
 
 		pair<int,int>	BeforeNote;	// Before which notes of which voice it is told? (voice, note)
 		bool	bChangedInThisMeasure;
@@ -178,22 +178,22 @@ typedef struct _MusicSheet
 
 	} Measure;
 
-	typedef struct _Part
+	typedef struct _Movement
 	{
 		CStringA		Name;
 
 		//vector<DirectionTypes>	Directions ;
 
 		vector<Measure>	Measures;
-	} Part;
+	} Movement;
 
 	vector<CStringA>	Credits;
-	vector<Part>		Parts;
+	vector<Movement>		Movements;
 
 	void	Reset()
 	{
 		Credits.clear();
-		Parts.clear();
+		Movements.clear();
 	}
 } MusicSheet;
 
@@ -214,18 +214,18 @@ typedef struct _NarratedMusicSheet
 		vector<Voice>	Voices;	// Strings
 	}	;
 
-	struct PartText
+	struct MovementText
 	{
-		CString	PartName;
+		CString	MovementName;
 		vector<MeasureText> Measures;
 	};
 
 	CString		Credits;	
-	vector<PartText> Parts;
+	vector<MovementText> Movements;
 
 	void Clear()
 	{
 		Credits = L"";
-		Parts.clear();
+		Movements.clear();
 	};
 } NarratedMusicSheet;

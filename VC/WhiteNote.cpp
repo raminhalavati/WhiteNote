@@ -241,16 +241,7 @@ void CWhiteNoteApp::OnAppAbout()
 
 void CWhiteNoteApp::OnHelpHelp()
 {
-	CString	Path = m_Path + L"\\Help\\help.htm";
-	
-	SHELLEXECUTEINFOW	SHI;
-	
-	memset(&SHI, 0, sizeof(SHI));
-	SHI.cbSize = sizeof(SHI);
-	SHI.lpFile = Path.GetBuffer();
-	SHI.nShow = SW_SHOW;
-	
-	ShellExecuteExW(&SHI);
+	OpenInBrowser(m_Path + L"\\Help\\help.htm");	
 }
 
 vector<int>	ParseVersion(CStringA Version)
@@ -340,6 +331,17 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 		if (iPos2 == -1)
 			return false;
 		Message = Text.Mid(iPos1, iPos2 - iPos1);
+
+		iPos1 = Text.Find("LatestFile{");
+		if (iPos1 == -1)
+			return false;
+		iPos1 += strlen("LatestFile{");
+		iPos2 = Text.Find("}", iPos1);
+		if (iPos2 == -1)
+			return false;
+		Message = Text.Mid(iPos1, iPos2 - iPos1);
+
+		m_LatestFileLocation = Message;
 	}
 	catch (...)
 	{
@@ -357,7 +359,7 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 			{
 				WriteProfileInt(L"VersionCheck", L"NewerExists", 1);
 				m_bNewVersionExists = true;
-				AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+				NewVersionAvailable();
 			}
 			else
 				if (Web[i] < File[i])
@@ -371,15 +373,42 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 	return true;
 }
 
-
-
 void CWhiteNoteApp::OnHelpCheckforupdate()
 {
 	if (!UpdateCheck(true))
 		AfxMessageBox(L"Could not check for update.\r\nPlease check your internet connection or refer to www.white-note.com", MB_ICONERROR);
 	else
 		if (m_bNewVersionExists)
-			AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+			NewVersionAvailable();
 		else
 			AfxMessageBox(L"Your application is the latest avaiable version.\r\nAutomatic check will be done next week.");	
+}
+
+// Opens a file/website in browser
+void CWhiteNoteApp::OpenInBrowser(CString Path)
+{
+	SHELLEXECUTEINFOW	SHI;
+
+	memset(&SHI, 0, sizeof(SHI));
+	SHI.cbSize = sizeof(SHI);
+	SHI.lpFile = Path.GetBuffer();
+	SHI.nShow = SW_SHOW;
+
+	ShellExecuteExW(&SHI);
+}
+
+// Is called when a newer version is available.
+int CWhiteNoteApp::NewVersionAvailable()
+{
+	if (m_LatestFileLocation.GetLength())
+		if (AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com. Do you want to do it now?", MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			AfxMessageBox(L"WhiteNote will close and new installer will be downloaded. Run it to update WhiteNote.", MB_ICONINFORMATION);
+			OpenInBrowser(m_LatestFileLocation);
+			m_pMainWnd->PostMessage(WM_QUIT, 0, 0);
+			return 1;
+		}
+		else
+			AfxMessageBox(L"A newer version of WhiteNote can be downloaded from www.white-note.com.", MB_ICONINFORMATION);
+	return 0;
 }
