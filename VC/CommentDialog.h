@@ -29,6 +29,7 @@ public:
 
 	bool	m_bEditable;
 	CString	m_Text;
+	CString	m_Title;
 };
 
-CString	ShowComment(bool bEditable, CString Text);
+CString	ShowComment(bool bEditable, CString Text, int iMeasure);

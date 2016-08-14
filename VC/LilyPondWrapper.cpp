@@ -62,6 +62,9 @@ void CLilyPondWrapper::DeleteCache(bool bAllSheets)
 	std::stack<CString>	Folders, RDList;
 
 	Folders.push(bAllSheets ? m_CacheFolderRoot : m_FileCacheFolder);
+	
+	if (!Folders.top().GetLength())
+		return;
 
 	while (Folders.size())
 	{

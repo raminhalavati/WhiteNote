@@ -333,15 +333,15 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 		Message = Text.Mid(iPos1, iPos2 - iPos1);
 
 		iPos1 = Text.Find("LatestFile{");
-		if (iPos1 == -1)
-			return false;
-		iPos1 += strlen("LatestFile{");
-		iPos2 = Text.Find("}", iPos1);
-		if (iPos2 == -1)
-			return false;
-		Message = Text.Mid(iPos1, iPos2 - iPos1);
-
-		m_LatestFileLocation = Message;
+		if (iPos1 != -1)
+		{
+			iPos1 += strlen("LatestFile{");
+			iPos2 = Text.Find("}", iPos1);
+			if (iPos2 != -1)
+				m_LatestFileLocation = Text.Mid(iPos1, iPos2 - iPos1);
+		}
+		else
+			m_LatestFileLocation = L"";
 	}
 	catch (...)
 	{

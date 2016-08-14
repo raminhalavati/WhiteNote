@@ -83,6 +83,12 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_UPDATE_COMMAND_UI(ID_COMMENTS_AUTOSAVE, &CWhiteNoteView::OnUpdateCommentsAutosave)
 	ON_COMMAND(ID_COMMENTS_AUTOSAVE, &CWhiteNoteView::OnCommentsAutosave)
 	ON_COMMAND(ID_COMMENTS_SAVE, &CWhiteNoteView::OnCommentsSave)
+	ON_UPDATE_COMMAND_UI(ID_LILYPOND_SHOWIMAGE, &CWhiteNoteView::OnUpdateLilypondShowimage)
+	ON_UPDATE_COMMAND_UI(ID_DELETECACHE_CURRENTSHEET, &CWhiteNoteView::OnUpdateDeletecacheCurrentsheet)
+	ON_UPDATE_COMMAND_UI(ID_DELETECACHE_ALLSHEETS, &CWhiteNoteView::OnUpdateDeletecacheAllsheets)
+	ON_UPDATE_COMMAND_UI(ID_COMMENTS_ADD, &CWhiteNoteView::OnUpdateCommentsAdd)
+	ON_UPDATE_COMMAND_UI(ID_COMMENTS_SAVE, &CWhiteNoteView::OnUpdateCommentsSave)
+	ON_UPDATE_COMMAND_UI(ID_COMMENTS_SELECT_FILE, &CWhiteNoteView::OnUpdateCommentsSelectFile)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -120,6 +126,184 @@ BOOL CWhiteNoteView::PreCreateWindow(CREATESTRUCT& cs)
 	return CFormView::PreCreateWindow(cs);
 }
 
+//
+//	ON UPDATE AREA
+//
+
+void CWhiteNoteView::OnUpdateLanguageEnglish(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.Language == L"EN");
+}
+
+
+void CWhiteNoteView::OnUpdateLanguageFarsi(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.Language == L"FA");
+}
+
+
+void CWhiteNoteView::OnUpdateActiveWhenLoaded(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size());
+}
+
+
+void CWhiteNoteView::OnUpdateSelectMovement(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size() > 1);
+}
+
+
+void CWhiteNoteView::OnUpdateLeftMeasure(CCmdUI *pCmdUI)
+{
+	bool	bReverse = m_Defaults.Language == L"FA";
+
+	pCmdUI->Enable(m_pNarration != NULL); // GetOtherBlock('m', bReverse) != -1);
+	pCmdUI->SetText(bReverse ? L"&Next Measure\tAlt+Left" : L"&Previous Measure\tAlt+Left");
+}
+
+
+void CWhiteNoteView::OnUpdateRightMeasure(CCmdUI *pCmdUI)
+{
+	bool	bReverse = m_Defaults.Language == L"FA";
+
+	pCmdUI->Enable(m_pNarration != NULL); //GetOtherBlock('m', !bReverse) != -1);
+	pCmdUI->SetText(bReverse ? L"&Previous Measure\tAlt + Right" : L"&Next Measure\tAlt + Right");
+}
+
+
+void CWhiteNoteView::OnUpdateNavigatePrevioushand(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GetOtherBlock('h', false) != -1);
+}
+
+
+void CWhiteNoteView::OnUpdateNavigateNexthand(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GetOtherBlock('h', true) != -1);
+}
+
+
+void CWhiteNoteView::OnUpdateOptionsBeeponcommands(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bBeep);
+}
+
+
+void CWhiteNoteView::OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GetOtherBlock('v', false) != -1);
+}
+
+
+void CWhiteNoteView::OnUpdateNavigateNextvoice(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GetOtherBlock('v', true) != -1);
+}
+
+
+void CWhiteNoteView::OnUpdateOptionsAlwaysshowsignatures(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bShowAllSignatureText);
+}
+
+
+void CWhiteNoteView::OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Lily.m_bReady && m_Defaults.bAutoRefreshImages);
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+void CWhiteNoteView::OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_Lily.m_bReady && m_pNarration);
+}
+
+
+void CWhiteNoteView::OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bShowVoicesOnDifferentStaffs);
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+
+void CWhiteNoteView::OnUpdateLilypondShowimage(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+
+void CWhiteNoteView::OnUpdateDeletecacheCurrentsheet(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+
+void CWhiteNoteView::OnUpdateDeletecacheAllsheets(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+
+void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bAutoDeleteCache);
+	pCmdUI->Enable(m_Lily.m_bReady);
+}
+
+
+void CWhiteNoteView::OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bDetailedText);
+}
+
+
+void CWhiteNoteView::OnUpdateFileReload(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration != NULL);
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsAutosave(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bAutoSaveComments);
+	pCmdUI->Enable(m_pNarration != NULL);
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsShow(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration && GetSetComment().GetLength());
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsSave(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration != NULL);
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsAdd(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration != NULL);
+	if (m_pNarration)
+	{
+		CString	Text;
+		Text.Format(L"Add/Edit for Measure %i...\tCtrl+E", m_Playing.iMeasure + 1);
+		pCmdUI->SetText(Text);
+	}
+}
+
+
+void CWhiteNoteView::OnUpdateCommentsSelectFile(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration != NULL);
+}
+
+//
+// GENERAL SETUP
+//
+
 void CWhiteNoteView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
@@ -153,10 +337,20 @@ void CWhiteNoteView::OnInitialUpdate()
 #ifdef BETA_VERSION
 		Text += "\r\nThis version is only for internal testing and may not be working correctly. Pleae download official versions from www.white-note.com.";
 #endif
+		if (!m_Defaults.LilyPondPath.GetLength())
+		{
+			Text += "\r\nLilyPond is not installed only text description of music sheets is provided.";
+			if (!theApp.GetProfileInt(L"Messages", L"LilyInstallAsked", 0))
+			{
+				theApp.WriteProfileInt(L"Messages", L"LilyInstallAsked", 1);
+				if (AfxMessageBox(L"To have music sheet images with the text, you need to install LilyPond.\n" \
+					"Its installation file is about 24 MB and it is not required for the normal process of WhiteNote.\n" \
+					"You can also install it later by going to Help/Download LilyPond menu.\n"\
+					"Do you want to install it now?", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2) == IDYES)
+					OnHelpDownloadlilypond();
+			}
+	}
 		m_Summary.SetWindowText(Text);
-#ifdef _DEBUG
-		m_Summary.SetWindowText(L"TODO: String Table.- Staff Names in Lily");
-#endif
 	}
 	else
 	{
@@ -459,15 +653,14 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 					break;
 			}
 		}
-		if (!Sound.GetLength())
+		if (GetSetComment().GetLength())
+			Sound = L"Comment";
+		else if (!Sound.GetLength())
 			Sound = m_Playing.iLastMeasure == m_Playing.iMeasure ? L"VoiceChange" : L"MeasureChange";
 		VoiceMessage(Sound);
 		m_Playing.iLastMeasure = m_Playing.iMeasure;
 		if (m_Defaults.bAutoRefreshImages)
 			UpdateImage();
-
-		if (GetSetComment().GetLength())
-			VoiceMessage(L"Comment");
 	}
 	catch (...)
 	{
@@ -786,91 +979,12 @@ void CWhiteNoteView::OnOptionsAlwaysshowsignatures()
 }
 
 
-void CWhiteNoteView::OnUpdateLanguageEnglish(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.Language == L"EN");
-}
-
-
-void CWhiteNoteView::OnUpdateLanguageFarsi(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.Language == L"FA");
-}
-
-void CWhiteNoteView::OnUpdateActiveWhenLoaded(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size());
-}
-
-void CWhiteNoteView::OnUpdateSelectMovement(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size() > 1);
-}
-
-void CWhiteNoteView::OnUpdateLeftMeasure(CCmdUI *pCmdUI)
-{
-	bool	bReverse = m_Defaults.Language == L"FA";
-
-	pCmdUI->Enable(m_pNarration != NULL); // GetOtherBlock('m', bReverse) != -1);
-	pCmdUI->SetText(bReverse ? L"&Next Measure\tAlt+Left": L"&Previous Measure\tAlt+Left");
-}
-
-void CWhiteNoteView::OnUpdateRightMeasure(CCmdUI *pCmdUI)
-{
-	bool	bReverse = m_Defaults.Language == L"FA";
-
-	pCmdUI->Enable(m_pNarration != NULL); //GetOtherBlock('m', !bReverse) != -1);
-	pCmdUI->SetText(bReverse ? L"&Previous Measure\tAlt + Right" : L"&Next Measure\tAlt + Right");
-}
-
-void CWhiteNoteView::OnUpdateNavigatePrevioushand(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(GetOtherBlock('h', false) != -1);
-}
-
-
-void CWhiteNoteView::OnUpdateNavigateNexthand(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(GetOtherBlock('h', true) != -1);
-}
-
-void CWhiteNoteView::OnUpdateOptionsBeeponcommands(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bBeep);
-}
-
-void CWhiteNoteView::OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(GetOtherBlock('v', false) != -1);
-}
-
-
-void CWhiteNoteView::OnUpdateNavigateNextvoice(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(GetOtherBlock('v', true) != -1);
-}
-
-void CWhiteNoteView::OnUpdateOptionsAlwaysshowsignatures(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bShowAllSignatureText);
-}
-
-void CWhiteNoteView::OnUpdateLilypondPrecreateallimages(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_Lily.m_bReady && m_pNarration);
-}
-
 void CWhiteNoteView::OnImagesShowvoicesonseparatestaffs()
 {
 	m_Defaults.bShowVoicesOnDifferentStaffs = !m_Defaults.bShowVoicesOnDifferentStaffs;
 	SerializeDefaults(false);
 }
 
-
-void CWhiteNoteView::OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bShowVoicesOnDifferentStaffs);
-}
 
 void CWhiteNoteView::OnLilypondPrecreateallimages()
 {
@@ -997,12 +1111,6 @@ void CWhiteNoteView::OnLilypondAutomaticrefresh()
 }
 
 
-void CWhiteNoteView::OnUpdateLilypondAutomaticrefresh(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bAutoRefreshImages);
-}
-
-
 void CWhiteNoteView::OnDeletecacheCurrentsheet()
 {
 	m_Lily.DeleteCache(false);
@@ -1021,12 +1129,6 @@ void CWhiteNoteView::OnDeletecacheAutodeleteonexit()
 	SerializeDefaults(false);
 }
 
-void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bAutoDeleteCache);
-}
-
-
 
 void CWhiteNoteView::OnOptionsDetailedtext()
 {
@@ -1034,18 +1136,6 @@ void CWhiteNoteView::OnOptionsDetailedtext()
 	SerializeDefaults(false);
 	if (m_pNarration)
 		OnFileReload();
-}
-
-
-void CWhiteNoteView::OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bDetailedText);
-}
-
-
-void CWhiteNoteView::OnUpdateFileReload(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_pNarration != NULL);
 }
 
 
@@ -1192,8 +1282,11 @@ bool CWhiteNoteView::LoadComments(CString FilePath)
 			int	m, v;
 			CString	Text;
 
-			fwscanf_s(hFile, L"%i,%i\n%s\n", &m, &v, Text.GetBufferSetLength(1000), 1000);
+			fwscanf_s(hFile, L"%i,%i\n", &m, &v);
+			fgetws(Text.GetBufferSetLength(1000), 1000, hFile);
 			Text.ReleaseBuffer();
+			if (Text.GetLength() && Text.GetAt(Text.GetLength() - 1) == '\n')
+				Text = Text.Left(Text.GetLength() - 1);
 			m_Comments.Texts.insert(make_pair(make_pair(m, v), Text));
 		}
 		fclose(hFile);
@@ -1208,11 +1301,15 @@ bool CWhiteNoteView::LoadComments(CString FilePath)
 CString CWhiteNoteView::GetSetComment(CString *pNewValue)
 {
 	pair<int, int> key = make_pair(m_Playing.iMovement * 1000 + m_Playing.iMeasure, m_Playing.iVoice);
+	decltype(m_Comments.Texts.end()) pStoredValue = m_Comments.Texts.find(key);
 
 	if (pNewValue)
-		m_Comments.Texts.insert(make_pair(key, *pNewValue));
+		if (pStoredValue == m_Comments.Texts.end())
+			m_Comments.Texts.insert(make_pair(key, *pNewValue));
+		else
+			pStoredValue->second = *pNewValue;
 	else
-		if (m_Comments.Texts.find(key) != m_Comments.Texts.end())
+		if (pStoredValue != m_Comments.Texts.end())
 			return m_Comments.Texts.find(key)->second;
 	return L"";
 }
@@ -1220,19 +1317,13 @@ CString CWhiteNoteView::GetSetComment(CString *pNewValue)
 
 void CWhiteNoteView::OnCommentsShow()
 {
-	ShowComment(false, GetSetComment());
-}
-
-
-void CWhiteNoteView::OnUpdateCommentsShow(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(GetSetComment().GetLength());
+	ShowComment(false, GetSetComment(), m_Playing.iMeasure);
 }
 
 
 void CWhiteNoteView::OnCommentsAdd()
 {
-	CString Text = ShowComment(true, GetSetComment());
+	CString Text = ShowComment(true, GetSetComment(), m_Playing.iMeasure);
 	if (Text != L"-1")
 	{
 		GetSetComment(&Text);
@@ -1249,12 +1340,6 @@ void CWhiteNoteView::OnCommentsSelectFile()
 	{
 		m_Comments.FileName = FDlg.GetPathName();
 	}
-}
-
-
-void CWhiteNoteView::OnUpdateCommentsAutosave(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bAutoSaveComments);
 }
 
 

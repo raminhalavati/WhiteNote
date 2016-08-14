@@ -47,6 +47,7 @@ BOOL CCommentDialog::OnInitDialog()
 		m_TextBox.SetReadOnly(true);
 		m_Cancel.ShowWindow(SW_HIDE);
 	}
+	SetWindowText(m_Title);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -59,11 +60,15 @@ void CCommentDialog::OnBnClickedOk()
 	CDialog::OnOK();
 }
 
-CString	ShowComment(bool bEditable, CString Text)
+CString	ShowComment(bool bEditable, CString Text, int iMeasure)
 {
 	CCommentDialog Dlg;
 	Dlg.m_Text = Text;
 	Dlg.m_bEditable = bEditable;
+	Dlg.m_Title = bEditable ? L"Add/Edit " : L"";
+
+	Text.Format(L"Comments for Measure %i", iMeasure + 1);
+	Dlg.m_Title += Text;
 
 	if (Dlg.DoModal() == IDOK)
 		return Dlg.m_Text;
