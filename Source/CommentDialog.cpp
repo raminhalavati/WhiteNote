@@ -65,7 +65,13 @@ CString	ShowComment(bool bEditable, CString Text, int iMeasure)
 	CCommentDialog Dlg;
 	Dlg.m_Text = Text;
 	Dlg.m_bEditable = bEditable;
-	Dlg.m_Title = bEditable ? L"Add/Edit " : L"";
+	if (bEditable)
+		if (Text.GetLength())
+			Dlg.m_Title = L"Edit ";
+		else
+			Dlg.m_Title = L"Add ";
+	else
+		Dlg.m_Title = L"";
 
 	Text.Format(L"Comments for Measure %i", iMeasure + 1);
 	Dlg.m_Title += Text;

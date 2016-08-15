@@ -143,6 +143,7 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("end_repeat", L"دو_نقطه_تکرار_سمت_چپ"));
 	m_Words.insert(make_pair("end_tied_line", L"پایان_خط_اتحاد"));
 	m_Words.insert(make_pair("end_legato_line", L"پایان_خط_لگاتو"));
+	m_Words.insert(make_pair("has_comments", L"توضیح_دارد"));
 	m_Words.insert(make_pair("left_hand", L"دست_چپ"));
 	m_Words.insert(make_pair("line", L"خط"));
 	m_Words.insert(make_pair("major", L"ماژور"));

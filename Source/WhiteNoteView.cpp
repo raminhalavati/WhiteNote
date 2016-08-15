@@ -286,12 +286,6 @@ void CWhiteNoteView::OnUpdateCommentsSave(CCmdUI *pCmdUI)
 void CWhiteNoteView::OnUpdateCommentsAdd(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(m_pNarration != NULL);
-	if (m_pNarration)
-	{
-		CString	Text;
-		Text.Format(L"Add/Edit for Measure %i...\tCtrl+E", m_Playing.iMeasure + 1);
-		pCmdUI->SetText(Text);
-	}
 }
 
 
@@ -326,7 +320,7 @@ void CWhiteNoteView::OnInitialUpdate()
 		m_pNarration = NULL;
 		CString	Text, Version = theApp.m_FileVersion;
 		if (theApp.m_bNewVersionExists)
-			Version += L"\r\n\tNewer version exists in www.white-note.com";
+			Version += L"\r\n\tNewer version exists at www.white-note.com";
 		if (theApp.m_WebsiteMessage.GetLength())
 			if (theApp.m_WebsiteMessage[0] == L'!' || theApp.m_bNewVersionExists)
 			{
@@ -335,11 +329,11 @@ void CWhiteNoteView::OnInitialUpdate()
 			}
 		Text.Format(L"WhiteNote None Visual Access to Music Sheets, Version %s.\r\nOpen an XML or MXL music file to proceed. Press F1 for help.", Version);
 #ifdef BETA_VERSION
-		Text += "\r\nThis version is only for internal testing and may not be working correctly. Pleae download official versions from www.white-note.com.";
+		Text += "\r\nThis version is only for internal testing and may not be working correctly. Please download official versions from www.white-note.com.";
 #endif
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
-			Text += "\r\nLilyPond is not installed only text description of music sheets is provided.";
+			Text += "\r\nLilyPond is not installed. Only text description of music sheets is provided.";
 			if (!theApp.GetProfileInt(L"Messages", L"LilyInstallAsked", 0))
 			{
 				theApp.WriteProfileInt(L"Messages", L"LilyInstallAsked", 1);
@@ -412,7 +406,7 @@ void CWhiteNoteView::OnInitialUpdate()
 		// Comments File
 		m_Comments.FileName = ((CWhiteNoteDoc*) m_pDocument)->m_FilePath;
 		if (m_Comments.FileName.GetLength() > 4)
-			m_Comments.FileName = m_Comments.FileName.Left(m_Comments.FileName.GetLength() - 3) + L".comments.txt";
+			m_Comments.FileName = m_Comments.FileName.Left(m_Comments.FileName.GetLength() - 3) + L"comments.txt";
 		LoadComments(m_Comments.FileName);
 	}	
 }
@@ -604,10 +598,13 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			m_NarrationLabel.SetWindowText(CA2W(Temp));
 		}
 
-		bool	bRepeatStarters = (bVoiceChanged && m_Defaults.bShowAllSignatureText) || bForceSingatures;
+		bool	bRepeatStarters = bVoiceChanged || m_Defaults.bShowAllSignatureText || bForceSingatures;
 		
 		if (!bRepeatStarters)
 			LineText = "";
+
+		if (GetSetComment().GetLength())
+			LineText += "Has_Comments;";
 
 		vector<CStringA> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
 
@@ -1302,14 +1299,22 @@ CString CWhiteNoteView::GetSetComment(CString *pNewValue)
 {
 	pair<int, int> key = make_pair(m_Playing.iMovement * 1000 + m_Playing.iMeasure, m_Playing.iVoice);
 	decltype(m_Comments.Texts.end()) pStoredValue = m_Comments.Texts.find(key);
+	bool	bHasFormerValue = (pStoredValue != m_Comments.Texts.end());
 
 	if (pNewValue)
-		if (pStoredValue == m_Comments.Texts.end())
-			m_Comments.Texts.insert(make_pair(key, *pNewValue));
+		if (!pNewValue->GetLength())
+		{
+			if (bHasFormerValue)
+				m_Comments.Texts.erase(key);			
+		}
 		else
-			pStoredValue->second = *pNewValue;
+			if (bHasFormerValue)
+				pStoredValue->second = *pNewValue;
+			else
+				m_Comments.Texts.insert(make_pair(key, *pNewValue));
+				
 	else
-		if (pStoredValue != m_Comments.Texts.end())
+		if (bHasFormerValue)
 			return m_Comments.Texts.find(key)->second;
 	return L"";
 }
