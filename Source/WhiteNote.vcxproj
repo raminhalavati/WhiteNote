@@ -154,9 +154,6 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="res\WhiteNote.rc2" />
-    <None Include="TODO.htm">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
     <None Include="WhiteNote.reg" />
   </ItemGroup>
   <ItemGroup>

@@ -603,7 +603,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		if (!bRepeatStarters)
 			LineText = "";
 
-		if (GetSetComment().GetLength())
+		if (GetSetComment().GetLength() && !m_Defaults.bBeep)
 			LineText += "Has_Comments;";
 
 		vector<CStringA> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
@@ -658,6 +658,8 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		m_Playing.iLastMeasure = m_Playing.iMeasure;
 		if (m_Defaults.bAutoRefreshImages)
 			UpdateImage();
+		else
+			ShowHideImage();
 	}
 	catch (...)
 	{
@@ -946,6 +948,7 @@ void CWhiteNoteView::OnOptionsBeeponcommands()
 {
 	m_Defaults.bBeep = !m_Defaults.bBeep;
 	SerializeDefaults(false);
+	RefreshNarration(false);
 }
 
 
@@ -973,6 +976,7 @@ void CWhiteNoteView::OnOptionsAlwaysshowsignatures()
 {
 	m_Defaults.bShowAllSignatureText = !m_Defaults.bShowAllSignatureText;
 	SerializeDefaults(false);
+	RefreshNarration(false);
 }
 
 
@@ -980,6 +984,9 @@ void CWhiteNoteView::OnImagesShowvoicesonseparatestaffs()
 {
 	m_Defaults.bShowVoicesOnDifferentStaffs = !m_Defaults.bShowVoicesOnDifferentStaffs;
 	SerializeDefaults(false);
+	m_Lily.DeleteCache(false);
+	if (m_Defaults.bAutoRefreshImages)
+		UpdateImage();
 }
 
 
@@ -1105,6 +1112,8 @@ void CWhiteNoteView::OnLilypondAutomaticrefresh()
 {
 	m_Defaults.bAutoRefreshImages = !m_Defaults.bAutoRefreshImages;
 	SerializeDefaults(false);
+	if (m_Defaults.bAutoRefreshImages)
+		UpdateImage();
 }
 
 
@@ -1153,47 +1162,40 @@ void CWhiteNoteView::OnLilypondShowimage()
 }
 
 
+// Shows/Hides image if it matches current text.
+void CWhiteNoteView::ShowHideImage()
+{
+	m_Image.ShowWindow((m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure) ? SW_SHOW : SW_HIDE);
+}
+
 // Updates measure image.
 void CWhiteNoteView::UpdateImage(bool bForceRefresh)
-{
-	if (m_MeasureImage.IsNull())
-		return;
-
+{	
 #ifdef LILYPOND_ACTIVE
-	// Get DC
-	HDC hDC = m_MeasureImage.GetDC();
-	
-	if (m_Lily.m_bReady)
+	// If image is changed or asked to be refreshed
+	if (!m_MeasureImage.IsNull() &&
+		m_Lily.m_bReady && 
+		(m_CurrentImage.first != m_Playing.iMovement || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh))
 	{
-		// If image is changed or asked to be refreshed
-		if (m_CurrentImage.first != m_Playing.iMovement || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh)
-		{
-			FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
-
-			// Get and show new image.
-			CImage	Image;
-			// Ask for reload of the image if you are on current image.
-			if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image, 
-				m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure))
-			{
-				BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
-				Image.ReleaseDC();
-			}
-			m_CurrentImage = make_pair(m_Playing.iMovement, m_Playing.iMeasure);
-		}
-	}
-	else
-	{
+		HDC hDC = m_MeasureImage.GetDC();
 		FillRect(hDC, CRect(0, 0, m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight()), GetSysColorBrush(COLOR_BTNFACE));
-		// Warning if lilypond is not found
-		SetBkMode(hDC, TRANSPARENT);
-		CString	Text(L"You can downlaoad and install LilyPond from www.LilyPond.org to have images.");
-		TextOut(hDC, 10, 10, Text, Text.GetLength());
-	}
 
-	// Release DC and update window.
-	m_MeasureImage.ReleaseDC();
-	m_Image.Invalidate();
+		// Get and show new image.
+		CImage	Image;
+		// Ask for reload of the image if you are on current image.
+		if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image, 
+			m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure))
+		{
+			BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
+			Image.ReleaseDC();
+		}
+		m_CurrentImage = make_pair(m_Playing.iMovement, m_Playing.iMeasure);
+			
+		// Release DC and update window.
+		m_MeasureImage.ReleaseDC();
+		m_Image.Invalidate();
+	}
+	ShowHideImage();
 #endif
 }
 
@@ -1334,6 +1336,7 @@ void CWhiteNoteView::OnCommentsAdd()
 		GetSetComment(&Text);
 		if (m_Defaults.bAutoSaveComments)
 			OnCommentsSave();
+		RefreshNarration(false);
 	}
 }
 

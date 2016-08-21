@@ -127,7 +127,6 @@
     </None>
     <None Include="Help\Help.htm" />
     <None Include="ClassDiagram.cd" />
-    <None Include="TODO.htm" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WhiteNote.rc">

@@ -139,6 +139,12 @@ public:
 	afx_msg void OnUpdateCommentsAutosave(CCmdUI *pCmdUI);
 	afx_msg void OnCommentsAutosave();
 	afx_msg void OnCommentsSave();
+	afx_msg void OnUpdateLilypondShowimage(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateDeletecacheCurrentsheet(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateDeletecacheAllsheets(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateCommentsAdd(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateCommentsSave(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateCommentsSelectFile(CCmdUI *pCmdUI);
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -173,12 +179,8 @@ public:
 	bool LoadComments(CString FilePath);
 	// Returns current position's comments.
 	CString GetSetComment(CString *pNewValue=NULL);
-	afx_msg void OnUpdateLilypondShowimage(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateDeletecacheCurrentsheet(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateDeletecacheAllsheets(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateCommentsAdd(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateCommentsSave(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateCommentsSelectFile(CCmdUI *pCmdUI);
+	// Shows/Hides image if it matches current text.
+	void ShowHideImage();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp
