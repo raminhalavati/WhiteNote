@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by WhiteNote.rc
 //
+#define IDC_NO_DONT_REMIND_SOON         3
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
 #define IDD_WHITENOTE_FORM              101
@@ -10,6 +11,7 @@
 #define IDD_SIMPLEQUESTION              310
 #define IDD_PROGRESSREPORT              311
 #define IDD_COMMENTDIALOG               312
+#define IDD_LILYPONDINSTALLER           313
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -24,6 +26,10 @@
 #define IDC_TITLE                       1048
 #define IDC_PROGRESS                    1049
 #define IDC_TEXT                        1050
+#define IDC_YES                         1051
+#define IDC_NO_DONT_REMIND              1052
+#define IDC_EDIT2                       1053
+#define IDC_MESSAGE                     1053
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -98,9 +104,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        311
+#define _APS_NEXT_RESOURCE_VALUE        312
 #define _APS_NEXT_COMMAND_VALUE         32877
-#define _APS_NEXT_CONTROL_VALUE         1051
-#define _APS_NEXT_SYMED_VALUE           313
+#define _APS_NEXT_CONTROL_VALUE         1054
+#define _APS_NEXT_SYMED_VALUE           314
 #endif
 #endif

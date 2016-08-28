@@ -111,6 +111,7 @@
   <ItemGroup>
     <ClInclude Include="CommentDialog.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="LilyPondInstaller.h" />
     <ClInclude Include="LilyPondWrapper.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MusicSheet.h" />
@@ -131,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="CommentDialog.cpp" />
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="LilyPondInstaller.cpp" />
     <ClCompile Include="LilyPondWrapper.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MusicSheetNarrator.cpp" />

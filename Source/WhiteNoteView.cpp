@@ -13,6 +13,7 @@
 #include "WhiteNoteView.h"
 #include "SimpleQuestion.h"
 #include "CommentDialog.h"
+#include "LilyPondInstaller.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -334,14 +335,24 @@ void CWhiteNoteView::OnInitialUpdate()
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			Text += "\r\nLilyPond is not installed. Only text description of music sheets is provided.";
-			if (!theApp.GetProfileInt(L"Messages", L"LilyInstallAsked", 0))
+			CString CurDate = CTime::GetCurrentTime().Format(L"%y%m%d");
+			CString StoredDate = theApp.GetProfileString(L"Message", L"AskInstallLily", L"");
+			if (StoredDate < CurDate)
 			{
-				theApp.WriteProfileInt(L"Messages", L"LilyInstallAsked", 1);
-				if (AfxMessageBox(L"To have music sheet images with the text, you need to install LilyPond.\n" \
-					"Its installation file is about 24 MB and it is not required for the normal process of WhiteNote.\n" \
-					"You can also install it later by going to Help/Download LilyPond menu.\n"\
-					"Do you want to install it now?", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2) == IDYES)
+				CLilyPondInstaller	LilyDlg;
+				switch (LilyDlg.DoModal())
+				{
+				case 0:
 					OnHelpDownloadlilypond();
+					break;
+
+				case 1:
+					theApp.WriteProfileString(L"Message", L"AskInstallLily", L"20200101");
+					break;
+				case 2:
+					StoredDate = (CTime::GetCurrentTime() + CTimeSpan(30, 0, 0, 0)).Format(L"%y%m%d");
+					theApp.WriteProfileString(L"Message", L"AskInstallLily", StoredDate);
+				}					
 			}
 	}
 		m_Summary.SetWindowText(Text);
@@ -1202,7 +1213,15 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 
 void CWhiteNoteView::OnImagesChangetempfolder()
 {
-	// TODO: Add your command handler code here
+	CFolderPickerDialog FPD(m_Defaults.TempFolder);
+
+	if (FPD.DoModal() == IDOK)
+	{
+		OnDeletecacheAllsheets();
+		m_Defaults.TempFolder = FPD.GetFolderPath();
+		SerializeDefaults(false);
+		InitializeLilyPond();
+	}
 }
 
 

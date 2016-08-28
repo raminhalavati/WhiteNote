@@ -118,8 +118,8 @@ BEGIN
             MENUITEM "A&uto Delete on Exit",        ID_DELETECACHE_AUTODELETEONEXIT
         END
         MENUITEM "Show &Voices on Separate Staffs", ID_IMAGES_SHOWVOICESONSEPARATESTAFFS
-        MENUITEM "&Change LilyPond Path...",    ID_LILYPOND_CHANGEPATH
-        MENUITEM "Change &Temp Folder",         ID_IMAGES_CHANGETEMPFOLDER
+        MENUITEM "&Change LilyPond Path ...",   ID_LILYPOND_CHANGEPATH
+        MENUITEM "Change &Temp Folder ...",     ID_IMAGES_CHANGETEMPFOLDER
     END
     POPUP "&Comments"
     BEGIN
@@ -241,6 +241,17 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,162,66,50,14
 END
 
+IDD_LILYPONDINSTALLER DIALOGEX 0, 0, 320, 130
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "LiliPond"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_MESSAGE,6,6,306,48,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Yes, go to LilPond.org website",IDC_YES,78,60,161,14
+    PUSHBUTTON      "No, and don't remind again.",IDC_NO_DONT_REMIND,78,84,162,14
+    PUSHBUTTON      "No, and don't remind for one month.",IDC_NO_DONT_REMIND_SOON,78,108,162,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -328,6 +339,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 75
     END
+
+    IDD_LILYPONDINSTALLER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 123
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -343,6 +362,11 @@ BEGIN
 END
 
 IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_LILYPONDINSTALLER AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

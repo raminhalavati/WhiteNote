@@ -1,6 +1,3 @@
-Lily Added
-Detailed Text Added
-Reload Added
-Multi-Movement problem solved.
-
-LilyCofirm and Help
+Lilypond installation reminder dialog added.
+Temp folder can be moved.
+Whitenote can run files from commandline.
