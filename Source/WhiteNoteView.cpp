@@ -18,7 +18,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#define BETA_VERSION
+//#define BETA_VERSION
 #define RETURN_IF_NOT_LOADED if (!m_pNarration || ! m_pNarration->Movements.size()) return
 
 #define LILYPOND_ACTIVE
