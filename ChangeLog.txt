@@ -1,3 +1,0 @@
-Lilypond installation reminder dialog added.
-Temp folder can be moved.
-Whitenote can run files from commandline.
