@@ -101,6 +101,8 @@ public:
 	bool	ParsXML(CString FileName , MusicSheet & Sheet );
 
 	// Returns the direction type of a node and its (staff,voice)
-	pair<int,int>		CMusixXMLParser::GetDirectionTypes(TinyXML2::XMLElement * pNode , vector<MusicSheet::Direction> & Directions ) ;
+	pair<int,int>		CMusixXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode , vector<MusicSheet::Direction> & Directions ) ;
+  // Tries to fix and load XML File
+	tinyxml2::XMLDocument * FixAndLoadXMLFile(CString FileName);
 };
 

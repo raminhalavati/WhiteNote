@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 #include <queue>
-#include "TinyXML.h"
+#include "tinyxml2.h"
 
 #pragma once
 
@@ -119,7 +119,7 @@ void	GetFiles( vector<CString> & FileNames , CString Filter , CString Title , CS
 
 
 template<class T>
-TinyXML2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pNode1 = NULL , char * pNode2 = NULL , char * pNode3 = NULL , char * pNode4 = NULL , char * pNode5 = NULL ) ;
+tinyxml2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pNode1 = NULL , char * pNode2 = NULL , char * pNode3 = NULL , char * pNode4 = NULL , char * pNode5 = NULL ) ;
 
 template<class T>
 const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 = NULL , char * pNode2 = NULL , char * pNode3 = NULL , char * pNode4 = NULL , char * pNode5 = NULL ) ;
@@ -128,7 +128,7 @@ const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 = NULL ,
 void UnZipFile(CString strSrc, CString strDest) ;
 
 #define CHKSTR( T , N ) if ( Name == T ) return N ;
-typedef	TinyXML2::XMLElement XMLElem;
+typedef	tinyxml2::XMLElement XMLElem;
 #define ALL_NODES1( pVar , pParent , Text1 )							( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 ) ;							pVar ;	pVar = pVar##->NextSiblingElement( Text1 ) )
 #define ALL_NODES2( pVar , pParent , Text1 , Text2 )					( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 ) ;					pVar ;	pVar = pVar##->NextSiblingElement( Text2 ) )
 #define ALL_NODES3( pVar , pParent , Text1 , Text2 , Text3 )			( XMLElem * pVar = GetXMLNestedElement( pParent , Text1 , Text2 , Text3 ) ;			pVar ;	pVar = pVar##->NextSiblingElement( Text3 ) )

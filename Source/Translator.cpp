@@ -111,11 +111,13 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair("chord", L"آکورد"));
 	m_Words.insert(make_pair("arpeggiate", L"آرپژ"));
 	m_Words.insert(make_pair("bass", L"باس"));
+	m_Words.insert(make_pair("begin_bar_line", L"دولا_خط_شروع"));
 	m_Words.insert(make_pair("begin_repeat", L"دو_نقطه_تکرار_سمت_راست"));
 	m_Words.insert(make_pair("change_to", L"تغییر_به"));
 	m_Words.insert(make_pair("changes_to", L"تغییر_میکند_به"));
 	m_Words.insert(make_pair("clarinet", L"کلارینت"));
 	m_Words.insert(make_pair("clef_bass", L"کلید_فا"));
+	m_Words.insert(make_pair("clef_tab", L"کلید_تَبلِچِر"));
 	m_Words.insert(make_pair("clef_treble", L"کلید_سُل"));
 	m_Words.insert(make_pair("clef_french", L"کلید_ویلن_فرانسه"));
 	m_Words.insert(make_pair("clef_baritone", L"کلید_باریتن"));

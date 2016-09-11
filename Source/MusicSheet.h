@@ -117,7 +117,7 @@ typedef struct _MusicSheet
 		int			iOctave;
 		NoteTypes	Type;
 		int			iXPos;		// XPosition in the sheet, used for direction positioning.
-
+    bool    bUnpitched;
 		set<NoteExtras> Extras;
 	} Note;
 

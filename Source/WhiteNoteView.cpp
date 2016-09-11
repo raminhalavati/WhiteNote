@@ -375,7 +375,7 @@ void CWhiteNoteView::OnInitialUpdate()
 
 		if (m_pNarration->Movements.size() > 1)
 		{
-			Temp.Format(L"\r\nMovements: %i ", m_pNarration->Movements.size());
+			Temp.Format(L"\r\nMovements Count: %i ", m_pNarration->Movements.size());
 			Summary += Temp;
 			bool	bHasName = false;
 			for ALL(m_pNarration->Movements, pMovement)
@@ -384,26 +384,26 @@ void CWhiteNoteView::OnInitialUpdate()
 			if (bHasName)
 				for ALL_INDICES(m_pNarration->Movements, i)
 				{
-					Temp.Format(L", %i: %s", i + 1, m_pNarration->Movements[i].MovementName.GetLength() ? m_pNarration->Movements[i].MovementName : L"No Name");
+					Temp.Format(L", %s (%i measures, %i voices)", 
+            m_pNarration->Movements[i].MovementName.GetLength() ? m_pNarration->Movements[i].MovementName : L"No Name",
+            m_pNarration->Movements[i].Measures.size(),
+            m_pNarration->Movements[i].Measures.size() ? m_pNarration->Movements[i].Measures[0].Voices.size() : 0);
 					Summary += Temp;
 				}
 		}
 		else if (m_pNarration->Movements[0].MovementName.GetLength())
 		{
-			Temp.Format(L"\r\nMovement Name: %s", m_pNarration->Movements[0].MovementName);
+			Temp.Format(L"\r\nMovement Name: %s, Measures Count: %i, Voices Count: %i", 
+        m_pNarration->Movements[0].MovementName, m_pNarration->Movements[0].Measures.size(),
+        m_pNarration->Movements[0].Measures.size() ? m_pNarration->Movements[0].Measures[0].Voices.size() : 0);
 			Summary += Temp;
 		}
-
-		Summary += L"\r\nMeasures Count: ";
-		Temp = L"";
-		for ALL(m_pNarration->Movements, pMovement)
-		{	
-			Temp.Format(L"%s%i", Temp.GetLength() ? L", " : L"", pMovement->Measures.size());
-			Summary += Temp;
-		}
-
-		Temp.Format(L"\r\nVoices: %i ", m_pNarration->Movements[0].Measures[0].Voices.size());
-		Summary += Temp;		
+    else
+    {
+      Temp.Format(L"\r\nOne movement with %i measures and %i voices", m_pNarration->Movements[0].Measures.size(),
+        m_pNarration->Movements[0].Measures.size() ? m_pNarration->Movements[0].Measures[0].Voices.size() : 0);
+      Summary += Temp;
+    }
 
 		m_Summary.SetWindowText(Summary);
 		SetMovement(0);
@@ -803,7 +803,7 @@ void CWhiteNoteView::OnPlaySelectMovement()
 	RETURN_IF_NOT_LOADED;
 
 	CString	Text;
-	Text.Format(L"Select part number between 1 and %i", m_pNarration->Movements.size());
+	Text.Format(L"Select movement number between 1 and %i", m_pNarration->Movements.size());
 
 	int	iMovementNo = AskQuestion(Text, m_Playing.iMovement + 1) - 1;
 
@@ -1197,7 +1197,23 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 		if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image, 
 			m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure))
 		{
-			BitBlt(hDC, 0, 0, Image.GetWidth(), Image.GetHeight(), Image.GetDC(), 0, 0, SRCCOPY);
+			CSize ImageSize(Image.GetWidth(), Image.GetHeight());
+			CSize ViewSize(m_MeasureImage.GetWidth(), m_MeasureImage.GetHeight());
+			double dRatio = 1;
+
+			if (ImageSize.cx > ViewSize.cx || ImageSize.cy > ViewSize.cy)
+			{ 
+				while (ImageSize.cx * dRatio > ViewSize.cx || ImageSize.cy * dRatio > ViewSize.cy)
+					dRatio /= 2;
+			}
+			else
+			{
+				while (ImageSize.cx * dRatio < ViewSize.cx / 2 && ImageSize.cy * dRatio < ViewSize.cy / 2)
+					dRatio *= 2;
+			}
+
+			StretchBlt(hDC, 0, 0, (int)(ImageSize.cx * dRatio), (int)(ImageSize.cy * dRatio), Image.GetDC(), 
+				0, 0, ImageSize.cx, ImageSize.cy, SRCCOPY);
 			Image.ReleaseDC();
 		}
 		m_CurrentImage = make_pair(m_Playing.iMovement, m_Playing.iMeasure);

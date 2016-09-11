@@ -153,7 +153,11 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 				{
 					if (bOpen)
 						Text += ">>\r\n";
-					Text += "\\new Staff\r\n<<\r\n";
+					if (pVoice->Lily.Find("clef tab") != -1) // Also check MusicSheetNarrator --> GetSingatureText
+						Text += "\\new TabStaff";
+					else
+						Text += "\\new Staff";
+					Text += "\r\n << \r\n";
 					iLastStaff = pVoice->iStaff;
 					bOpen = true;
 				}

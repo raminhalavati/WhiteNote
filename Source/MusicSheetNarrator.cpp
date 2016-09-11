@@ -318,16 +318,13 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 			T1 = "Percussion";
 			T2 = "percussion";
 		}
-		else if (T1 == "TAB" && iLine == 1)
+		else if (T1 == "TAB")
 		{
 			T1 = "Tablature";
-			T2 = "\\new TabStaff {\\clef tab }";
+			T2 = "tab"; // Also check LilyPondWrapper --> GetMeasureImage
 		}
-		// If cound not translate it, show text and line, otherwise the new name only.
-		//if (T1 == Sigs.Clefs[iStaff].Sign)
-			T3.Format("%s_Line_%i", T1, iLine);
-		//else
-		//	T3 = T1;
+		
+		T3.Format("%s_Line_%i", T1, iLine);
 		Text += T3;
 		Voice.Text.push_back(Text);
 
@@ -960,7 +957,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						OutVoice.Text.push_back(" ]");
 						OutVoice.Lily += " > " + LilyChordLength;
 						if (bChordIsArpeggio)
-							OutVoice.Lily += "\\arpeggio";
+							OutVoice.Lily += "\\arpeggio\r\n";
 						pLAL = NULL;
 						bEndChord = false;						
 					}

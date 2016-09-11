@@ -108,9 +108,9 @@ void	GetFiles( vector<CString> & FileNames , CString Filter , CString Title , CS
 }
 
 template<class T>
-TinyXML2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3  , char * pNode4 , char * pNode5 )
+tinyxml2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3  , char * pNode4 , char * pNode5 )
 {
-	TinyXML2::XMLElement *	pItem = pDoc->FirstChildElement( pNode0 ) ;
+	tinyxml2::XMLElement *	pItem = pDoc->FirstChildElement( pNode0 ) ;
 
 	char *	pNodes[ 6 ] ;
 
@@ -133,7 +133,7 @@ TinyXML2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pN
 template<class T>
 const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3 , char * pNode4 , char * pNode5 )
 {
-	TinyXML2::XMLElement *	pItem = GetXMLNestedElement( pDoc , pNode0 , pNode1 , pNode2 , pNode3 , pNode4 , pNode5 ) ;
+	tinyxml2::XMLElement *	pItem = GetXMLNestedElement( pDoc , pNode0 , pNode1 , pNode2 , pNode3 , pNode4 , pNode5 ) ;
 
 	if ( pItem )
 		return pItem->GetText() ;
@@ -143,8 +143,8 @@ const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 , char *
 
 void	GetXMLNestedTemplateActivator()
 {
-	TinyXML2::XMLDocument *	pDoc = NULL ;
-	TinyXML2::XMLElement *	pElem = NULL ;
+	tinyxml2::XMLDocument *	pDoc = NULL ;
+	tinyxml2::XMLElement *	pElem = NULL ;
 
 	GetXMLNestedElement( pDoc , "" ) ;
 	GetXMLNestedElement( pElem , "" ) ;
@@ -227,7 +227,7 @@ CStringA	NodeToText(XMLElem * pNode)
 
 	Text += pNode->Name();
 
-	const TinyXML2::XMLAttribute * pAttr = pNode->FirstAttribute();
+	const tinyxml2::XMLAttribute * pAttr = pNode->FirstAttribute();
 
 	if (pAttr)
 	{
