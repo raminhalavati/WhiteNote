@@ -41,6 +41,7 @@ public:
 		bool	bShowVoicesOnDifferentStaffs;
 		bool	bDetailedText;
 		bool	bAutoSaveComments;
+		bool	bLilyPondPathWarned;
 	} m_Defaults;
 
 	struct _Comments
@@ -181,6 +182,8 @@ public:
 	CString GetSetComment(CString *pNewValue=NULL);
 	// Shows/Hides image if it matches current text.
 	void ShowHideImage();
+	// Checks if LilyPond seems ok?
+	void LilyPondCheck();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

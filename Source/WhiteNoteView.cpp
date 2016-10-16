@@ -101,6 +101,7 @@ CWhiteNoteView::CWhiteNoteView()
 	m_pNarration = NULL;
 	m_pNarrationTB = NULL;
 	m_CurrentImage = make_pair(-1, -1);
+	m_Defaults.bLilyPondPathWarned = false;
 }
 
 CWhiteNoteView::~CWhiteNoteView()
@@ -426,11 +427,13 @@ void CWhiteNoteView::OnInitialUpdate()
 void CWhiteNoteView::InitializeLilyPond()
 {
 	if (m_Defaults.LilyPondPath.GetLength() && m_Defaults.TempFolder.GetLength() && m_pNarration)
+	{
 		m_Lily.Initialize(
 			m_Defaults.LilyPondPath,
 			m_Defaults.TempFolder,
 			m_pNarration,
 			GetDocument()->GetPathName());
+	}
 	m_CurrentImage = make_pair(-1, -1);
 }
 
@@ -1185,7 +1188,7 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 #ifdef LILYPOND_ACTIVE
 	// If image is changed or asked to be refreshed
 	if (!m_MeasureImage.IsNull() &&
-		m_Lily.m_bReady && 
+		m_Lily.m_bReady &&
 		(m_CurrentImage.first != m_Playing.iMovement || m_CurrentImage.second != m_Playing.iMeasure || bForceRefresh))
 	{
 		HDC hDC = m_MeasureImage.GetDC();
@@ -1194,7 +1197,7 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 		// Get and show new image.
 		CImage	Image;
 		// Ask for reload of the image if you are on current image.
-		if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image, 
+		if (m_Lily.GetMeasureImage(m_Playing.iMovement, m_Playing.iMeasure, Image,
 			m_CurrentImage.first == m_Playing.iMovement && m_CurrentImage.second == m_Playing.iMeasure))
 		{
 			CSize ImageSize(Image.GetWidth(), Image.GetHeight());
@@ -1202,7 +1205,7 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 			double dRatio = 1;
 
 			if (ImageSize.cx > ViewSize.cx || ImageSize.cy > ViewSize.cy)
-			{ 
+			{
 				while (ImageSize.cx * dRatio > ViewSize.cx || ImageSize.cy * dRatio > ViewSize.cy)
 					dRatio /= 2;
 			}
@@ -1212,12 +1215,14 @@ void CWhiteNoteView::UpdateImage(bool bForceRefresh)
 					dRatio *= 2;
 			}
 
-			StretchBlt(hDC, 0, 0, (int)(ImageSize.cx * dRatio), (int)(ImageSize.cy * dRatio), Image.GetDC(), 
+			StretchBlt(hDC, 0, 0, (int)(ImageSize.cx * dRatio), (int)(ImageSize.cy * dRatio), Image.GetDC(),
 				0, 0, ImageSize.cx, ImageSize.cy, SRCCOPY);
 			Image.ReleaseDC();
 		}
+		else
+			LilyPondCheck();
 		m_CurrentImage = make_pair(m_Playing.iMovement, m_Playing.iMeasure);
-			
+
 		// Release DC and update window.
 		m_MeasureImage.ReleaseDC();
 		m_Image.Invalidate();
@@ -1411,5 +1416,17 @@ void CWhiteNoteView::OnCommentsSave()
 	catch (...)
 	{
 		AfxMessageBox(L"Could not save comments file.", MB_ICONERROR);
+	}
+}
+
+// Checks if LilyPond seems ok?
+void CWhiteNoteView::LilyPondCheck()
+{
+	if (m_Defaults.LilyPondPath.MakeLower().Right(12) != L"lilypond.exe" && !m_Defaults.bLilyPondPathWarned)
+	{
+		if (AfxMessageBox(L"Lilypond's executable file seems not correct. Expected (lilypond.exe). Do you want to correct it?", MB_YESNO | MB_ICONQUESTION) == IDYES)
+			OnLilypondChangepath();
+		else
+			m_Defaults.bLilyPondPathWarned = true;
 	}
 }

@@ -181,7 +181,9 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 
 		// Check Open
 		if (!File.Open(LilyFileName, CFile::modeRead))
+		{
 			AfxMessageBox(L"File creation failed.");
+		}
 		else
 			File.Close();
 	}
@@ -192,8 +194,8 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 		Command.Format(L"-l=ERROR -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png \"%s\"", LilyFileName);
 
 		ShellExecute(NULL, NULL, m_LilyPondPath, Command, m_FileCacheFolder, SW_HIDE);
-		int i;
-		for (i = 0; i < 100; i++)
+		for (int i = 0; i < 30; i++)
+		{
 			if (Image.Load(ImageFileName) == S_OK)
 				break;
 			else
@@ -208,6 +210,7 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 				else
 					Sleep(100);
 			}
+		}
 		CleanTempFiles();
 	}
 	if (Image.IsNull())

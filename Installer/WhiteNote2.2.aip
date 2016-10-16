@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="12.8" version="13.1" Modules="simple" RootPath="." Language="en" Id="{4B88104F-F9DD-4B94-8034-55695BBB4763}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="12.8" version="13.2.1" Modules="simple" RootPath="." Language="en" Id="{4B88104F-F9DD-4B94-8034-55695BBB4763}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1"/>
@@ -8,10 +8,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="www.white-note.com"/>
     <ROW Property="ARPURLUPDATEINFO" Value="www.white-note.com\en\download.htm"/>
     <ROW Property="Manufacturer" Value="White Note"/>
-    <ROW Property="ProductCode" Value="1033:{770BE502-55B8-40B6-A122-EBD4FC21971A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{FB715BC6-046E-40E5-9FD3-E140D7188FC8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="WhiteNote"/>
-    <ROW Property="ProductVersion" Value="2.2.2" Type="32"/>
+    <ROW Property="ProductVersion" Value="2.2.4" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{F22E722B-FFB2-48C4-B733-0A7A8443DC4A}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
