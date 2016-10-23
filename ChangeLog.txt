@@ -1,8 +1,0 @@
-UTF-16 XML is read.
-Error declerations in XML file are ignored.
-Unpitched notes in XML are parsed and read.
-Measure count view for Multi-Movement sheets is improved.
-TAB Clef output bug for lilypond corrected.
-Arpeggio signs for lilypond bug fixed.
-Lilypond image is resized to fit the screen.
-If lilypond's executable file doesn't seem correct, user is warned.

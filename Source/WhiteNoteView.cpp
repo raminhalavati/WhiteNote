@@ -1424,7 +1424,7 @@ void CWhiteNoteView::LilyPondCheck()
 {
 	if (m_Defaults.LilyPondPath.MakeLower().Right(12) != L"lilypond.exe" && !m_Defaults.bLilyPondPathWarned)
 	{
-		if (AfxMessageBox(L"Lilypond's executable file seems not correct. Expected (lilypond.exe). Do you want to correct it?", MB_YESNO | MB_ICONQUESTION) == IDYES)
+		if (AfxMessageBox(L"Lilypond's executable file seems to be wronlgy correct, lilypond.exe was expected. Do you want to correct it?", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			OnLilypondChangepath();
 		else
 			m_Defaults.bLilyPondPathWarned = true;
