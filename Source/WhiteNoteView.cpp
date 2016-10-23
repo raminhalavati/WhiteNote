@@ -1109,7 +1109,7 @@ void CWhiteNoteView::CreateImage()
 
 void CWhiteNoteView::OnLilypondChangepath()
 {
-	CFileDialog	FDlg(true, L"exe", m_Defaults.LilyPondPath.GetLength() ? m_Defaults.LilyPondPath : L"LilyPond.exe", 6, L"Executable Files (*.exe)||");
+	CFileDialog	FDlg(true, L"exe", m_Defaults.LilyPondPath.GetLength() ? m_Defaults.LilyPondPath : L"LilyPond.exe", 6, L"Executable Files (*.exe)|*.exe|All Files (*.*)|*.*||");
 	if (FDlg.DoModal() == IDOK)
 		m_Defaults.LilyPondPath = FDlg.GetPathName();
 	else
@@ -1118,7 +1118,10 @@ void CWhiteNoteView::OnLilypondChangepath()
 	AfxMessageBox(L"LilyPond Path Saved.");
 	SerializeDefaults(false);
 	if (m_pNarration && m_pNarration->Movements.size())
+	{
 		InitializeLilyPond();
+		UpdateImage(true);
+	}
 }
 
 
@@ -1423,10 +1426,8 @@ void CWhiteNoteView::OnCommentsSave()
 void CWhiteNoteView::LilyPondCheck()
 {
 	if (m_Defaults.LilyPondPath.MakeLower().Right(12) != L"lilypond.exe" && !m_Defaults.bLilyPondPathWarned)
-	{
-		if (AfxMessageBox(L"Lilypond's executable file seems to be wronlgy correct, lilypond.exe was expected. Do you want to correct it?", MB_YESNO | MB_ICONQUESTION) == IDYES)
+		if (AfxMessageBox(L"Lilypond's executable file seems to be wrongly correct, lilypond.exe was expected. Do you want to correct it?", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			OnLilypondChangepath();
 		else
 			m_Defaults.bLilyPondPathWarned = true;
-	}
 }
