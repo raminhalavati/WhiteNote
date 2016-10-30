@@ -68,7 +68,8 @@ void CWhiteNoteDoc::Serialize(CArchive& ar)
 		m_FilePath = FilePath;
 		if (m_FileName.GetLength() > 3 && m_FileName.Right(3).MakeLower() == "mxl")
 			FilePath = GetXMLFromMXL(FilePath);
-		ReadXMLFile(FilePath);
+		if (!ReadXMLFile(FilePath))
+			AfxThrowFileException(CFileException::invalidFile);
 	}
 }
 
@@ -212,15 +213,8 @@ bool CWhiteNoteDoc::ReadXMLFile(CString FilePath)
 {
 	bool	bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 
-	if (!CMusixXMLParser().ParsXML(FilePath, m_MusicSheet))
-		AfxMessageBox(L"File not loaded.", MB_ICONERROR);
-	else
-		if (!CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration, bDetailedText))
-			AfxMessageBox(L"Could not narrate file.", MB_ICONERROR);
-		else
-			return true;		
-
-	return false;
+	return CMusicXMLParser().ParsXML(FilePath, m_MusicSheet) &&
+		   CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration, bDetailedText);
 }
 
 // Reloads a document to reflect external or settings changes.

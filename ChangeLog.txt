@@ -1,0 +1,4 @@
+Default path for input files is added. This path is used for command line requests and opening first file.
+Lock Voice --> Add to Help
+Measure Select --> Add 2 Help?
+If a file could not be opened, it's name is not shown in the title bar.

@@ -99,13 +99,16 @@
 #define ID_COMMENTS_AUTOSAVE            32871
 #define ID_COMMENTS_SAVECOMMENTS        32872
 #define ID_COMMENTS_SAVE                32873
+#define ID_OPTIONS_SETDEFAULTXMLPATH    32877
+#define ID_NAVIGATE_LOCKVOICE           32878
+#define ID_OPTIONS_SELECTFULLMEASURE    32881
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        315
-#define _APS_NEXT_COMMAND_VALUE         32877
+#define _APS_NEXT_COMMAND_VALUE         32882
 #define _APS_NEXT_CONTROL_VALUE         1054
 #define _APS_NEXT_SYMED_VALUE           315
 #endif

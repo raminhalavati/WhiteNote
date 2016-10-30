@@ -27,7 +27,7 @@ public:
 	CTranslator				m_Translator;
 	CLilyPondWrapper		m_Lily;
 
-	struct _Defaults
+	struct
 	{
 		CString	Language;
 		bool	bLTR;
@@ -36,21 +36,28 @@ public:
 		bool	bShowAllSignatureText;
 		CString	LilyPondPath;
 		CString	TempFolder;
+		CString	DefaultXMLPath;
 		bool	bAutoRefreshImages;
 		bool	bAutoDeleteCache;
 		bool	bShowVoicesOnDifferentStaffs;
 		bool	bDetailedText;
 		bool	bAutoSaveComments;
 		bool	bLilyPondPathWarned;
+		bool	bSelectMeasureText;
 	} m_Defaults;
 
-	struct _Comments
+	struct
+	{
+		bool	bVoiceLockecd;
+	} m_Status;
+
+	struct
 	{
 		map<pair<int, int>, CString>	Texts;
 		CString							FileName;
 	} m_Comments;
 
-	struct _Playing
+	struct
 	{
 		int		iMovement;
 		int		iVoice;
@@ -146,6 +153,9 @@ public:
 	afx_msg void OnUpdateCommentsAdd(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateCommentsSave(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateCommentsSelectFile(CCmdUI *pCmdUI);
+	afx_msg void OnOptionsSetdefaultxmlpath();
+	afx_msg void OnUpdateNavigateLockvoice(CCmdUI *pCmdUI);
+	afx_msg void OnNavigateLockvoice();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -164,7 +174,7 @@ public:
 	bool Move(char chWhat, bool bNext, bool bGoToEnd = false); // 'p'age , 'm'easure  ,'s'taff
 	// Sets the Current Movement
 	void SetMovement(int iMovementNo);
-	// Returns the index of Previous/Next measure/hand/voice, -1 if not available.
+	// Returns the index of Previous/Next measure/staff/voice, -1 if not available.
 	int GetOtherBlock(char chWhat, bool bNext);
 	// Makes a sound
 	void VoiceMessage(CString What);
@@ -184,6 +194,8 @@ public:
 	void ShowHideImage();
 	// Checks if LilyPond seems ok?
 	void LilyPondCheck();
+	afx_msg void OnUpdateOptionsSelectfullmeasure(CCmdUI *pCmdUI);
+	afx_msg void OnOptionsSelectfullmeasure();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

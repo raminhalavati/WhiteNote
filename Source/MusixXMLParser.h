@@ -2,11 +2,11 @@
 #include "MusicSheet.h"	
 #include "Common.h"
 
-class CMusixXMLParser
+class CMusicXMLParser
 {
 public:
-	CMusixXMLParser(void);
-	~CMusixXMLParser(void);
+	CMusicXMLParser(void);
+	~CMusicXMLParser(void);
 
 	MusicSheet::NoteTypes	StringToNoteType( const char * pchName )
 	{
@@ -101,7 +101,7 @@ public:
 	bool	ParsXML(CString FileName , MusicSheet & Sheet );
 
 	// Returns the direction type of a node and its (staff,voice)
-	pair<int,int>		CMusixXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode , vector<MusicSheet::Direction> & Directions ) ;
+	pair<int,int>		CMusicXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode , vector<MusicSheet::Direction> & Directions ) ;
   // Tries to fix and load XML File
 	tinyxml2::XMLDocument * FixAndLoadXMLFile(CString FileName);
 };

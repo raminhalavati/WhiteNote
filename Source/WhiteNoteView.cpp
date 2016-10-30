@@ -90,6 +90,11 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_UPDATE_COMMAND_UI(ID_COMMENTS_ADD, &CWhiteNoteView::OnUpdateCommentsAdd)
 	ON_UPDATE_COMMAND_UI(ID_COMMENTS_SAVE, &CWhiteNoteView::OnUpdateCommentsSave)
 	ON_UPDATE_COMMAND_UI(ID_COMMENTS_SELECT_FILE, &CWhiteNoteView::OnUpdateCommentsSelectFile)
+	ON_COMMAND(ID_OPTIONS_SETDEFAULTXMLPATH, &CWhiteNoteView::OnOptionsSetdefaultxmlpath)
+	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnUpdateNavigateLockvoice)
+	ON_COMMAND(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnNavigateLockvoice)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_SELECTFULLMEASURE, &CWhiteNoteView::OnUpdateOptionsSelectfullmeasure)
+	ON_COMMAND(ID_OPTIONS_SELECTFULLMEASURE, &CWhiteNoteView::OnOptionsSelectfullmeasure)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -176,13 +181,13 @@ void CWhiteNoteView::OnUpdateRightMeasure(CCmdUI *pCmdUI)
 
 void CWhiteNoteView::OnUpdateNavigatePrevioushand(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('h', false) != -1);
+	pCmdUI->Enable(GetOtherBlock('s', false) != -1);
 }
 
 
 void CWhiteNoteView::OnUpdateNavigateNexthand(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('h', true) != -1);
+	pCmdUI->Enable(GetOtherBlock('s', true) != -1);
 }
 
 
@@ -314,6 +319,8 @@ void CWhiteNoteView::OnInitialUpdate()
 	}
 	m_Summary.m_bNormalLine = false;
 	m_pNarration = &GetDocument()->m_Narration;
+
+	m_Status.bVoiceLockecd = false;
 
 	SerializeDefaults(true);
 	
@@ -513,13 +520,14 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bBeep = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
 		m_Defaults.bShowAllSignatureText = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
 		m_Defaults.LilyPondPath = theApp.GetProfileString(L"Defaults", L"LilyPondPath", L"");
+		m_Defaults.DefaultXMLPath = theApp.GetProfileString(L"Defaults", L"XMLDefaultPath", L"");
 		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
 		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
-
+		m_Defaults.bSelectMeasureText = (theApp.GetProfileInt(L"Defaults", L"SelectMeasureText", 1) == 1);
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -552,12 +560,14 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileInt(L"Defaults", L"Beep", m_Defaults.bBeep);
 		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Defaults.bShowAllSignatureText);
 		theApp.WriteProfileString(L"Defaults", L"LilyPondPath", m_Defaults.LilyPondPath);
+		theApp.WriteProfileString(L"Defaults", L"XMLDefaultPath", m_Defaults.DefaultXMLPath);
 		theApp.WriteProfileInt(L"Defaults", L"AutoRefreshImages", m_Defaults.bAutoRefreshImages);
 		theApp.WriteProfileInt(L"Defaults", L"AutoDeleteCache", m_Defaults.bAutoDeleteCache);
 		theApp.WriteProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", m_Defaults.bShowVoicesOnDifferentStaffs);
 		theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
 		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Defaults.bDetailedText);
 		theApp.WriteProfileInt(L"Defaults", L"AutoSaveComments", m_Defaults.bAutoSaveComments);
+		theApp.WriteProfileInt(L"Defaults", L"SelectMeasureText", m_Defaults.bSelectMeasureText);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -642,9 +652,11 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		m_Playing.iMeasureTotalSize = Translation.GetLength();
 		
 		m_pNarrationTB->SetWindowText(Translation);
-
 		if (bGoToEnd)
 			m_pNarrationTB->SetSel(Translation.GetLength(), Translation.GetLength());
+		else
+			if (m_Defaults.bSelectMeasureText)
+				m_pNarrationTB->SetSel(0, -1);
 
 		// Sound
 		CString	Sound(L"");
@@ -695,13 +707,13 @@ void CWhiteNoteView::OnNavigateNextvoice()
 
 void CWhiteNoteView::OnNavigatePrevioushand()
 {
-	Move('h', false);
+	Move('s', false);
 }
 
 
 void CWhiteNoteView::OnNavigateNexthand()
 {
-	Move('h', true);
+	Move('s', true);
 }
 
 void CWhiteNoteView::OnRightMeasure()
@@ -730,6 +742,9 @@ LRESULT CWhiteNoteView::OnChildKeyPress(WPARAM wParam, LPARAM lParam)
 				nChar = VK_RIGHT;
 			else if (nChar == VK_RIGHT)
 				nChar = VK_LEFT;
+		/*if (nChar == VK_LEFT || nChar == VK_RIGHT)
+			if (m_Defaults.bInverseCtrlForArrows)
+				bCtrl = !bCtrl;*/
 
 		switch (nChar)
 		{
@@ -737,7 +752,7 @@ LRESULT CWhiteNoteView::OnChildKeyPress(WPARAM wParam, LPARAM lParam)
 		case VK_UP:
 			if (!bCtrl)
 			{
-				Move('h', nChar == VK_DOWN);
+				Move('s', nChar == VK_DOWN);
 				return 1;
 			}
 			break;
@@ -902,10 +917,16 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 {
 	try
 	{
+		if (m_Status.bVoiceLockecd && (chWhat == 's' || chWhat == 'v'))
+		{
+			MessageBeep(MB_ICONERROR);
+			return false;
+		}
+
 		switch (chWhat)
 		{
 		case 'm': // Measure
-		case 'h': // Hand
+		case 's': // Staff
 		case 'v': // Voice
 		{
 			int	iOther = GetOtherBlock(chWhat, bNext);
@@ -1009,7 +1030,7 @@ void CWhiteNoteView::OnLilypondPrecreateallimages()
 	m_Lily.CreateAllImages();
 }
 
-// Returns the index of Previous/Next measure/hand/voice, -1 if not available.
+// Returns the index of Previous/Next measure/staff/voice, -1 if not available.
 int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 {
 	RETURN_IF_NOT_LOADED - 1;
@@ -1029,7 +1050,7 @@ int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 				return m_Playing.iMeasure - 1;
 		break;
 
-	case 'h':
+	case 's':
 		if (bNext)
 		{
 			for (int i = m_Playing.iVoice + 1; i < (int)Voices.size(); i++)
@@ -1430,4 +1451,38 @@ void CWhiteNoteView::LilyPondCheck()
 			OnLilypondChangepath();
 		else
 			m_Defaults.bLilyPondPathWarned = true;
+}
+
+
+void CWhiteNoteView::OnOptionsSetdefaultxmlpath()
+{
+	if (SelectFolder(m_hWnd, L"Select default XML folder.", m_Defaults.DefaultXMLPath))
+		SerializeDefaults(false);
+}
+
+
+void CWhiteNoteView::OnUpdateNavigateLockvoice(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pNarration && m_pNarration->Movements.size());
+	pCmdUI->SetCheck(m_Status.bVoiceLockecd);
+}
+
+
+void CWhiteNoteView::OnNavigateLockvoice()
+{
+	m_Status.bVoiceLockecd = !m_Status.bVoiceLockecd;
+	MessageBeep(MB_OK);
+}
+
+
+void CWhiteNoteView::OnUpdateOptionsSelectfullmeasure(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_Defaults.bSelectMeasureText);
+}
+
+
+void CWhiteNoteView::OnOptionsSelectfullmeasure()
+{
+	m_Defaults.bSelectMeasureText = !m_Defaults.bSelectMeasureText;
+	SerializeDefaults(false);
 }

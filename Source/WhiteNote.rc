@@ -105,6 +105,8 @@ BEGIN
         MENUITEM "Next Voice\tAlt+Down",        ID_NAVIGATE_NEXTVOICE
         MENUITEM SEPARATOR
         MENUITEM "&Show Signature Text\tCtrl+H", ID_NAVIGATE_SHOW_SIGNATURE
+        MENUITEM SEPARATOR
+        MENUITEM "&Lock Voice\tCtrl+L",         ID_NAVIGATE_LOCKVOICE
     END
     POPUP "&Images"
     BEGIN
@@ -132,6 +134,7 @@ BEGIN
     POPUP "&Options"
     BEGIN
         MENUITEM "&Always Show Signatures",     ID_OPTIONS_ALWAYSSHOWSIGNATURES
+        MENUITEM "Show &Detailed Text",         ID_OPTIONS_DETAILEDTEXT
         MENUITEM "&Navigational Sound Alerts",  ID_OPTIONS_BEEPONCOMMANDS
         MENUITEM "Change &Page Size",           ID_SETTINGS_CHANGE_PAGE_SIZE
         POPUP "&Language"
@@ -139,7 +142,8 @@ BEGIN
             MENUITEM "&English",                    ID_SETTINGS_LANGUAGE_ENGLISH
             MENUITEM "&Persian",                    ID_SETTINGS_LANGUAGE_FARSI
         END
-        MENUITEM "&Detailed Text",              ID_OPTIONS_DETAILEDTEXT
+        MENUITEM "Set Default &XML Path...",    ID_OPTIONS_SETDEFAULTXMLPATH
+        MENUITEM "&Select Measure Text",        ID_OPTIONS_SELECTFULLMEASURE
     END
     POPUP "&View"
     BEGIN
@@ -163,6 +167,9 @@ END
 
 IDR_MAINFRAME ACCELERATORS
 BEGIN
+    "E",            ID_COMMENTS_ADD,        VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_COMMENTS_SAVE,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "W",            ID_COMMENTS_SHOW,       VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEAS,         VIRTKEY, CONTROL, NOINVERT
     VK_F1,          ID_HELP_HELP,           VIRTKEY, NOINVERT
@@ -170,15 +177,12 @@ BEGIN
     "I",            ID_LILYPOND_SHOWIMAGE,  VIRTKEY, CONTROL, NOINVERT
     "G",            ID_NAVIGATE_GOTO_MEASURE, VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        ID_NAVIGATE_LEFT_MEASURE, VIRTKEY, ALT, NOINVERT
+    "L",            ID_NAVIGATE_LOCKVOICE,  VIRTKEY, CONTROL, NOINVERT
     VK_DOWN,        ID_NAVIGATE_NEXTVOICE,  VIRTKEY, ALT, NOINVERT
     VK_UP,          ID_NAVIGATE_PREVIOUSVOICE, VIRTKEY, ALT, NOINVERT
     VK_RIGHT,       ID_NAVIGATE_RIGHT_MEASURE, VIRTKEY, ALT, NOINVERT
     "M",            ID_NAVIGATE_SELECT_MOVEMENT, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, CONTROL, NOINVERT
-    "L",            ID_PLAY_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
-    "E",            ID_COMMENTS_ADD,        VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_COMMENTS_SAVE,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "W",            ID_COMMENTS_SHOW,       VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -259,8 +263,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,3,0,0
- PRODUCTVERSION 2,3,0,0
+ FILEVERSION 2,3,1,0
+ PRODUCTVERSION 2,3,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -277,12 +281,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote"
-            VALUE "FileVersion", "2.3.0.0"
+            VALUE "FileVersion", "2.3.1.0"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software."
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.3.0.0"
+            VALUE "ProductVersion", "2.3.1.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -2,11 +2,11 @@
 #include "MusixXMLParser.h"
 
 
-CMusixXMLParser::CMusixXMLParser(void)
+CMusicXMLParser::CMusicXMLParser(void)
 {
 }
 
-CMusixXMLParser::~CMusixXMLParser(void)
+CMusicXMLParser::~CMusicXMLParser(void)
 {
 }
 
@@ -41,7 +41,7 @@ void	ReportError(XMLElem * pNode, CString Title)
 }
 
 // Parses an xml input.
-bool CMusixXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
+bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 {
 	try
 	{
@@ -486,7 +486,7 @@ bool CMusixXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 }
 
 // Returns the direction type of a node and its (staff,voice)
-pair<int, int>	CMusixXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode, vector<MusicSheet::Direction> & Directions)
+pair<int, int>	CMusicXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode, vector<MusicSheet::Direction> & Directions)
 {
 	int		iStaff = -1;
 	int		iVoice = -1;
@@ -605,7 +605,7 @@ pair<int, int>	CMusixXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode, 
 }
 
 // Tries to fix and load XML File
-tinyxml2::XMLDocument* CMusixXMLParser::FixAndLoadXMLFile(CString FileName)
+tinyxml2::XMLDocument* CMusicXMLParser::FixAndLoadXMLFile(CString FileName)
 {
 	try
 	{

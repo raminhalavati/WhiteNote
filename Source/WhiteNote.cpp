@@ -158,6 +158,17 @@ BOOL CWhiteNoteApp::InitInstance()
 	if (m_Path.ReverseFind(L'\\') != -1)
 		m_Path = m_Path.Left(m_Path.ReverseFind(L'\\'));
 
+	// Check if cmdInfo has file name to open, without path. If so, and if default path is specified, correct the address.
+	if (cmdInfo.m_strFileName.GetLength() &&
+		cmdInfo.m_strFileName.Find(L"/", 0) == -1 &&
+		cmdInfo.m_strFileName.Find(L"\\", 0) == -1)
+	{
+		// See if a default path is specified.
+		CString DefaultXMLPath = GetProfileString(L"Defaults", L"XMLDefaultPath", L"");
+		if (DefaultXMLPath.GetLength())
+			cmdInfo.m_strFileName = DefaultXMLPath + L"\\" + cmdInfo.m_strFileName;
+	}
+	
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
 	if (!ProcessShellCommand(cmdInfo))
