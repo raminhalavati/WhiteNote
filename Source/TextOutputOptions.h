@@ -28,17 +28,13 @@ public:
 
 	struct
 	{
-		bool	bAllVoicesFirst;
-		bool	bAllMeasuresFirst;
+		char	chGroupBy; // 'v'oices / 'm'easures
 		bool	bRepeatSignatures;
 	} m_Options;
 	// Serializes settings.
 
 	void Serialize(bool bLoad);
 	
-	CButton m_VoicesFirst;
-	CButton m_MeasuresFirst;
 	CButton m_RepeatSignatures;
-	afx_msg void OnBnClickedVoicesFirst();
-	afx_msg void OnBnClickedMeasuresFirst();
+	CComboBox m_GroupBy;
 };

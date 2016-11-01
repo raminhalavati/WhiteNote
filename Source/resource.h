@@ -31,9 +31,8 @@
 #define IDC_NO_DONT_REMIND              1052
 #define IDC_EDIT2                       1053
 #define IDC_MESSAGE                     1053
-#define IDC_VOICES_FIRST                1054
-#define IDC_MEASURES_FIRST              1055
 #define IDC_REPEAT_SIGNATURES           1056
+#define IDC_COMBO1                      1057
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -113,7 +112,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1057
+#define _APS_NEXT_CONTROL_VALUE         1058
 #define _APS_NEXT_SYMED_VALUE           316
 #endif
 #endif

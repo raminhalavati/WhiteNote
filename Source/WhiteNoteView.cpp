@@ -528,7 +528,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
 		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
-		m_Defaults.bSelectMeasureText = (theApp.GetProfileInt(L"Defaults", L"SelectMeasureText", 1) == 1);
+		m_Defaults.bSelectMeasureText = (theApp.GetProfileInt(L"Defaults", L"SelectMeasureText", 0) == 1);
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -653,13 +653,12 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		m_Playing.iMeasureTotalSize = Translation.GetLength();
 		
 		m_pNarrationTB->SetWindowText(Translation);
+		m_pNarrationTB->SetFocus();
 		if (bGoToEnd)
 			m_pNarrationTB->SetSel(Translation.GetLength(), Translation.GetLength());
 		else
 			if (m_Defaults.bSelectMeasureText)
 				m_pNarrationTB->SetSel(0, -1);
-		m_Summary.SetFocus();
-		m_pNarrationTB->SetFocus();
 
 		// Sound
 		CString	Sound(L"");
@@ -893,19 +892,17 @@ void CWhiteNoteView::OnFileSaveas()
 	if (m_pNarration->Credits.GetLength())
 		fwprintf_s(hFile, L"%s\r\n", (LPCTSTR) m_pNarration->Credits);
 
+#define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));}
 	// For each movement
 	for ALL_INDICES(m_pNarration->Movements, p) {
 		CStringA	Text, Temp;
-		if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength()) {
-			Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName);
-			fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
-		}
-#define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));}
+		if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
+			TP(Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName));
 
 		bool& bFullSignature = ODlg.m_Options.bRepeatSignatures;
 
 		// All voices priority: First loop on measures.
-		if (ODlg.m_Options.bAllVoicesFirst) {
+		if (ODlg.m_Options.chGroupBy == 'm') {
 			for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
 				TP(Text.Format("Measure %i\n", m + 1));
 				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
@@ -917,7 +914,7 @@ void CWhiteNoteView::OnFileSaveas()
 					if (Printees.size()) {
 						TP(Text.Format("Staff %i; Voice %i\n", pVoice->iStaff + 1, pVoice->iVoice));
 						for (auto& line : Printees)
-							TP(Text.Format("%s; ", line));
+							TP(Text = line);
 						fwprintf_s(hFile, L"\r\n");
 					}
 				}
@@ -942,7 +939,7 @@ void CWhiteNoteView::OnFileSaveas()
 							}
 							if (Printees.size() > 1) {
 								for (auto& line : Printees)
-									TP(Text.Format("%s; ", line));
+									TP(Text = line);
 								fwprintf_s(hFile, L"\r\n");
 							}
 						}

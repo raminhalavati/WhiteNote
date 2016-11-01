@@ -206,7 +206,7 @@ CString CTranslator::TranslateText(CStringA Text)
 			CString Translation = TranslateStatement(SubStatement);
 
 			if (Translation.GetLength())
-			Output += Translation + L" ";
+				Output += Translation + L" ";
 		}
 
 		if (Output.GetLength())
@@ -214,6 +214,8 @@ CString CTranslator::TranslateText(CStringA Text)
 		Output += L"; ";
 	}
 
+	if (Output.GetLength() > 3 && Output.Right(3) == "\n; ")
+		Output = Output.Left(Output.GetLength() - 2);
 	return Output;
 }
 
