@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "resource.h"
 #include "afxwin.h"
-#include "MyEdit.h"
-#include "WhiteNoteDoc.h"
-#include "Translator.h"
+#include "resource.h"
+
 #include "LilyPondWrapper.h"
+#include "MyEdit.h"
+#include "Translator.h"
+#include "WhiteNoteDoc.h"
 
 class CWhiteNoteView : public CFormView
 {

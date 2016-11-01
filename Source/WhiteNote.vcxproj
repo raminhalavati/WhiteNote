@@ -123,6 +123,7 @@
     <ClInclude Include="SimpleQuestion.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TextOutputOptions.h" />
     <ClInclude Include="TinyXML2.h" />
     <ClInclude Include="Translator.h" />
     <ClInclude Include="WhiteNote.h" />
@@ -144,6 +145,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TextOutputOptions.cpp" />
     <ClCompile Include="TinyXML2.cpp" />
     <ClCompile Include="Translator.cpp" />
     <ClCompile Include="WhiteNote.cpp" />

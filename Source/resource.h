@@ -12,6 +12,7 @@
 #define IDD_PROGRESSREPORT              311
 #define IDD_COMMENTDIALOG               312
 #define IDD_LILYPONDINSTALLER           313
+#define IDD_TEXTOUTPUTOPTIONS           315
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -30,6 +31,9 @@
 #define IDC_NO_DONT_REMIND              1052
 #define IDC_EDIT2                       1053
 #define IDC_MESSAGE                     1053
+#define IDC_VOICES_FIRST                1054
+#define IDC_MEASURES_FIRST              1055
+#define IDC_REPEAT_SIGNATURES           1056
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -107,9 +111,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        315
+#define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1054
-#define _APS_NEXT_SYMED_VALUE           315
+#define _APS_NEXT_CONTROL_VALUE         1057
+#define _APS_NEXT_SYMED_VALUE           316
 #endif
 #endif

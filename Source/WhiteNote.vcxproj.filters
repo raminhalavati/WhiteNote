@@ -75,6 +75,9 @@
     <ClInclude Include="TinyXML2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextOutputOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WhiteNote.cpp">
@@ -123,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextOutputOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

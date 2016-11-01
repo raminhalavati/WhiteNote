@@ -9,11 +9,12 @@
 #include "WhiteNote.h"
 #endif
 
-#include "WhiteNoteDoc.h"
 #include "WhiteNoteView.h"
-#include "SimpleQuestion.h"
+
 #include "CommentDialog.h"
 #include "LilyPondInstaller.h"
+#include "SimpleQuestion.h"
+#include "TextOutputOptions.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -657,6 +658,8 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		else
 			if (m_Defaults.bSelectMeasureText)
 				m_pNarrationTB->SetSel(0, -1);
+		m_Summary.SetFocus();
+		m_pNarrationTB->SetFocus();
 
 		// Sound
 		CString	Sound(L"");
@@ -859,56 +862,97 @@ void CWhiteNoteView::OnPlayGotomeasure()
 
 void CWhiteNoteView::OnFileSaveas()
 {
-	CWhiteNoteDoc * pDoc = GetDocument();
+	// Get Options
+	CTextOutputOptions	ODlg;
+	if (ODlg.DoModal() != IDOK)
+		return;
 
+	// Get Document
+	CWhiteNoteDoc * pDoc = GetDocument();
 	if (!pDoc || ! m_pNarration)
 		return;
+	
+	// Get Filename
 	CString	FileName = pDoc->m_FileName;
 	int		iPos = FileName.ReverseFind(L'.');
 	if (iPos != -1)
 		FileName = FileName.Left(iPos);
 	
 	CFileDialog	FDlg(false, L"txt", FileName, 6, L"Text File (*.txt)|*.txt|All Files (*.*)|*.*||");
+	if (FDlg.DoModal() != IDOK)
+		return;
 
-	if (FDlg.DoModal() == IDOK)
+	// Open File
+	FILE *	hFile;
+	if (_wfopen_s(&hFile, FDlg.GetPathName(), L"wt, ccs=UTF-8"))
 	{
-		FILE *	hFile;
-
-		if (_wfopen_s(&hFile, FDlg.GetPathName(), L"wt, ccs=UTF-8"))
-		{
-			AfxMessageBox(L"Could not open file.", MB_ICONERROR);
-			return;
-		}
-
-		if (m_pNarration->Credits.GetLength())
-			fwprintf_s(hFile, L"%s\r\n", (LPCTSTR) m_pNarration->Credits);
-
-		for ALL_INDICES(m_pNarration->Movements, p)
-		{
-			CStringA	Text;
-			if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
-			{
-				Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName);
-				fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
-			}
-			
-			for ALL_INDICES(m_pNarration->Movements[p].Measures, m)
-				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice)
-				{
-					Text.Format("Staff %i; Voice %i; ", pVoice->iStaff + 1, pVoice->iVoice);
-					fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
-
-					for ALL(pVoice->Text, pLine)
-					{
-						Text.Format("%s; ", *pLine);
-						fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
-					}
-					fwprintf_s(hFile, L"\r\n");
-				}
-		}
-
-		fclose(hFile);
+		AfxMessageBox(L"Could not open file.", MB_ICONERROR);
+		return;
 	}
+
+	if (m_pNarration->Credits.GetLength())
+		fwprintf_s(hFile, L"%s\r\n", (LPCTSTR) m_pNarration->Credits);
+
+	// For each movement
+	for ALL_INDICES(m_pNarration->Movements, p) {
+		CStringA	Text, Temp;
+		if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength()) {
+			Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName);
+			fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));
+		}
+#define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));}
+
+		bool& bFullSignature = ODlg.m_Options.bRepeatSignatures;
+
+		// All voices priority: First loop on measures.
+		if (ODlg.m_Options.bAllVoicesFirst) {
+			for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
+				TP(Text.Format("Measure %i\n", m + 1));
+				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
+					vector<CStringA> Printees;
+					for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
+						if (bFullSignature || pLine->GetAt(0) != '*')
+							Printees.push_back(*pLine);
+					}
+					if (Printees.size()) {
+						TP(Text.Format("Staff %i; Voice %i\n", pVoice->iStaff + 1, pVoice->iVoice));
+						for (auto& line : Printees)
+							TP(Text.Format("%s; ", line));
+						fwprintf_s(hFile, L"\r\n");
+					}
+				}
+			}
+		}
+		else {
+			// Get All Staffs and voices
+			set<pair<int, int>> SVs;
+			for (auto& measure : m_pNarration->Movements[p].Measures)
+				for (auto& voice : measure.Voices)
+					SVs.insert(make_pair(voice.iStaff, voice.iVoice));
+			for (auto sv : SVs) {
+				TP(Text.Format("Staff %i; Voice %i\n", sv.first + 1, sv.second));
+				for (auto& measure : m_pNarration->Movements[p].Measures) {
+					// Check if this measure has given staff and voice
+					for (auto& voice : measure.Voices) {
+						if (voice.iStaff == sv.first && voice.iVoice == sv.second) {
+							vector<CStringA> Printees;
+							for (auto& line : voice.Text) {
+								if (bFullSignature || line.GetAt(0) != '*')
+									Printees.push_back(line);
+							}
+							if (Printees.size() > 1) {
+								for (auto& line : Printees)
+									TP(Text.Format("%s; ", line));
+								fwprintf_s(hFile, L"\r\n");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	fclose(hFile);
 }
 
 
