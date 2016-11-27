@@ -95,8 +95,6 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_OPTIONS_SETDEFAULTXMLPATH, &CWhiteNoteView::OnOptionsSetdefaultxmlpath)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnUpdateNavigateLockvoice)
 	ON_COMMAND(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnNavigateLockvoice)
-	ON_UPDATE_COMMAND_UI(ID_OPTIONS_SELECTFULLMEASURE, &CWhiteNoteView::OnUpdateOptionsSelectfullmeasure)
-	ON_COMMAND(ID_OPTIONS_SELECTFULLMEASURE, &CWhiteNoteView::OnOptionsSelectfullmeasure)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -529,7 +527,6 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
 		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
-		m_Defaults.bSelectMeasureText = (theApp.GetProfileInt(L"Defaults", L"SelectMeasureText", 0) == 1);
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -569,7 +566,6 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
 		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Defaults.bDetailedText);
 		theApp.WriteProfileInt(L"Defaults", L"AutoSaveComments", m_Defaults.bAutoSaveComments);
-		theApp.WriteProfileInt(L"Defaults", L"SelectMeasureText", m_Defaults.bSelectMeasureText);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -657,9 +653,6 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		m_pNarrationTB->SetFocus();
 		if (bGoToEnd)
 			m_pNarrationTB->SetSel(Translation.GetLength(), Translation.GetLength());
-		else
-			if (m_Defaults.bSelectMeasureText)
-				m_pNarrationTB->SetSel(0, -1);
 
 		// Sound
 		CString	Sound(L"");
@@ -1514,17 +1507,4 @@ void CWhiteNoteView::OnNavigateLockvoice()
 {
 	m_Status.bVoiceLockecd = !m_Status.bVoiceLockecd;
 	MessageBeep(MB_OK);
-}
-
-
-void CWhiteNoteView::OnUpdateOptionsSelectfullmeasure(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bSelectMeasureText);
-}
-
-
-void CWhiteNoteView::OnOptionsSelectfullmeasure()
-{
-	m_Defaults.bSelectMeasureText = !m_Defaults.bSelectMeasureText;
-	SerializeDefaults(false);
 }

@@ -143,7 +143,6 @@ BEGIN
             MENUITEM "&Persian",                    ID_SETTINGS_LANGUAGE_FARSI
         END
         MENUITEM "Default &Library Path...",    ID_OPTIONS_SETDEFAULTXMLPATH
-        MENUITEM "Select &Measure Text",        ID_OPTIONS_SELECTFULLMEASURE
     END
     POPUP "&View"
     BEGIN

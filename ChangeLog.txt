@@ -1,9 +1,1 @@
-Default path for input files is added. This path is used for command line requests and opening first file.
-Lock Voice
-Measure Select
-If a file could not be opened, it's name is not shown in the title bar.
-Option shortcuts are updated.
-Text output options added. --> Help
-Whitenote is added to PATH and WHITENOTE_PATH specifies the exec file path.
-
 UPDATE NEWS, Correct Version and Download files.

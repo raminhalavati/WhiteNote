@@ -44,7 +44,6 @@ public:
 		bool	bDetailedText;
 		bool	bAutoSaveComments;
 		bool	bLilyPondPathWarned;
-		bool	bSelectMeasureText;
 	} m_Defaults;
 
 	struct
@@ -195,8 +194,6 @@ public:
 	void ShowHideImage();
 	// Checks if LilyPond seems ok?
 	void LilyPondCheck();
-	afx_msg void OnUpdateOptionsSelectfullmeasure(CCmdUI *pCmdUI);
-	afx_msg void OnOptionsSelectfullmeasure();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp
