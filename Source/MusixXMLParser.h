@@ -12,18 +12,18 @@ public:
 	{
 		if ( pchName )
 		{
-			CStringA	Name( pchName ) ;
+			CString	Name( pchName ) ;
 			Name.MakeUpper() ;
 
-			CHKSTR( "WHOLE" ,	MusicSheet::TYPE_WHOLE) ;		// گرد
-			CHKSTR( "HALF" ,	MusicSheet::TYPE_HALF ) ;		// سفید
-			CHKSTR( "QUARTER" ,	MusicSheet::TYPE_QUARTER ) ;	// سیاه
-			CHKSTR( "EIGHTH" ,	MusicSheet::TYPE_EIGHTH ) ;		// چنگ
-			CHKSTR( "16TH" ,	MusicSheet::TYPE_SIXTEENTH ) ;	// 
-			CHKSTR( "32ND" ,	MusicSheet::TYPE_32ND ) ;	// 
-			CHKSTR( "64TH",		MusicSheet::TYPE_64TH);	// 
-			CHKSTR( "128TH",	MusicSheet::TYPE_128TH);	// 
-			CHKSTR( "256TH",	MusicSheet::TYPE_256TH);	// 
+			CHKSTR(L"WHOLE" ,	MusicSheet::TYPE_WHOLE) ;		// گرد
+			CHKSTR(L"HALF" ,	MusicSheet::TYPE_HALF ) ;		// سفید
+			CHKSTR(L"QUARTER" ,	MusicSheet::TYPE_QUARTER ) ;	// سیاه
+			CHKSTR(L"EIGHTH" ,	MusicSheet::TYPE_EIGHTH ) ;		// چنگ
+			CHKSTR(L"16TH" ,	MusicSheet::TYPE_SIXTEENTH ) ;	// 
+			CHKSTR(L"32ND" ,	MusicSheet::TYPE_32ND ) ;	// 
+			CHKSTR(L"64TH",		MusicSheet::TYPE_64TH);	// 
+			CHKSTR(L"128TH",	MusicSheet::TYPE_128TH);	// 
+			CHKSTR(L"256TH",	MusicSheet::TYPE_256TH);	// 
 
 		}
 		else
@@ -36,62 +36,62 @@ public:
 	{
 		if ( pchName )
 		{
-			CStringA	Name( pchName ) ;
+			CString	Name( pchName ) ;
 			Name.MakeUpper() ;
 
-			//CHKSTR( "ROMANZE" ,		MusicSheet::DIR_ROMANZE ) ;
-			CHKSTR( "DOLCE" ,		MusicSheet::DIR_DOLCE ) ;
-			CHKSTR( "MESTO" ,		MusicSheet::DIR_MESTO ) ;
-			CHKSTR( "A TEMPO" ,		MusicSheet::DIR_A_TEMPO ) ;
-			CHKSTR( "POCO RIT." ,	MusicSheet::DIR_POCO_RIT ) ;
-			CHKSTR( "POCO RALL" ,	MusicSheet::DIR_POCO_RALL ) ;
-			CHKSTR( "SEMPRE" ,		MusicSheet::DIR_SEMPRE ) ;
-			CHKSTR( "ACCEL" ,		MusicSheet::DIR_ACCEL ) ;
-			CHKSTR( "TRILL" ,		MusicSheet::DIR_TRILL ) ;
-			CHKSTR( "GRUPPETTO" ,	MusicSheet::DIR_GRUPPETTO ) ;
-			CHKSTR( "MORDENT" ,		MusicSheet::DIR_MORDENT ) ;
+			//CHKSTR(L"ROMANZE" ,		MusicSheet::DIR_ROMANZE ) ;
+			CHKSTR(L"DOLCE" ,		MusicSheet::DIR_DOLCE ) ;
+			CHKSTR(L"MESTO" ,		MusicSheet::DIR_MESTO ) ;
+			CHKSTR(L"A TEMPO" ,		MusicSheet::DIR_A_TEMPO ) ;
+			CHKSTR(L"POCO RIT." ,	MusicSheet::DIR_POCO_RIT ) ;
+			CHKSTR(L"POCO RALL" ,	MusicSheet::DIR_POCO_RALL ) ;
+			CHKSTR(L"SEMPRE" ,		MusicSheet::DIR_SEMPRE ) ;
+			CHKSTR(L"ACCEL" ,		MusicSheet::DIR_ACCEL ) ;
+			CHKSTR(L"TRILL" ,		MusicSheet::DIR_TRILL ) ;
+			CHKSTR(L"GRUPPETTO" ,	MusicSheet::DIR_GRUPPETTO ) ;
+			CHKSTR(L"MORDENT" ,		MusicSheet::DIR_MORDENT ) ;
 			
-			CHKSTR( "ALLEGRO" ,		MusicSheet::DIR_ALLEGRO) ;
-			CHKSTR( "ALLEGRATO" ,	MusicSheet::DIR_ALLEGRATO) ;
-			CHKSTR( "GRAVE" ,		MusicSheet::DIR_GRAVE) ;
-			CHKSTR( "LARGO" ,		MusicSheet::DIR_LARGO) ;
-			CHKSTR( "MODERATO" ,	MusicSheet::DIR_MODERATO ) ;
+			CHKSTR(L"ALLEGRO" ,		MusicSheet::DIR_ALLEGRO) ;
+			CHKSTR(L"ALLEGRATO" ,	MusicSheet::DIR_ALLEGRATO) ;
+			CHKSTR(L"GRAVE" ,		MusicSheet::DIR_GRAVE) ;
+			CHKSTR(L"LARGO" ,		MusicSheet::DIR_LARGO) ;
+			CHKSTR(L"MODERATO" ,	MusicSheet::DIR_MODERATO ) ;
 						
-			CHKSTR( "ACCEL." ,		MusicSheet::DIR_DYNAMIC_ACCELERANDO  ) ;
-			CHKSTR( "P" ,			MusicSheet::DIR_DYNAMIC_P ) ;
-			CHKSTR( "PP" ,			MusicSheet::DIR_DYNAMIC_PP) ;
-			CHKSTR( "PPP" ,			MusicSheet::DIR_DYNAMIC_PPP) ;
-			CHKSTR( "MP" ,			MusicSheet::DIR_DYNAMIC_MP) ;
-			CHKSTR( "MF" ,			MusicSheet::DIR_DYNAMIC_MF) ;
-			CHKSTR( "F" ,			MusicSheet::DIR_DYNAMIC_F) ;
-			CHKSTR( "FF" ,			MusicSheet::DIR_DYNAMIC_FF ) ;
-			CHKSTR("FFF",			MusicSheet::DIR_DYNAMIC_FFF);
-			CHKSTR( "FZ" ,			MusicSheet::DIR_DYNAMIC_FZ) ;
-			CHKSTR("FP",			MusicSheet::DIR_DYNAMIC_FP);
-			CHKSTR( "SF",			MusicSheet::DIR_DYNAMIC_SFZ);
-			CHKSTR( "SFZ" ,			MusicSheet::DIR_DYNAMIC_SFZ) ;
-			CHKSTR( "SFFZ" ,		MusicSheet::DIR_DYNAMIC_SFZ) ;
-			CHKSTR( "DIM" ,			MusicSheet::DIR_DYNAMIC_DIM) ;
-			CHKSTR( "DECRESC" ,		MusicSheet::DIR_DYNAMIC_DECRESC) ;
-			CHKSTR( "CRESC" ,		MusicSheet::DIR_DYNAMIC_CRESC) ;
-			CHKSTR( "STACCATO" ,	MusicSheet::DIR_DYNAMIC_STACCATO) ;
-			CHKSTR( "LEGATO" ,		MusicSheet::DIR_DYNAMIC_LEGATO) ;
+			CHKSTR(L"ACCEL." ,		MusicSheet::DIR_DYNAMIC_ACCELERANDO  ) ;
+			CHKSTR(L"P" ,			MusicSheet::DIR_DYNAMIC_P ) ;
+			CHKSTR(L"PP" ,			MusicSheet::DIR_DYNAMIC_PP) ;
+			CHKSTR(L"PPP" ,			MusicSheet::DIR_DYNAMIC_PPP) ;
+			CHKSTR(L"MP" ,			MusicSheet::DIR_DYNAMIC_MP) ;
+			CHKSTR(L"MF" ,			MusicSheet::DIR_DYNAMIC_MF) ;
+			CHKSTR(L"F" ,			MusicSheet::DIR_DYNAMIC_F) ;
+			CHKSTR(L"FF" ,			MusicSheet::DIR_DYNAMIC_FF ) ;
+			CHKSTR(L"FFF",			MusicSheet::DIR_DYNAMIC_FFF);
+			CHKSTR(L"FZ" ,			MusicSheet::DIR_DYNAMIC_FZ) ;
+			CHKSTR(L"FP",			MusicSheet::DIR_DYNAMIC_FP);
+			CHKSTR(L"SF",			MusicSheet::DIR_DYNAMIC_SFZ);
+			CHKSTR(L"SFZ" ,			MusicSheet::DIR_DYNAMIC_SFZ) ;
+			CHKSTR(L"SFFZ" ,		MusicSheet::DIR_DYNAMIC_SFZ) ;
+			CHKSTR(L"DIM" ,			MusicSheet::DIR_DYNAMIC_DIM) ;
+			CHKSTR(L"DECRESC" ,		MusicSheet::DIR_DYNAMIC_DECRESC) ;
+			CHKSTR(L"CRESC" ,		MusicSheet::DIR_DYNAMIC_CRESC) ;
+			CHKSTR(L"STACCATO" ,	MusicSheet::DIR_DYNAMIC_STACCATO) ;
+			CHKSTR(L"LEGATO" ,		MusicSheet::DIR_DYNAMIC_LEGATO) ;
 							
-			CHKSTR( "DIMINUENDO" ,	MusicSheet::DIR_WEDGE_DIMINUENDO ) ;
-			CHKSTR( "CRESCENDO" ,	MusicSheet::DIR_WEDGE_CRESCENDO ) ;
-			CHKSTR( "STOP" ,		MusicSheet::DIR_WEDGE_STOP) ;
+			CHKSTR(L"DIMINUENDO" ,	MusicSheet::DIR_WEDGE_DIMINUENDO ) ;
+			CHKSTR(L"CRESCENDO" ,	MusicSheet::DIR_WEDGE_CRESCENDO ) ;
+			CHKSTR(L"STOP" ,		MusicSheet::DIR_WEDGE_STOP) ;
 
-			CHKSTR("0", MusicSheet::DIR_FINGER_0);
-			CHKSTR("1", MusicSheet::DIR_FINGER_1);
-			CHKSTR("2", MusicSheet::DIR_FINGER_2);
-			CHKSTR("3", MusicSheet::DIR_FINGER_3);
-			CHKSTR("4", MusicSheet::DIR_FINGER_4);
-			CHKSTR("5", MusicSheet::DIR_FINGER_5);
+			CHKSTR(L"0", MusicSheet::DIR_FINGER_0);
+			CHKSTR(L"1", MusicSheet::DIR_FINGER_1);
+			CHKSTR(L"2", MusicSheet::DIR_FINGER_2);
+			CHKSTR(L"3", MusicSheet::DIR_FINGER_3);
+			CHKSTR(L"4", MusicSheet::DIR_FINGER_4);
+			CHKSTR(L"5", MusicSheet::DIR_FINGER_5);
 
-			CHKSTR("I", MusicSheet::DIR_FINGER_I);
-			CHKSTR("M", MusicSheet::DIR_FINGER_M);
-			CHKSTR("A", MusicSheet::DIR_FINGER_A);
-			CHKSTR("P", MusicSheet::DIR_FINGER_P);
+			CHKSTR(L"I", MusicSheet::DIR_FINGER_I);
+			CHKSTR(L"M", MusicSheet::DIR_FINGER_M);
+			CHKSTR(L"A", MusicSheet::DIR_FINGER_A);
+			CHKSTR(L"P", MusicSheet::DIR_FINGER_P);
 		}
 
 		return MusicSheet::DIR_UNKNWON ;

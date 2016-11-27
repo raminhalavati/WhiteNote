@@ -135,14 +135,15 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 	// Create Lily Text File
 	{
 		NarratedMusicSheet::MeasureText & CM = m_pNarration->Movements[iMovementNo].Measures[iMeasureNo];
-		CStringA	Text = "\\version \"2.18.2\" "
-			"\\paper { "
-			"indent = 0\\mm "
-			"oddHeaderMarkup = \"\" "
-			"evenHeaderMarkup = \"\" "
-			"oddFooterMarkup = \"\" "
-			"evenFooterMarkup = \"\" "
-			"}\r\n<<\r\n";
+		CString	Text(
+			L"\\version \"2.18.2\" "
+			L"\\paper { "
+			L"indent = 0\\mm "
+			L"oddHeaderMarkup = \"\" "
+			L"evenHeaderMarkup = \"\" "
+			L"oddFooterMarkup = \"\" "
+			L"evenFooterMarkup = \"\" "
+			L"}\r\n<<\r\n");
 	
 		int		iLastStaff = -1;
 		bool	bOpen = false;
@@ -152,8 +153,8 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 				if (m_bShowVoicesOnDifferentStaffs || iLastStaff != pVoice->iStaff)
 				{
 					if (bOpen)
-						Text += ">>\r\n";
-					if (pVoice->Lily.Find("clef tab") != -1) // Also check MusicSheetNarrator --> GetSingatureText
+						Text += L">>\r\n";
+					if (pVoice->Lily.Find(L"clef tab") != -1) // Also check MusicSheetNarrator --> GetSingatureText
 						Text += "\\new TabStaff";
 					else
 						Text += "\\new Staff";

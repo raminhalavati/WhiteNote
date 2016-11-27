@@ -1,1 +1,7 @@
+ALL TEXTS CONVERTED TO UNICODE <--- TEST
+
+English and Farsi helps separated.
+
+
+UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

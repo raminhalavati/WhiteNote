@@ -255,18 +255,25 @@ void CWhiteNoteApp::OnAppAbout()
 
 void CWhiteNoteApp::OnHelpHelp()
 {
-	OpenInBrowser(m_Path + L"\\Help\\help.htm");	
+	CString Language = GetProfileString(L"Defaults", L"Language", L"");
+
+	if (Language == L"")
+		Language = (AfxMessageBox(L"Help in English?", MB_YESNO | MB_ICONQUESTION)) ? L"EN" : L"FA";
+
+	CString FileName;
+	FileName.Format(L"%s\\Help\\help-%s.htm", m_Path, Language);
+	OpenInBrowser(FileName);
 }
 
-vector<int>	ParseVersion(CStringA Version)
+vector<int>	ParseVersion(CString Version)
 {
 	vector<int>	Result;
 	int		iCurPos = 0;
-	CStringA	Token = Version.Tokenize(".", iCurPos);
+	CString	Token = Version.Tokenize(L".", iCurPos);
 	while (Token != L"")
 	{
-		Result.push_back(atoi(Token));
-		Token = Version.Tokenize(".", iCurPos);
+		Result.push_back(_wtoi(Token));
+		Token = Version.Tokenize(L".", iCurPos);
 	}
 	return Result;
 }
@@ -306,13 +313,13 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 	}
 
 	// Get Version from Internet.
-	CStringA	WebsiteVersion, Message;
+	CString	WebsiteVersion, Message;
 	try
 	{
 		CInternetSession	IS;
 		CStdioFile *	pFile = IS.OpenURL(L"http://white-note.com/version2.htm", 1, INTERNET_FLAG_TRANSFER_BINARY);
 
-		CStringA	Text("");
+		CString	Text;
 
 		if (pFile)
 		{
@@ -328,29 +335,29 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 
 		int	iPos1, iPos2;
 		
-		iPos1 = Text.Find("WhiteNoteVersion{");
+		iPos1 = Text.Find(L"WhiteNoteVersion{");
 		if (iPos1 == -1)
 			return false;
 		iPos1 += strlen("WhiteNoteVersion{");
-		iPos2 = Text.Find("}", iPos1);
+		iPos2 = Text.Find(L"}", iPos1);
 		if (iPos2 == -1)
 			return false;
 		WebsiteVersion = Text.Mid(iPos1, iPos2 - iPos1);
 
-		iPos1 = Text.Find("WhiteNoteMessage{");
+		iPos1 = Text.Find(L"WhiteNoteMessage{");
 		if (iPos1 == -1)
 			return false;
 		iPos1 += strlen("WhiteNoteMessage{");
-		iPos2 = Text.Find("}", iPos1);
+		iPos2 = Text.Find(L"}", iPos1);
 		if (iPos2 == -1)
 			return false;
 		Message = Text.Mid(iPos1, iPos2 - iPos1);
 
-		iPos1 = Text.Find("LatestFile{");
+		iPos1 = Text.Find(L"LatestFile{");
 		if (iPos1 != -1)
 		{
 			iPos1 += strlen("LatestFile{");
-			iPos2 = Text.Find("}", iPos1);
+			iPos2 = Text.Find(L"}", iPos1);
 			if (iPos2 != -1)
 				m_LatestFileLocation = Text.Mid(iPos1, iPos2 - iPos1);
 		}
@@ -361,12 +368,12 @@ bool CWhiteNoteApp::UpdateCheck(bool bForceCheck)
 	{
 		return false;
 	}
-	m_WebsiteMessage = CA2W(Message);
+	m_WebsiteMessage = Message;
 	
 	// Compare
 	{
 		vector<int>	Web = ParseVersion(WebsiteVersion);
-		vector<int> File = ParseVersion(CStringA(CW2A(m_FileVersion)));
+		vector<int> File = ParseVersion(CString(CW2A(m_FileVersion)));
 
 		for (unsigned i = 0; i < min(Web.size(), File.size()); i++)
 			if (Web[i] > File[i])

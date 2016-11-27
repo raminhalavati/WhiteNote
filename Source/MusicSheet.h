@@ -128,7 +128,7 @@ typedef struct _MusicSheet
 		pair<int, int>	BeforeNote;	// Before which notes of which voice it is told? (voice, note)
 		bool			bAbove;
 		DirectionTypes	nType;
-		CStringA		Text;
+		CString		Text;
 	} Direction;
 
 	typedef struct _Voice
@@ -153,7 +153,7 @@ typedef struct _MusicSheet
 
 		struct Clef
 		{
-			CStringA	Sign;
+			CString	Sign;
 			int			iLine;
 		};
 		vector<_Signatures::Clef>	Clefs;
@@ -180,14 +180,14 @@ typedef struct _MusicSheet
 
 	typedef struct _Movement
 	{
-		CStringA		Name;
+		CString		Name;
 
 		//vector<DirectionTypes>	Directions ;
 
 		vector<Measure>	Measures;
 	} Movement;
 
-	vector<CStringA>	Credits;
+	vector<CString>	Credits;
 	vector<Movement>		Movements;
 
 	void	Reset()
@@ -202,11 +202,11 @@ typedef struct _NarratedMusicSheet
 {
 	struct Voice
 	{
-		vector<CStringA>	Text;
+		vector<CString>	Text;
 		int					iStaff;
 		int					iVoice;
-		CStringA			Lily; // Text for LilyPond
-		CStringA			PendingLilyText;
+		CString			Lily; // Text for LilyPond
+		CString			PendingLilyText;
 	};
 
 	struct MeasureText

@@ -7,16 +7,16 @@ CTranslator::CTranslator()
 {
 	m_Language = L"EN";
 
-	m_NoteWords.push_back("whole");
-	m_NoteWords.push_back("half");
-	m_NoteWords.push_back("quarter");
-	m_NoteWords.push_back("eighth");
-	m_NoteWords.push_back("sixteenth");
-	m_NoteWords.push_back("32nd");
-	m_NoteWords.push_back("64th");
-	m_NoteWords.push_back("128th");
-	m_NoteWords.push_back("256th");
-	m_NoteWords.push_back("whole_bar");
+	m_NoteWords.push_back(L"whole");
+	m_NoteWords.push_back(L"half");
+	m_NoteWords.push_back(L"quarter");
+	m_NoteWords.push_back(L"eighth");
+	m_NoteWords.push_back(L"sixteenth");
+	m_NoteWords.push_back(L"32nd");
+	m_NoteWords.push_back(L"64th");
+	m_NoteWords.push_back(L"128th");
+	m_NoteWords.push_back(L"256th");
+	m_NoteWords.push_back(L"whole_bar");
 }
 
 
@@ -28,180 +28,180 @@ void CTranslator::SetLanguage(CString Language)
 {
 	m_Language = Language;
 	
-	m_Words.insert(make_pair("c", L"دو"));
-	m_Words.insert(make_pair("d", L"رِ"));
-	m_Words.insert(make_pair("e", L"می"));
-	m_Words.insert(make_pair("f", L"فا"));
-	m_Words.insert(make_pair("g", L"سُل"));
-	m_Words.insert(make_pair("a", L"لا"));
-	m_Words.insert(make_pair("b", L"سی"));
+	m_Words.insert(make_pair(L"c", L"دو"));
+	m_Words.insert(make_pair(L"d", L"رِ"));
+	m_Words.insert(make_pair(L"e", L"می"));
+	m_Words.insert(make_pair(L"f", L"فا"));
+	m_Words.insert(make_pair(L"g", L"سُل"));
+	m_Words.insert(make_pair(L"a", L"لا"));
+	m_Words.insert(make_pair(L"b", L"سی"));
 
-	m_Words.insert(make_pair("cn", L"دو_بِکار"));
-	m_Words.insert(make_pair("dn", L"رِ_بِکار"));
-	m_Words.insert(make_pair("en", L"می_بِکار"));
-	m_Words.insert(make_pair("fn", L"فا_بِکار"));
-	m_Words.insert(make_pair("gn", L"سُل_بِکار"));
-	m_Words.insert(make_pair("an", L"لا_بِکار"));
-	m_Words.insert(make_pair("bn", L"سی_بِکار"));
+	m_Words.insert(make_pair(L"cn", L"دو_بِکار"));
+	m_Words.insert(make_pair(L"dn", L"رِ_بِکار"));
+	m_Words.insert(make_pair(L"en", L"می_بِکار"));
+	m_Words.insert(make_pair(L"fn", L"فا_بِکار"));
+	m_Words.insert(make_pair(L"gn", L"سُل_بِکار"));
+	m_Words.insert(make_pair(L"an", L"لا_بِکار"));
+	m_Words.insert(make_pair(L"bn", L"سی_بِکار"));
 
-	m_Words.insert(make_pair("cb", L"دو_بِمُل"));
-	m_Words.insert(make_pair("db", L"رِ_بِمُل"));
-	m_Words.insert(make_pair("eb", L"می_بِمُل"));
-	m_Words.insert(make_pair("fb", L"فا_بِمُل"));
-	m_Words.insert(make_pair("gb", L"سُل_بِمُل"));
-	m_Words.insert(make_pair("ab", L"لا_بِمُل"));
-	m_Words.insert(make_pair("bb", L"سی_بِمُل"));
+	m_Words.insert(make_pair(L"cb", L"دو_بِمُل"));
+	m_Words.insert(make_pair(L"db", L"رِ_بِمُل"));
+	m_Words.insert(make_pair(L"eb", L"می_بِمُل"));
+	m_Words.insert(make_pair(L"fb", L"فا_بِمُل"));
+	m_Words.insert(make_pair(L"gb", L"سُل_بِمُل"));
+	m_Words.insert(make_pair(L"ab", L"لا_بِمُل"));
+	m_Words.insert(make_pair(L"bb", L"سی_بِمُل"));
 	
-	m_Words.insert(make_pair("c#", L"دو_دیِز"));
-	m_Words.insert(make_pair("d#", L"رِ_دیِز"));
-	m_Words.insert(make_pair("e#", L"می_دیِز"));
-	m_Words.insert(make_pair("f#", L"فا_دیِز"));
-	m_Words.insert(make_pair("g#", L"سُل_دیِز"));
-	m_Words.insert(make_pair("a#", L"لا_دیِز"));
-	m_Words.insert(make_pair("b#", L"سی_دیِز"));
+	m_Words.insert(make_pair(L"c#", L"دو_دیِز"));
+	m_Words.insert(make_pair(L"d#", L"رِ_دیِز"));
+	m_Words.insert(make_pair(L"e#", L"می_دیِز"));
+	m_Words.insert(make_pair(L"f#", L"فا_دیِز"));
+	m_Words.insert(make_pair(L"g#", L"سُل_دیِز"));
+	m_Words.insert(make_pair(L"a#", L"لا_دیِز"));
+	m_Words.insert(make_pair(L"b#", L"سی_دیِز"));
 
 
-	m_Words.insert(make_pair("whole", L"گرد"));
-	m_Words.insert(make_pair("half", L"سفید"));
-	m_Words.insert(make_pair("quarter", L"سیاه"));
-	m_Words.insert(make_pair("eighth", L"چنگ"));
-	m_Words.insert(make_pair("sixteenth", L"دو_لا_چنگ"));
-	m_Words.insert(make_pair("32nd", L"سه_لا_چنگ"));
-	m_Words.insert(make_pair("64th", L"چهار_لا_چنگ"));
-	m_Words.insert(make_pair("128th", L"پنج_لا_چنگ"));
-	m_Words.insert(make_pair("256th", L"شش_لا_چنگ"));
-	m_Words.insert(make_pair("whole_bar", L"تمام_میزان"));
+	m_Words.insert(make_pair(L"whole", L"گرد"));
+	m_Words.insert(make_pair(L"half", L"سفید"));
+	m_Words.insert(make_pair(L"quarter", L"سیاه"));
+	m_Words.insert(make_pair(L"eighth", L"چنگ"));
+	m_Words.insert(make_pair(L"sixteenth", L"دو_لا_چنگ"));
+	m_Words.insert(make_pair(L"32nd", L"سه_لا_چنگ"));
+	m_Words.insert(make_pair(L"64th", L"چهار_لا_چنگ"));
+	m_Words.insert(make_pair(L"128th", L"پنج_لا_چنگ"));
+	m_Words.insert(make_pair(L"256th", L"شش_لا_چنگ"));
+	m_Words.insert(make_pair(L"whole_bar", L"تمام_میزان"));
 	
-	m_Words.insert(make_pair("a_tempo", L"اِتِمپو"));
-	m_Words.insert(make_pair("acceL", L"آجلراندو"));
-	m_Words.insert(make_pair("allegro", L"آلِگرو"));
-	m_Words.insert(make_pair("allegrato", L"آلِگرتو"));
-	m_Words.insert(make_pair("dolce", L"دولچه"));
-	m_Words.insert(make_pair("grave", L"گریو"));
-	m_Words.insert(make_pair("gruppetto", L"گروپتو"));
-	m_Words.insert(make_pair("largo", L"لارگو"));
-	m_Words.insert(make_pair("marcato", L"مارکاتو"));
-	m_Words.insert(make_pair("martelato", L"مارتلاتو"));
-	m_Words.insert(make_pair("metso", L"متسو"));
-	m_Words.insert(make_pair("mordent", L"موردنت"));
-	m_Words.insert(make_pair("moderato", L"مودراتو"));
-	m_Words.insert(make_pair("poco_ralL", L"پوکورال"));
-	m_Words.insert(make_pair("poco_ritardtando", L"پوکوریت"));
-	m_Words.insert(make_pair("rinforzando", L"رینفورزاندو"));
-	m_Words.insert(make_pair("sempre", L"سمپره"));
-	m_Words.insert(make_pair("trilL", L"تریل"));
+	m_Words.insert(make_pair(L"a_tempo", L"اِتِمپو"));
+	m_Words.insert(make_pair(L"acceL", L"آجلراندو"));
+	m_Words.insert(make_pair(L"allegro", L"آلِگرو"));
+	m_Words.insert(make_pair(L"allegrato", L"آلِگرتو"));
+	m_Words.insert(make_pair(L"dolce", L"دولچه"));
+	m_Words.insert(make_pair(L"grave", L"گریو"));
+	m_Words.insert(make_pair(L"gruppetto", L"گروپتو"));
+	m_Words.insert(make_pair(L"largo", L"لارگو"));
+	m_Words.insert(make_pair(L"marcato", L"مارکاتو"));
+	m_Words.insert(make_pair(L"martelato", L"مارتلاتو"));
+	m_Words.insert(make_pair(L"metso", L"متسو"));
+	m_Words.insert(make_pair(L"mordent", L"موردنت"));
+	m_Words.insert(make_pair(L"moderato", L"مودراتو"));
+	m_Words.insert(make_pair(L"poco_ralL", L"پوکورال"));
+	m_Words.insert(make_pair(L"poco_ritardtando", L"پوکوریت"));
+	m_Words.insert(make_pair(L"rinforzando", L"رینفورزاندو"));
+	m_Words.insert(make_pair(L"sempre", L"سمپره"));
+	m_Words.insert(make_pair(L"trilL", L"تریل"));
 
-	m_Words.insert(make_pair("crescendo", L"کرشندو"));
-	m_Words.insert(make_pair("decrescendo", L"دیکرشندو"));
-	m_Words.insert(make_pair("diminuendo", L"دیمینو_اندو"));
-	m_Words.insert(make_pair("legato", L"لِگاتو"));
-	m_Words.insert(make_pair("forte", L"فورته"));
-	m_Words.insert(make_pair("fortessimo", L"فورتیسیمو"));
-	m_Words.insert(make_pair("fortessissimo", L"فورته_فورتیسیمو"));
-	m_Words.insert(make_pair("forte_piano", L"فورته_پیانو"));
-	m_Words.insert(make_pair("forzando", L"فورزاندو"));
-	m_Words.insert(make_pair("mezzo_forte", L"متزو_فورته"));
-	m_Words.insert(make_pair("mezzo_piano", L"متزو_پیانو"));
-	m_Words.insert(make_pair("piano", L"پیانو"));
-	m_Words.insert(make_pair("pianissimo", L"پیانیسیمو"));
-	m_Words.insert(make_pair("pianississimo", L"پیانو_پیانیسیمو"));
-	m_Words.insert(make_pair("sforzando", L"اسفورزاندو"));
-	m_Words.insert(make_pair("stacatto", L"استکاتو"));
+	m_Words.insert(make_pair(L"crescendo", L"کرشندو"));
+	m_Words.insert(make_pair(L"decrescendo", L"دیکرشندو"));
+	m_Words.insert(make_pair(L"diminuendo", L"دیمینو_اندو"));
+	m_Words.insert(make_pair(L"legato", L"لِگاتو"));
+	m_Words.insert(make_pair(L"forte", L"فورته"));
+	m_Words.insert(make_pair(L"fortessimo", L"فورتیسیمو"));
+	m_Words.insert(make_pair(L"fortessissimo", L"فورته_فورتیسیمو"));
+	m_Words.insert(make_pair(L"forte_piano", L"فورته_پیانو"));
+	m_Words.insert(make_pair(L"forzando", L"فورزاندو"));
+	m_Words.insert(make_pair(L"mezzo_forte", L"متزو_فورته"));
+	m_Words.insert(make_pair(L"mezzo_piano", L"متزو_پیانو"));
+	m_Words.insert(make_pair(L"piano", L"پیانو"));
+	m_Words.insert(make_pair(L"pianissimo", L"پیانیسیمو"));
+	m_Words.insert(make_pair(L"pianississimo", L"پیانو_پیانیسیمو"));
+	m_Words.insert(make_pair(L"sforzando", L"اسفورزاندو"));
+	m_Words.insert(make_pair(L"stacatto", L"استکاتو"));
 
-	m_Words.insert(make_pair("chord", L"آکورد"));
-	m_Words.insert(make_pair("arpeggiate", L"آرپژ"));
-	m_Words.insert(make_pair("bass", L"باس"));
-	m_Words.insert(make_pair("begin_bar_line", L"دولا_خط_شروع"));
-	m_Words.insert(make_pair("begin_repeat", L"دو_نقطه_تکرار_سمت_راست"));
-	m_Words.insert(make_pair("change_to", L"تغییر_به"));
-	m_Words.insert(make_pair("changes_to", L"تغییر_میکند_به"));
-	m_Words.insert(make_pair("clarinet", L"کلارینت"));
-	m_Words.insert(make_pair("clef_bass", L"کلید_فا"));
-	m_Words.insert(make_pair("clef_tab", L"کلید_تَبلِچِر"));
-	m_Words.insert(make_pair("clef_treble", L"کلید_سُل"));
-	m_Words.insert(make_pair("clef_french", L"کلید_ویلن_فرانسه"));
-	m_Words.insert(make_pair("clef_baritone", L"کلید_باریتن"));
-	m_Words.insert(make_pair("clef_subbass", L"کلید_باس_پایین"));
-	m_Words.insert(make_pair("clef_alto", L"کلید_آلتو"));
-	m_Words.insert(make_pair("clef_tenor", L"کلید_تِنور"));
-	m_Words.insert(make_pair("clef_mezzosoprano", L"کلید_متسو_سوپرانو"));
-	m_Words.insert(make_pair("clef_soprano", L"کلید_سوپرانو"));
-	m_Words.insert(make_pair("clef_percussion", L"کلید_خنثی"));
-	m_Words.insert(make_pair("clef_tablature", L"کلید_تَبلِچِر"));
-	m_Words.insert(make_pair("cresc.", L"کرشندو"));
-	m_Words.insert(make_pair("staccato", L"استاکاتو"));
-	m_Words.insert(make_pair("dynamic", L"دینامیک"));
-	m_Words.insert(make_pair("dotted", L"نقطه_دار"));
-	m_Words.insert(make_pair("double_dotted", L"دو_نقطه_دار"));
-	m_Words.insert(make_pair("equal_to", L"مساوی_با"));
-	m_Words.insert(make_pair("fermata", L"علامت_فرمات"));
-	m_Words.insert(make_pair("finger", L"انگشت"));
-	m_Words.insert(make_pair("fingers", L"انگشتان"));
-	m_Words.insert(make_pair("first_volta_end", L"پایان_ولت_یک"));
-	m_Words.insert(make_pair("first_volta_start", L"شروع_ولت_یک"));
-	m_Words.insert(make_pair("for_instrument", L"برای_ساز"));
-	m_Words.insert(make_pair("key_signature", L"علامت_سر_کلید"));
-	m_Words.insert(make_pair("end_bar_line", L"دولا_خط_پایان"));
-	m_Words.insert(make_pair("end_repeat", L"دو_نقطه_تکرار_سمت_چپ"));
-	m_Words.insert(make_pair("end_tied_line", L"پایان_خط_اتحاد"));
-	m_Words.insert(make_pair("end_legato_line", L"پایان_خط_لگاتو"));
-	m_Words.insert(make_pair("has_comments", L"توضیح_دارد"));
-	m_Words.insert(make_pair("left_hand", L"دست_چپ"));
-	m_Words.insert(make_pair("line", L"خط"));
-	m_Words.insert(make_pair("major", L"ماژور"));
-	m_Words.insert(make_pair("measure", L"میزان"));
-	m_Words.insert(make_pair("measure_end", L"پایان_میزان"));
-	m_Words.insert(make_pair("metronome", L"مترونوم"));
-	m_Words.insert(make_pair("movement", L"موومان"));
-	m_Words.insert(make_pair("minor", L"مینور"));
-	m_Words.insert(make_pair("note", L"نت"));
-	m_Words.insert(make_pair("octave", L"اکتاو"));
-	m_Words.insert(make_pair("octave_shift_down", L"شروع اکتاو پایین تر"));
-	m_Words.insert(make_pair("octave_shift_up", L"شروع اکتاو بالا تر"));
-	m_Words.insert(make_pair("octave_shift_stop", L"پایان تغییر اکتاو "));
-	m_Words.insert(make_pair("open_handed", L"دست_باز"));
-	m_Words.insert(make_pair("on", L"روی"));
-	m_Words.insert(make_pair("part", L"قطعه"));
-	m_Words.insert(make_pair("rest", L"سکوت"));
-	m_Words.insert(make_pair("right_hand", L"دست_راست"));
-	m_Words.insert(make_pair("silence", L"سکوت"));
-	m_Words.insert(make_pair("silence_till_end_of_part", L"سکوت تا پایان قطعه"));
-	m_Words.insert(make_pair("staff", L"خط_حامل"));
-	m_Words.insert(make_pair("second_volta_end", L"پایان_ولت_دو"));
-	m_Words.insert(make_pair("second_volta_start", L"شروع_ولت_دو"));
-	m_Words.insert(make_pair("sound", L"صدا"));
-	m_Words.insert(make_pair("start", L"شروع"));
-	m_Words.insert(make_pair("start_legato_line", L"شروع_خط_لگاتو"));
-	m_Words.insert(make_pair("start_tied_line", L"شروع_خط_اتحاد"));
-	m_Words.insert(make_pair("stop", L"پایان"));
-	m_Words.insert(make_pair("tab", L"تب"));
-	m_Words.insert(make_pair("tempo", L"تِمپو"));
-	m_Words.insert(make_pair("tilL", L"تا"));	
-	m_Words.insert(make_pair("treble", L"سُل"));
-	m_Words.insert(make_pair("tuplet", L"تِریوله"));
-	m_Words.insert(make_pair("time_signature", L"میزان_نما"));
-	m_Words.insert(make_pair("voice", L"صدا"));
+	m_Words.insert(make_pair(L"chord", L"آکورد"));
+	m_Words.insert(make_pair(L"arpeggiate", L"آرپژ"));
+	m_Words.insert(make_pair(L"bass", L"باس"));
+	m_Words.insert(make_pair(L"begin_bar_line", L"دولا_خط_شروع"));
+	m_Words.insert(make_pair(L"begin_repeat", L"دو_نقطه_تکرار_سمت_راست"));
+	m_Words.insert(make_pair(L"change_to", L"تغییر_به"));
+	m_Words.insert(make_pair(L"changes_to", L"تغییر_میکند_به"));
+	m_Words.insert(make_pair(L"clarinet", L"کلارینت"));
+	m_Words.insert(make_pair(L"clef_bass", L"کلید_فا"));
+	m_Words.insert(make_pair(L"clef_tab", L"کلید_تَبلِچِر"));
+	m_Words.insert(make_pair(L"clef_treble", L"کلید_سُل"));
+	m_Words.insert(make_pair(L"clef_french", L"کلید_ویلن_فرانسه"));
+	m_Words.insert(make_pair(L"clef_baritone", L"کلید_باریتن"));
+	m_Words.insert(make_pair(L"clef_subbass", L"کلید_باس_پایین"));
+	m_Words.insert(make_pair(L"clef_alto", L"کلید_آلتو"));
+	m_Words.insert(make_pair(L"clef_tenor", L"کلید_تِنور"));
+	m_Words.insert(make_pair(L"clef_mezzosoprano", L"کلید_متسو_سوپرانو"));
+	m_Words.insert(make_pair(L"clef_soprano", L"کلید_سوپرانو"));
+	m_Words.insert(make_pair(L"clef_percussion", L"کلید_خنثی"));
+	m_Words.insert(make_pair(L"clef_tablature", L"کلید_تَبلِچِر"));
+	m_Words.insert(make_pair(L"cresc.", L"کرشندو"));
+	m_Words.insert(make_pair(L"staccato", L"استاکاتو"));
+	m_Words.insert(make_pair(L"dynamic", L"دینامیک"));
+	m_Words.insert(make_pair(L"dotted", L"نقطه_دار"));
+	m_Words.insert(make_pair(L"double_dotted", L"دو_نقطه_دار"));
+	m_Words.insert(make_pair(L"equal_to", L"مساوی_با"));
+	m_Words.insert(make_pair(L"fermata", L"علامت_فرمات"));
+	m_Words.insert(make_pair(L"finger", L"انگشت"));
+	m_Words.insert(make_pair(L"fingers", L"انگشتان"));
+	m_Words.insert(make_pair(L"first_volta_end", L"پایان_ولت_یک"));
+	m_Words.insert(make_pair(L"first_volta_start", L"شروع_ولت_یک"));
+	m_Words.insert(make_pair(L"for_instrument", L"برای_ساز"));
+	m_Words.insert(make_pair(L"key_signature", L"علامت_سر_کلید"));
+	m_Words.insert(make_pair(L"end_bar_line", L"دولا_خط_پایان"));
+	m_Words.insert(make_pair(L"end_repeat", L"دو_نقطه_تکرار_سمت_چپ"));
+	m_Words.insert(make_pair(L"end_tied_line", L"پایان_خط_اتحاد"));
+	m_Words.insert(make_pair(L"end_legato_line", L"پایان_خط_لگاتو"));
+	m_Words.insert(make_pair(L"has_comments", L"توضیح_دارد"));
+	m_Words.insert(make_pair(L"left_hand", L"دست_چپ"));
+	m_Words.insert(make_pair(L"line", L"خط"));
+	m_Words.insert(make_pair(L"major", L"ماژور"));
+	m_Words.insert(make_pair(L"measure", L"میزان"));
+	m_Words.insert(make_pair(L"measure_end", L"پایان_میزان"));
+	m_Words.insert(make_pair(L"metronome", L"مترونوم"));
+	m_Words.insert(make_pair(L"movement", L"موومان"));
+	m_Words.insert(make_pair(L"minor", L"مینور"));
+	m_Words.insert(make_pair(L"note", L"نت"));
+	m_Words.insert(make_pair(L"octave", L"اکتاو"));
+	m_Words.insert(make_pair(L"octave_shift_down", L"شروع اکتاو پایین تر"));
+	m_Words.insert(make_pair(L"octave_shift_up", L"شروع اکتاو بالا تر"));
+	m_Words.insert(make_pair(L"octave_shift_stop", L"پایان تغییر اکتاو "));
+	m_Words.insert(make_pair(L"open_handed", L"دست_باز"));
+	m_Words.insert(make_pair(L"on", L"روی"));
+	m_Words.insert(make_pair(L"part", L"قطعه"));
+	m_Words.insert(make_pair(L"rest", L"سکوت"));
+	m_Words.insert(make_pair(L"right_hand", L"دست_راست"));
+	m_Words.insert(make_pair(L"silence", L"سکوت"));
+	m_Words.insert(make_pair(L"silence_till_end_of_part", L"سکوت تا پایان قطعه"));
+	m_Words.insert(make_pair(L"staff", L"خط_حامل"));
+	m_Words.insert(make_pair(L"second_volta_end", L"پایان_ولت_دو"));
+	m_Words.insert(make_pair(L"second_volta_start", L"شروع_ولت_دو"));
+	m_Words.insert(make_pair(L"sound", L"صدا"));
+	m_Words.insert(make_pair(L"start", L"شروع"));
+	m_Words.insert(make_pair(L"start_legato_line", L"شروع_خط_لگاتو"));
+	m_Words.insert(make_pair(L"start_tied_line", L"شروع_خط_اتحاد"));
+	m_Words.insert(make_pair(L"stop", L"پایان"));
+	m_Words.insert(make_pair(L"tab", L"تب"));
+	m_Words.insert(make_pair(L"tempo", L"تِمپو"));
+	m_Words.insert(make_pair(L"tilL", L"تا"));	
+	m_Words.insert(make_pair(L"treble", L"سُل"));
+	m_Words.insert(make_pair(L"tuplet", L"تِریوله"));
+	m_Words.insert(make_pair(L"time_signature", L"میزان_نما"));
+	m_Words.insert(make_pair(L"voice", L"صدا"));
 }
 
 // Translates string into selected language.
-CString CTranslator::TranslateText(CStringA Text)
+CString CTranslator::TranslateText(CString Text)
 {
 	if (m_Language == L"EN")
-		return CString(CA2W(Text));
+		return Text;
 
 	CString	Output = L"";
 
-	vector<CStringA>	Tokens = Tokenize(Text, ";");
+	vector<CString>	Tokens = Tokenize(Text, L";");
 	
-	for each(CStringA Statement in Tokens)
+	for each(CString Statement in Tokens)
 	{
 		m_Context.empty();
 
-		vector<CStringA>	SubTokens = Tokenize(Statement.Trim(L' '), " ");
+		vector<CString>	SubTokens = Tokenize(Statement.Trim(L' '), L" ");
 
 		if (!SubTokens.size())
 			continue;
-		for each (CStringA SubStatement in SubTokens)
+		for each (CString SubStatement in SubTokens)
 		{
 			CString Translation = TranslateStatement(SubStatement);
 
@@ -225,12 +225,12 @@ CString CTranslator::TranslateText(CStringA Text)
 #define T_(X) TranslateWord(X)
 #define H(X) (m_Words.find(Tokens[X]) != m_Words.end())
 #define H_(X) (m_Words.find(X) != m_Words.end())
-#define D(X) CString(CA2W(Tokens[X]))
-#define D_(X) CString(CA2W(X))
+#define D(X) (Tokens[X])
+#define D_(X) (X)
 
 
 // Translates a single word
-CString	CTranslator::TranslateWord(CStringA Word)
+CString	CTranslator::TranslateWord(CString Word)
 {
 	if (H_(Word))
 		return m_Words[Word];
@@ -238,7 +238,7 @@ CString	CTranslator::TranslateWord(CStringA Word)
 	{
 		// Number?
 		bool	bIsNumber = true;
-		for (char * pch = Word.GetBuffer(); *pch; pch++)
+		for (TCHAR * pch = Word.GetBuffer(); *pch; pch++)
 			if (!isdigit(*pch) && *pch != '.')
 			{
 				bIsNumber = false;
@@ -254,21 +254,21 @@ CString	CTranslator::TranslateWord(CStringA Word)
 			OutFile << "\n";
 			OutFile.close();
 #endif		
-			return CString(CA2W(Word));
+			return Word;
 		}
 	}
 }
 
 // Translates an isolated statement.
-CString CTranslator::TranslateStatement(CStringA Statement)
+CString CTranslator::TranslateStatement(CString Statement)
 {
 	Statement.MakeLower();
 	if (m_Language == L"EN")
-		return CString(CA2W(Statement));
+		return Statement;
 
-	CStringA		Prefix = "";
-	CStringA		Postfix = "";
-	CStringA		Codes = "*:[],\r\n\"";
+	CString		Prefix;
+	CString		Postfix;
+	CString		Codes(L"*:[],\r\n\"");
 	
 	while (Statement.GetLength() && Codes.Find(Statement[0]) != -1)
 	{
@@ -281,7 +281,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 		Statement = Statement.Left(Statement.GetLength() - 1);
 	}	
 
-	vector<CStringA>	Tokens = Tokenize(Statement, "_");
+	vector<CString>	Tokens = Tokenize(Statement, L"_");
 	vector<CString>		Outs;
 
 	if (m_Context.size())
@@ -304,14 +304,14 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 
 	if (EQ(1) && Tokens[0] == "clef")
 	{
-		m_Context.push("clef_");\
+		m_Context.push(L"clef_");\
 		Postfix = L"";
 	}
 	else if (EQ(3) && Tokens[0] == "clef" && Tokens[1] == "changes" && Tokens[2] == "to")
 	{
-		m_Context.push("change");
-		m_Context.push("to");
-		m_Context.push("clef_");
+		m_Context.push(L"change");
+		m_Context.push(L"to");
+		m_Context.push(L"clef_");
 		Postfix = L"";
 	}
 	else if (H_(Statement))
@@ -327,7 +327,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 			Outs.push_back(T(3));
 			Outs.push_back(T(0));
 			Outs.push_back(T(2));
-			Outs.push_back(T_("octave"));
+			Outs.push_back(T_(L"octave"));
 			Outs.push_back(D(1));
 		}
 		else if (EQ(5) && Tokens.back() == "note")
@@ -336,7 +336,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 			Outs.push_back(T(0));
 			Outs.push_back(T(2));
 			Outs.push_back(T(3));
-			Outs.push_back(T_("octave"));
+			Outs.push_back(T_(L"octave"));
 			Outs.push_back(D(1));
 		}
 //		else if (EQ(2) && Tokens[0] == "Dynamic")
@@ -352,9 +352,9 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 			while (Tokens.size())
 				for (int i = (int)Tokens.size(); i > 0; i--)
 				{
-					CStringA	Combination;
+					CString	Combination;
 					for (int j = 0; j < i; j++)
-						Combination += Tokens[j] + (j < i - 1 ? "_" : "");
+						Combination += Tokens[j] + (j < i - 1 ? L"_" : L"");
 			
 					if (i == 1)
 					{
@@ -371,7 +371,7 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 					}
 				}
 			
-			for each(CStringA Word in Tokens)
+			for each(CString Word in Tokens)
 				Outs.push_back(T_(Word));
 		}
 	CString	Output = L"";
@@ -381,6 +381,6 @@ CString CTranslator::TranslateStatement(CStringA Statement)
 	else
 		Output = L"_";
 
-	Output = CString(CA2W(Prefix)) + Output.Left(Output.GetLength() - 1) + CString(CA2W(Postfix));
+	Output = Prefix + Output.Left(Output.GetLength() - 1) + Postfix;
 	return Output;
 }

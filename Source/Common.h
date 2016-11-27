@@ -136,4 +136,4 @@ typedef	tinyxml2::XMLElement XMLElem;
 
 int	_safe_atoi(const char * pchText);
 char _safe_first_upper(const char * pchText);
-CStringA	NodeToText(XMLElem * pNode);
+CString	NodeToText(XMLElem * pNode);

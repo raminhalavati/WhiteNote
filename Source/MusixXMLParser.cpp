@@ -12,7 +12,7 @@ CMusicXMLParser::~CMusicXMLParser(void)
 
 void	ReportError(XMLElem * pNode, CString Title)
 {
-	CStringA	Text("");
+	CString	Text;
 
 	XMLElem * pChild = pNode->FirstChildElement();
 
@@ -20,9 +20,9 @@ void	ReportError(XMLElem * pNode, CString Title)
 	{
 
 		if (Text.GetLength())
-			Text = NodeToText(pNode) + CStringA("->\r\n") + Text;
+			Text = NodeToText(pNode) + CString(L"->\r\n") + Text;
 		else
-			Text = CStringA("{") + NodeToText(pNode) + CStringA("}");
+			Text = CString(L"{") + NodeToText(pNode) + CString(L"}");
 
 		if (pNode->Parent())
 			pNode = pNode->Parent()->ToElement();
@@ -32,12 +32,12 @@ void	ReportError(XMLElem * pNode, CString Title)
 
 	while (pChild)
 	{
-		Text = Text + CStringA("->\r\n") + NodeToText(pChild);
+		Text = Text + CString(L"->\r\n") + NodeToText(pChild);
 
 		pChild = pChild->FirstChildElement();
 	}
 
-	MessageBox(NULL, CA2W(Text), Title, MB_ICONERROR);
+	MessageBox(NULL, Text, Title, MB_ICONERROR);
 }
 
 // Parses an xml input.
@@ -61,7 +61,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 			XMLElem *	pWords = GetXMLNestedElement(pCredit, "credit-words");
 
 			if (pWords && pWords->GetText() && strlen(pWords->GetText()))
-				Sheet.Credits.push_back(CStringA(pWords->GetText()));
+				Sheet.Credits.push_back(CString(pWords->GetText()));
 		}
 
 		// Get Movements Count and Names
@@ -100,7 +100,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 				for ALL_NODES1(pMeasure, pMovement, "measure")
 					for (XMLElem *	pCurNode = pMeasure->FirstChildElement();
 						pCurNode; pCurNode = pCurNode->NextSiblingElement())
-						if (CStringA(pCurNode->Name()) == "note")
+						if (CString(pCurNode->Name()) == "note")
 						{
 							int iStaff = max(0, _safe_atoi(GetXMLNestedText(pCurNode, "staff")) - 1);
 							int iVoice = _safe_atoi(GetXMLNestedText(pCurNode, "voice"));
@@ -393,7 +393,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 								for (XMLElem * pNotation = GetXMLNestedElement(pCurNode, "notations")->FirstChildElement();
 									pNotation; pNotation = pNotation->NextSiblingElement())
 							{
-								CStringA Name = pNotation->Name();
+								CString Name = CA2W(pNotation->Name());
 
 								if (Name == "slur")
 								{
@@ -543,7 +543,7 @@ pair<int, int>	CMusicXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode, 
 			if (Dir.nType == MusicSheet::DIR_UNKNWON && GetXMLNestedElement(pCurNode, "metronome"))
 			{
 				Dir.nType = MusicSheet::DIR_METRONOME;
-				Dir.Text.Format("%s|%s",
+				Dir.Text.Format(L"%S|%S",
 					GetXMLNestedText(pCurNode, "metronome", "beat-unit"),
 					GetXMLNestedText(pCurNode, "metronome", "per-minute"));
 			}
@@ -587,7 +587,7 @@ pair<int, int>	CMusicXMLParser::GetDirectionTypes(tinyxml2::XMLElement * pNode, 
 			Dir.nType = MusicSheet::DIR_SOUND;
 			pCurNode->Attribute("tempo");
 
-			Dir.Text.Format("%s|%s", pCurNode->Attribute("tempo"), pCurNode->Attribute("dynamics"));
+			Dir.Text.Format(L"%S|%S", pCurNode->Attribute("tempo"), pCurNode->Attribute("dynamics"));
 		}
 		else
 			if (Dir.Text == "offset")

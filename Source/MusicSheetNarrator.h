@@ -23,12 +23,12 @@ public:
 
 	void	GetBarLineText(NarratedMusicSheet::Voice & Voice, MusicSheet::BarLine & BL);
 
-	void	GetDirectionText(NarratedMusicSheet::Voice & Voice, MusicSheet::DirectionTypes nDirType, CStringA & BufferText,
-		MusicSheet::DirectionTypes nPreviousDir = MusicSheet::DIR_UNKNWON, CStringA ExtraText = "", bool bAbove = true);
+	void	GetDirectionText(NarratedMusicSheet::Voice & Voice, MusicSheet::DirectionTypes nDirType, CString & BufferText,
+		MusicSheet::DirectionTypes nPreviousDir = MusicSheet::DIR_UNKNWON, CString ExtraText = L"", bool bAbove = true);
 
-	void	GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet, bool &bInGrace, CStringA * pChordLength);
+	void	GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet, bool &bInGrace, CString * pChordLength);
 
-	CStringA	GetNoteTypeName(MusicSheet::Note & Note);
+	CString	GetNoteTypeName(MusicSheet::Note & Note);
 
 	bool		m_bProcessingGuitar;
 	bool		m_bDetailedText;

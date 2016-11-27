@@ -14,9 +14,9 @@ public:
 	void SetLanguage(CString Language);
 
 	// Tokenizes given string into a vector of strings
-	inline vector<CStringA> Tokenize(CStringA Text, CStringA Separators)
+	inline vector<CString> Tokenize(CString Text, CString Separators)
 	{
-		vector<CStringA>	Output;
+		vector<CString>	Output;
 		int	iPos = 0;
 		do
 		{
@@ -28,16 +28,16 @@ public:
 	}
 
 	// Translates string into selected language.
-	CString TranslateText(CStringA Text);
+	CString TranslateText(CString Text);
 	
 	// Translates an isolated statement.
-	CString TranslateStatement(CStringA Statement);
+	CString TranslateStatement(CString Statement);
 
 	// Translates a single word
-	inline CString	TranslateWord(CStringA Word);
+	inline CString	TranslateWord(CString Word);
 
-	map<CStringA, CString>	m_Words;
-	vector<CStringA>			m_NoteWords;
-	stack<CStringA>			m_Context;
+	map<CString, CString>	m_Words;
+	vector<CString>			m_NoteWords;
+	stack<CString>			m_Context;
 };
 

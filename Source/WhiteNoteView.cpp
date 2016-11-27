@@ -595,7 +595,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 	{
 		NarratedMusicSheet::MeasureText & CurMeasure = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iMeasure];
 		
-		CStringA	Temp, LineText = "";
+		CString	Temp, LineText;
 		{
 			int	iCurStaff = CurMeasure.Voices[m_Playing.iVoice].iStaff;
 			int	iCurVoice = CurMeasure.Voices[m_Playing.iVoice].iVoice;
@@ -603,21 +603,21 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff != iCurStaff)
 				{
-					LineText += CStringA(CurMeasure.Voices[m_Playing.iVoice].iStaff ? "Left" : "Right") + "_Hand; ";
+					LineText += CString(CurMeasure.Voices[m_Playing.iVoice].iStaff ? L"Left" : L"Right") + L"_Hand; ";
 					break;
 				}
 
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice)
 				{
-					Temp.Format("Voice %i; ", CurMeasure.Voices[m_Playing.iVoice].iVoice);
+					Temp.Format(L"Voice %i; ", CurMeasure.Voices[m_Playing.iVoice].iVoice);
 					LineText += Temp;
 					break;
 				}
 			Temp = LineText;
 			Temp.Remove(';');
 			Temp.Replace('_', ' ');
-			m_NarrationLabel.SetWindowText(CA2W(Temp));
+			m_NarrationLabel.SetWindowText(Temp);
 		}
 
 		bool	bRepeatStarters = bVoiceChanged || m_Defaults.bShowAllSignatureText || bForceSingatures;
@@ -628,7 +628,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		if (GetSetComment().GetLength() && !m_Defaults.bBeep)
 			LineText += "Has_Comments;";
 
-		vector<CStringA> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
+		vector<CString> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
 
 		for ALL(Measure, pText)
 		{
@@ -646,7 +646,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		CString	Translation = m_Translator.TranslateText(LineText);
 		m_Playing.iMeasureEndPosition = Translation.GetLength();
 
-		Translation += m_Translator.TranslateStatement("Measure_End");
+		Translation += m_Translator.TranslateStatement(L"Measure_End");
 		m_Playing.iMeasureTotalSize = Translation.GetLength();
 		
 		m_pNarrationTB->SetWindowText(Translation);
@@ -889,24 +889,24 @@ void CWhiteNoteView::OnFileSaveas()
 #define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));}
 	// For each movement
 	for ALL_INDICES(m_pNarration->Movements, p) {
-		CStringA	Text, Temp;
+		CString	Text, Temp;
 		if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
-			TP(Text.Format("Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName));
+			TP(Text.Format(L"Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName));
 
 		bool& bFullSignature = ODlg.m_Options.bRepeatSignatures;
 
 		// All voices priority: First loop on measures.
 		if (ODlg.m_Options.chGroupBy == 'm') {
 			for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
-				TP(Text.Format("Measure %i\n", m + 1));
+				TP(Text.Format(L"Measure %i\n", m + 1));
 				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
-					vector<CStringA> Printees;
+					vector<CString> Printees;
 					for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
 						if (bFullSignature || pLine->GetAt(0) != '*')
 							Printees.push_back(*pLine);
 					}
 					if (Printees.size()) {
-						TP(Text.Format("Staff %i; Voice %i\n", pVoice->iStaff + 1, pVoice->iVoice));
+						TP(Text.Format(L"Staff %i; Voice %i\n", pVoice->iStaff + 1, pVoice->iVoice));
 						for (auto& line : Printees)
 							TP(Text = line);
 						fwprintf_s(hFile, L"\r\n");
@@ -921,12 +921,12 @@ void CWhiteNoteView::OnFileSaveas()
 				for (auto& voice : measure.Voices)
 					SVs.insert(make_pair(voice.iStaff, voice.iVoice));
 			for (auto sv : SVs) {
-				TP(Text.Format("Staff %i; Voice %i\n", sv.first + 1, sv.second));
+				TP(Text.Format(L"Staff %i; Voice %i\n", sv.first + 1, sv.second));
 				for (auto& measure : m_pNarration->Movements[p].Measures) {
 					// Check if this measure has given staff and voice
 					for (auto& voice : measure.Voices) {
 						if (voice.iStaff == sv.first && voice.iVoice == sv.second) {
-							vector<CStringA> Printees;
+							vector<CString> Printees;
 							for (auto& line : voice.Text) {
 								if (bFullSignature || line.GetAt(0) != '*')
 									Printees.push_back(line);

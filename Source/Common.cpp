@@ -221,9 +221,9 @@ char _safe_first_upper(const char * pchText)
 		return 0;
 }
 
-CStringA	NodeToText(XMLElem * pNode)
+CString	NodeToText(XMLElem * pNode)
 {
-	CStringA	Text = "[";
+	CString	Text(L"[");
 
 	Text += pNode->Name();
 
