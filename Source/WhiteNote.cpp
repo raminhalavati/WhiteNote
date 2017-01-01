@@ -400,7 +400,7 @@ void CWhiteNoteApp::OnHelpCheckforupdate()
 		AfxMessageBox(L"Could not check for update.\r\nPlease check your internet connection or refer to www.white-note.com", MB_ICONERROR);
 	else
 		if (!m_bNewVersionExists)
-			AfxMessageBox(L"Your application is the latest avaiable version.\r\nAutomatic check will be done next week.");	
+			AfxMessageBox(L"Your application is the latest available version.\r\nAutomatic check will be done next week.");	
 }
 
 // Opens a file/website in browser

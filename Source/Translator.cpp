@@ -132,7 +132,7 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"staccato", L"استاکاتو"));
 	m_Words.insert(make_pair(L"dynamic", L"دینامیک"));
 	m_Words.insert(make_pair(L"dotted", L"نقطه_دار"));
-	m_Words.insert(make_pair(L"double_dotted", L"دو_نقطه_دار"));
+	m_Words.insert(make_pair(L"double", L"دو")); // in double dotted
 	m_Words.insert(make_pair(L"equal_to", L"مساوی_با"));
 	m_Words.insert(make_pair(L"fermata", L"علامت_فرمات"));
 	m_Words.insert(make_pair(L"finger", L"انگشت"));
@@ -262,6 +262,7 @@ CString	CTranslator::TranslateWord(CString Word)
 // Translates an isolated statement.
 CString CTranslator::TranslateStatement(CString Statement)
 {
+	
 	Statement.MakeLower();
 	if (m_Language == L"EN")
 		return Statement;
@@ -316,31 +317,39 @@ CString CTranslator::TranslateStatement(CString Statement)
 	}
 	else if (H_(Statement))
 		Outs.push_back(T_(Statement));
-	else if (EQ(2) && Tokens[1] == "rest")
+	// Change order if it's a rest rescription.
+	else if (Tokens.size() > 1 && Tokens.back() == "rest")
 	{
-		Outs.push_back(T(1));
-		Outs.push_back(T(0));
+		// The original order is:	[[double] dotted] eight rest
+		// It should become:		rest eight [[double] dotted]
+		int len = (int)Tokens.size();
+		Outs.push_back(T(len - 1));
+		Outs.push_back(T(len - 2));
+		if (len > 2)
+			Outs.push_back(T(0));
+		if (len > 3)
+			Outs.push_back(T(1));
 	}
 	else
-		if (EQ(4) && Tokens.back() == "note")
+		// Change order if it's a note description
+		if (Tokens.size() > 3 && Tokens.back() == "note")
 		{
-			Outs.push_back(T(3));
+			// The original order is:		D 5 [[double] dotted] eight note
+			// it should be changed to:		note D eight [[double] dotted] octave 5
+			int len = (int)Tokens.size();
+			Outs.push_back(T(len - 1));
 			Outs.push_back(T(0));
-			Outs.push_back(T(2));
+			Outs.push_back(T(len - 2));
+			if (Tokens.size() > 4)
+				Outs.push_back(T(2));
+			if (Tokens.size() > 5)
+				Outs.push_back(T(3));
 			Outs.push_back(T_(L"octave"));
 			Outs.push_back(D(1));
+
 		}
-		else if (EQ(5) && Tokens.back() == "note")
-		{
-			Outs.push_back(T(4));
-			Outs.push_back(T(0));
-			Outs.push_back(T(2));
-			Outs.push_back(T(3));
-			Outs.push_back(T_(L"octave"));
-			Outs.push_back(D(1));
-		}
-//		else if (EQ(2) && Tokens[0] == "Dynamic")
-//			Outs.push_back(T_(Statement));
+		//		else if (EQ(2) && Tokens[0] == "Dynamic")
+		//			Outs.push_back(T_(Statement));
 		else
 		{
 			// See if there is a "note" in the text

@@ -1,7 +1,6 @@
-ALL TEXTS CONVERTED TO UNICODE <--- TEST
-
+All texts converted to Unicode
 English and Farsi helps separated.
-
+Combinations of [double] dotted with note and rest updated.
 
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

@@ -35,6 +35,13 @@ CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::_Note & Note)
 				Text += L"Gruppetto_";
 		}*/
 
+		// Dot
+		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOT))
+			Text += L"Dotted_";
+
+		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOUBLE_DOT))
+			Text += L"Double_Dotted_";
+
 		switch (Note.Type)
 		{
 		case	MusicSheet::TYPE_WHOLE:		Text += L"Whole";	break;
@@ -49,13 +56,6 @@ CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::_Note & Note)
 		case	MusicSheet::TYPE_UNTOLD:	Text += L"Whole_Bar"; break;
 		default:							Text += L"UNKNOWN";	break;
 		}
-
-		// Dot
-		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOT))
-			Text += L"_Dotted";
-
-		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_DOUBLE_DOT))
-			Text += L"_Double_Dotted";
 	}
 
 	return Text;
