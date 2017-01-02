@@ -36,29 +36,29 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"a", L"لا"));
 	m_Words.insert(make_pair(L"b", L"سی"));
 
-	m_Words.insert(make_pair(L"cn", L"دو_بِکار"));
-	m_Words.insert(make_pair(L"dn", L"رِ_بِکار"));
-	m_Words.insert(make_pair(L"en", L"می_بِکار"));
-	m_Words.insert(make_pair(L"fn", L"فا_بِکار"));
-	m_Words.insert(make_pair(L"gn", L"سُل_بِکار"));
-	m_Words.insert(make_pair(L"an", L"لا_بِکار"));
-	m_Words.insert(make_pair(L"bn", L"سی_بِکار"));
+	m_Words.insert(make_pair(L"c♮", L"دو_بِکار"));
+	m_Words.insert(make_pair(L"d♮", L"رِ_بِکار"));
+	m_Words.insert(make_pair(L"e♮", L"می_بِکار"));
+	m_Words.insert(make_pair(L"f♮", L"فا_بِکار"));
+	m_Words.insert(make_pair(L"g♮", L"سُل_بِکار"));
+	m_Words.insert(make_pair(L"a♮", L"لا_بِکار"));
+	m_Words.insert(make_pair(L"b♮", L"سی_بِکار"));
 
-	m_Words.insert(make_pair(L"cb", L"دو_بِمُل"));
-	m_Words.insert(make_pair(L"db", L"رِ_بِمُل"));
-	m_Words.insert(make_pair(L"eb", L"می_بِمُل"));
-	m_Words.insert(make_pair(L"fb", L"فا_بِمُل"));
-	m_Words.insert(make_pair(L"gb", L"سُل_بِمُل"));
-	m_Words.insert(make_pair(L"ab", L"لا_بِمُل"));
-	m_Words.insert(make_pair(L"bb", L"سی_بِمُل"));
+	m_Words.insert(make_pair(L"c♭", L"دو_بِمُل"));
+	m_Words.insert(make_pair(L"d♭", L"رِ_بِمُل"));
+	m_Words.insert(make_pair(L"e♭", L"می_بِمُل"));
+	m_Words.insert(make_pair(L"f♭", L"فا_بِمُل"));
+	m_Words.insert(make_pair(L"g♭", L"سُل_بِمُل"));
+	m_Words.insert(make_pair(L"a♭", L"لا_بِمُل"));
+	m_Words.insert(make_pair(L"b♭", L"سی_بِمُل"));
 	
-	m_Words.insert(make_pair(L"c#", L"دو_دیِز"));
-	m_Words.insert(make_pair(L"d#", L"رِ_دیِز"));
-	m_Words.insert(make_pair(L"e#", L"می_دیِز"));
-	m_Words.insert(make_pair(L"f#", L"فا_دیِز"));
-	m_Words.insert(make_pair(L"g#", L"سُل_دیِز"));
-	m_Words.insert(make_pair(L"a#", L"لا_دیِز"));
-	m_Words.insert(make_pair(L"b#", L"سی_دیِز"));
+	m_Words.insert(make_pair(L"c♯", L"دو_دیِز"));
+	m_Words.insert(make_pair(L"d♯", L"رِ_دیِز"));
+	m_Words.insert(make_pair(L"e♯", L"می_دیِز"));
+	m_Words.insert(make_pair(L"f♯", L"فا_دیِز"));
+	m_Words.insert(make_pair(L"g♯", L"سُل_دیِز"));
+	m_Words.insert(make_pair(L"a♯", L"لا_دیِز"));
+	m_Words.insert(make_pair(L"b♯", L"سی_دیِز"));
 
 
 	m_Words.insert(make_pair(L"whole", L"گرد"));

@@ -64,11 +64,10 @@ void CWhiteNoteDoc::Serialize(CArchive& ar)
 	{
 		m_Narration.Clear();
 		m_FileName = ar.GetFile()->GetFileName();
-		CString FilePath = ar.GetFile()->GetFilePath();
-		m_FilePath = FilePath;
+		m_FilePath = ar.GetFile()->GetFilePath();
 		if (m_FileName.GetLength() > 3 && m_FileName.Right(3).MakeLower() == "mxl")
-			FilePath = GetXMLFromMXL(FilePath);
-		if (!ReadXMLFile(FilePath))
+			m_FilePath = GetXMLFromMXL(m_FilePath);
+		if (!ReadXMLFile(m_FilePath))
 			AfxThrowFileException(CFileException::invalidFile);
 	}
 }
@@ -220,5 +219,5 @@ bool CWhiteNoteDoc::ReadXMLFile(CString FilePath)
 // Reloads a document to reflect external or settings changes.
 bool CWhiteNoteDoc::Reload()
 {
-	return ReadXMLFile(m_strPathName);
+	return ReadXMLFile(m_FilePath);
 }

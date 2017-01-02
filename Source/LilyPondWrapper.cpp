@@ -107,7 +107,7 @@ void CLilyPondWrapper::VerifyCheckSum()
 // Returns requested measures image, either from buffer or new creation.
 bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage & Image, bool bForceRecheck)
 {
-	if (!m_bReady)
+		if (!m_bReady)
 		return false;
 
 	// Check Validity
@@ -155,20 +155,20 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 					if (bOpen)
 						Text += L">>\r\n";
 					if (pVoice->Lily.Find(L"clef tab") != -1) // Also check MusicSheetNarrator --> GetSingatureText
-						Text += "\\new TabStaff";
+						Text += L"\\new TabStaff";
 					else
-						Text += "\\new Staff";
-					Text += "\r\n << \r\n";
+						Text += L"\\new Staff";
+					Text += L"\r\n << \r\n";
 					iLastStaff = pVoice->iStaff;
 					bOpen = true;
 				}
 				else
-					Text += "\\new Voice\n\r\n";
+					Text += L"\\new Voice\n\r\n";
 				Text += pVoice->Lily;
 			}
 		if (bOpen)
-			Text += ">>\r\n";
-		Text += ">>\r\n";
+			Text += L">>\r\n";
+		Text += L">>\r\n";
 
 		CFile File;
 		DeleteFile(LilyFileName);
@@ -177,7 +177,8 @@ bool CLilyPondWrapper::GetMeasureImage(int iMovementNo, int iMeasureNo, CImage &
 			m_FailedItems.insert(key);
 			return false;
 		}
-		File.Write(Text.GetBuffer(), Text.GetLength());
+		CStringA	AsciiText = CW2A(Text);
+		File.Write(AsciiText.GetBuffer(), AsciiText.GetLength());
 		File.Close();
 
 		// Check Open

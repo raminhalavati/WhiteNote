@@ -190,17 +190,18 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 361, 152
+IDD_ABOUTBOX DIALOGEX 0, 0, 361, 105
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About WhiteNote"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "WhiteNote, Version 2.3 (None Visual Access for Music Sheets)",IDC_TITLE,42,14,312,8,SS_NOPREFIX
-    LTEXT           "By Roya Halavati, Ramin Halavati, and Shadyar Khodayari\nSpecial Thanks to Mohammadreza Ghanbari and Vahid Shokouhi for design suggestions, feedbacks, and testing.",IDC_STATIC,42,30,312,24
-    DEFPUSHBUTTON   "OK",IDOK,306,132,50,14,WS_GROUP
-    LTEXT           "This software is presented as open source and freeware. Contact us if you have any suggestions or want to use it in another application (mailto: info@white-note.com).\r\nYou can access the source code at www.github.com/raminhalavati/WhiteNote",IDC_STATIC,42,60,312,30
-    LTEXT           "Get the latest version from www.white-note.com",IDC_STATIC,42,102,312,12
+    LTEXT           "WhiteNote, Version 2.4 (None Visual Access for Music Sheets)",IDC_TITLE,42,12,312,8,SS_NOPREFIX
+    LTEXT           "By Roya Halavati, Ramin Halavati, Shadyar Khodayari, and Mohammadreza Ghanbari.",IDC_STATIC,42,24,312,12
+    LTEXT           "Special Thanks to Vahid Shokouhi for initial idea.",IDC_STATIC,42,36,312,12
+    LTEXT           "This software is presented as open source and freeware. Contact us if you have any suggestions or want to use it in another application (mailto: info@white-note.com).\r\nYou can access the source code at www.github.com/raminhalavati/WhiteNote",IDC_STATIC,42,48,312,30
+    LTEXT           "Get the latest version from www.white-note.com",IDC_STATIC,42,78,312,12
+    DEFPUSHBUTTON   "OK",IDOK,306,90,50,14,WS_GROUP
 END
 
 IDD_WHITENOTE_FORM DIALOGEX 0, 0, 656, 270
@@ -274,8 +275,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,4,0,0
- PRODUCTVERSION 2,4,0,0
+ FILEVERSION 2,4,2,0
+ PRODUCTVERSION 2,4,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -291,13 +292,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Rama"
-            VALUE "FileDescription", "WhiteNote"
-            VALUE "FileVersion", "2.4.0.0"
+            VALUE "FileDescription", "WhiteNote (Get the latest version from www.white-note.com)"
+            VALUE "FileVersion", "2.4.2.0"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software."
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.4.0.0"
+            VALUE "ProductVersion", "2.4.2.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -320,7 +321,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 354
         TOPMARGIN, 7
-        BOTTOMMARGIN, 145
+        BOTTOMMARGIN, 98
     END
 
     IDD_WHITENOTE_FORM, DIALOG

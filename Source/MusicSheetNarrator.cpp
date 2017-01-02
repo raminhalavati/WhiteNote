@@ -96,9 +96,9 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 
 		switch (Note.chAccidental)
 		{
-		case 'S':	Text += L"#"; break;
-		case 'F':	Text += L"b"; break;
-		case 'N':	Text += L"n"; break;
+		case 'S':	Text += L"♯"; break;
+		case 'F':	Text += L"♭"; break;
+		case 'N':	Text += L"♮"; break;
 		case 0:	break;
 		default:	Text += L"UNKNOWN_ACCENT"; break;
 		}
@@ -348,26 +348,25 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		case 0:
 			T1 = Sigs.Key.bMajor ? L"C" : L"A";
 			break;
-		case 7:	T1 = L"_#C";
-		case 6:	T1 = L"_E#" + T1;
-		case 5:	T1 = L"_A#" + T1;
-		case 4:	T1 = L"_D#" + T1;
-		case 3:	T1 = L"_G#" + T1;
-		case 2:	T1 = L"_C#" + T1;
-		case 1:	T1 = L"F#" + T1;	
+		case 7:	T1 = L"_C♯";
+		case 6:	T1 = L"_E♯" + T1;
+		case 5:	T1 = L"_A♯" + T1;
+		case 4:	T1 = L"_D♯" + T1;
+		case 3:	T1 = L"_G♯" + T1;
+		case 2:	T1 = L"_C♯" + T1;
+		case 1:	T1 = L"F♯" + T1;	
 			break;		
-		case -7:	T1 = L"_Fb";
-		case -6:	T1 = L"_Cb";
-		case -5:	T1 = L"_Gb";		
-		case -4:	T1 = L"_Db";			
-		case -3:	T1 = L"_Ab";			
-		case -2:	T1 = L"_Eb";			
-		case -1:	T1 = L"Bb";
+		case -7:	T1 = L"_F♭";
+		case -6:	T1 = L"_C♭";
+		case -5:	T1 = L"_G♭";		
+		case -4:	T1 = L"_D♭";			
+		case -3:	T1 = L"_A♭";			
+		case -2:	T1 = L"_E♭";			
+		case -1:	T1 = L"B♭";
 			break;
 		
 		default:	T1 += L"UNKNOWN_KEY";
 		}
-
 		Voice.Text.push_back(Text + T1 + L"_" + (Sigs.Key.bMajor? L"Major" : L"Minor"));
 
 		// LILY
@@ -913,7 +912,11 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			
 			if (bChordStart || bTubletStart)
 			{
-				OutVoice.Text.push_back(L"[");
+				// If Chord is already added, just add a [ to it, otherwise add a new token for [
+				if (OutVoice.Text.size() && OutVoice.Text.back() == L"Chord")
+					OutVoice.Text.back() += L" [";
+				else
+					OutVoice.Text.push_back(L"[");
 				if (bChordStart)
 					OutVoice.Lily += L" < ";
 				else
@@ -950,7 +953,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				if ((i + 1 < (int)InVoice.Notes.size() && FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD)))
 					OutVoice.Text.push_back(L",");
 				else
-					if (i + 1 < (int)InVoice.Notes.size())
+//					if (i + 1 < (int)InVoice.Notes.size())
 					{
 						OutVoice.Text.push_back(L" ]");
 						OutVoice.Lily += L" > " + LilyChordLength;
@@ -976,8 +979,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					nLastDirection = pDir->nType;
 				}
 		}
+		// Is this required?
 		if (bEndChord)
 		{
+			_RPTF0(_CRT_ERROR, "Unexpected point.");
 			OutVoice.Text.push_back(L" ]");
 			OutVoice.Lily += L" > " + LilyChordLength + L"\r\n";
 			if (bChordIsArpeggio)

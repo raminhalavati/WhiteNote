@@ -1,6 +1,10 @@
 All texts converted to Unicode
 English and Farsi helps separated.
 Combinations of [double] dotted with note and rest updated.
+Bug fixed for MXL files reload.
+Bug fixed for Lilypond-Unicode update.
+Chord presentation updated. If it has fingeres, they will come after the accord and chord tag is followed by '[' without separator.
+About updated.
 
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

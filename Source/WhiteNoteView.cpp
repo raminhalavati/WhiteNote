@@ -640,7 +640,9 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 					continue;
 			else
 				LineText += *pText;
-			LineText += "; ";
+			// Exept for opening brocket, add sepearator.
+			if (LineText.GetLength() && LineText[LineText.GetLength()-1] != L'[')
+				LineText += "; ";
 		}
 		
 		CString	Translation = m_Translator.TranslateText(LineText);
