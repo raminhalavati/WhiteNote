@@ -47,8 +47,8 @@ CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::_Note & Note)
 		case	MusicSheet::TYPE_WHOLE:		Text += L"Whole";	break;
 		case	MusicSheet::TYPE_HALF:		Text += L"Half";	break;
 		case	MusicSheet::TYPE_QUARTER:	Text += L"Quarter";	break;
-		case	MusicSheet::TYPE_EIGHTH:	Text += L"Eighth";	break;
-		case	MusicSheet::TYPE_SIXTEENTH:	Text += L"Sixteenth"; break;
+		case	MusicSheet::TYPE_EIGHTH:	Text += L"8th";	break;
+		case	MusicSheet::TYPE_SIXTEENTH:	Text += L"16th"; break;
 		case	MusicSheet::TYPE_32ND:		Text += L"32nd"; break;
 		case	MusicSheet::TYPE_64TH:		Text += L"64th"; break;
 		case	MusicSheet::TYPE_128TH:		Text += L"128th"; break;
@@ -92,19 +92,22 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 		if (FOUND_IN_SET(Note.Extras, MusicSheet::NE_FERMATA))
 			Text += L"Fermata_on_ ";
 
-		Text += Note.chStep;
-
+		// Accidentals
 		switch (Note.chAccidental)
 		{
-		case 'S':	Text += L"♯"; break;
-		case 'F':	Text += L"♭"; break;
-		case 'N':	Text += L"♮"; break;
-		case 0:	break;
-		default:	Text += L"UNKNOWN_ACCENT"; break;
+		case 's':	Temp = L"♯"; break;
+		case 'f':	Temp = L"♭"; break;
+		case 'n':	Temp = L"♮"; break;
+		case 'S':	Temp = L"♯♯"; break;
+		case 'F':	Temp = L"♭♭"; break;
+		case 0:		Temp = ""; break;
+		default:
+			Temp = L"UNKNOWN_ACCENT"; break;
 		}
-
-		if (Note.bAccdidentalDouble)
-			Text += L"2";
+		if (Temp.GetLength())
+			Text += Temp;
+		
+		Text += Note.chStep;
 
 		Temp.Format(L"_%i", Note.iOctave);
 		Text += Temp;
@@ -150,13 +153,14 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 
 		Text += (char)tolower(Note.chStep);
 
-		for (int i = 0; i < (Note.bAccdidentalDouble ? 2 : 1); i++)
-			switch (Note.chAccidental)
-			{
-			case 'S':	Text += L"is"; break;
-			case 'F':	Text += L"es"; break;
-			//case 'N':	Text += L"!"; break;
-			}
+		switch (Note.chAccidental)
+		{
+		case 's':	Text += L"is"; break;
+		case 'f':	Text += L"es"; break;
+		case 'S':	Text += L"isis"; break;
+		case 'F':	Text += L"eses"; break;
+		//case 'N':	Text += L"!"; break;
+		}
 
 		if (Note.iOctave != -1)
 			if (Note.iOctave > 3)
@@ -913,8 +917,11 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			if (bChordStart || bTubletStart)
 			{
 				// If Chord is already added, just add a [ to it, otherwise add a new token for [
-				if (OutVoice.Text.size() && OutVoice.Text.back() == L"Chord")
-					OutVoice.Text.back() += L" [";
+				if (OutVoice.Text.size() && 
+					(	OutVoice.Text.back() == L"Chord" || 
+						OutVoice.Text.back() == L"Arpeggiate" || 
+						OutVoice.Text.back() == L"Tuplet"))
+					OutVoice.Text.back() += L" [ ";
 				else
 					OutVoice.Text.push_back(L"[");
 				if (bChordStart)
@@ -1134,12 +1141,13 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 			else
 				pMeasure->Signatures = LastSignatures;
 
-			// WHAT?
+			// If a note gets sharp or flat, all notes of the same octave and step till the end of measure
+			// have the same until something changes that. But do we want to do these sort of things?
 			for ALL(pMeasure->Voices, pVoice)
 				for ALL(pVoice->Notes, pNote)
 				{
-					if (pNote->chAccidental == 'S' ||
-						pNote->chAccidental == 'F')
+					if (pNote->chAccidental == 's' ||
+						pNote->chAccidental == 'f')
 						for (decltype(pVoice->Notes.begin()) pNote2 = pNote + 1; pNote2 < pVoice->Notes.end(); pNote2++)
 							if (pNote2->chStep == pNote->chStep && pNote2->iOctave == pNote->iOctave)
 								if (pNote2->chAccidental)

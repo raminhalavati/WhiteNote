@@ -10,8 +10,8 @@ CTranslator::CTranslator()
 	m_NoteWords.push_back(L"whole");
 	m_NoteWords.push_back(L"half");
 	m_NoteWords.push_back(L"quarter");
-	m_NoteWords.push_back(L"eighth");
-	m_NoteWords.push_back(L"sixteenth");
+	m_NoteWords.push_back(L"8th");
+	m_NoteWords.push_back(L"16th");
 	m_NoteWords.push_back(L"32nd");
 	m_NoteWords.push_back(L"64th");
 	m_NoteWords.push_back(L"128th");
@@ -36,36 +36,51 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"a", L"لا"));
 	m_Words.insert(make_pair(L"b", L"سی"));
 
-	m_Words.insert(make_pair(L"c♮", L"دو_بِکار"));
-	m_Words.insert(make_pair(L"d♮", L"رِ_بِکار"));
-	m_Words.insert(make_pair(L"e♮", L"می_بِکار"));
-	m_Words.insert(make_pair(L"f♮", L"فا_بِکار"));
-	m_Words.insert(make_pair(L"g♮", L"سُل_بِکار"));
-	m_Words.insert(make_pair(L"a♮", L"لا_بِکار"));
-	m_Words.insert(make_pair(L"b♮", L"سی_بِکار"));
+	m_Words.insert(make_pair(L"♮c", L"دو_بِکار"));
+	m_Words.insert(make_pair(L"♮d", L"رِ_بِکار"));
+	m_Words.insert(make_pair(L"♮e", L"می_بِکار"));
+	m_Words.insert(make_pair(L"♮f", L"فا_بِکار"));
+	m_Words.insert(make_pair(L"♮g", L"سُل_بِکار"));
+	m_Words.insert(make_pair(L"♮a", L"لا_بِکار"));
+	m_Words.insert(make_pair(L"♮b", L"سی_بِکار"));
 
-	m_Words.insert(make_pair(L"c♭", L"دو_بِمُل"));
-	m_Words.insert(make_pair(L"d♭", L"رِ_بِمُل"));
-	m_Words.insert(make_pair(L"e♭", L"می_بِمُل"));
-	m_Words.insert(make_pair(L"f♭", L"فا_بِمُل"));
-	m_Words.insert(make_pair(L"g♭", L"سُل_بِمُل"));
-	m_Words.insert(make_pair(L"a♭", L"لا_بِمُل"));
-	m_Words.insert(make_pair(L"b♭", L"سی_بِمُل"));
+	m_Words.insert(make_pair(L"♭c", L"دو_بِمُل"));
+	m_Words.insert(make_pair(L"♭d", L"رِ_بِمُل"));
+	m_Words.insert(make_pair(L"♭e", L"می_بِمُل"));
+	m_Words.insert(make_pair(L"♭f", L"فا_بِمُل"));
+	m_Words.insert(make_pair(L"♭g", L"سُل_بِمُل"));
+	m_Words.insert(make_pair(L"♭a", L"لا_بِمُل"));
+	m_Words.insert(make_pair(L"♭b", L"سی_بِمُل"));
 	
-	m_Words.insert(make_pair(L"c♯", L"دو_دیِز"));
-	m_Words.insert(make_pair(L"d♯", L"رِ_دیِز"));
-	m_Words.insert(make_pair(L"e♯", L"می_دیِز"));
-	m_Words.insert(make_pair(L"f♯", L"فا_دیِز"));
-	m_Words.insert(make_pair(L"g♯", L"سُل_دیِز"));
-	m_Words.insert(make_pair(L"a♯", L"لا_دیِز"));
-	m_Words.insert(make_pair(L"b♯", L"سی_دیِز"));
+	m_Words.insert(make_pair(L"♯c", L"دو_دیِز"));
+	m_Words.insert(make_pair(L"♯d", L"رِ_دیِز"));
+	m_Words.insert(make_pair(L"♯e", L"می_دیِز"));
+	m_Words.insert(make_pair(L"♯f", L"فا_دیِز"));
+	m_Words.insert(make_pair(L"♯g", L"سُل_دیِز"));
+	m_Words.insert(make_pair(L"♯a", L"لا_دیِز"));
+	m_Words.insert(make_pair(L"♯b", L"سی_دیِز"));
 
+	m_Words.insert(make_pair(L"♭♭c", L"دو_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭d", L"رِ_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭e", L"می_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭f", L"فا_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭g", L"سُل_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭a", L"لا_دوبل_بِمُل"));
+	m_Words.insert(make_pair(L"♭♭b", L"سی_دوبل_بِمُل"));
+
+	m_Words.insert(make_pair(L"♯♯c", L"دو_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯d", L"رِ_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯e", L"می_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯f", L"فا_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯g", L"سُل_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯a", L"لا_دوبل_دیِز"));
+	m_Words.insert(make_pair(L"♯♯b", L"سی_دوبل_دیِز"));
 
 	m_Words.insert(make_pair(L"whole", L"گرد"));
 	m_Words.insert(make_pair(L"half", L"سفید"));
 	m_Words.insert(make_pair(L"quarter", L"سیاه"));
-	m_Words.insert(make_pair(L"eighth", L"چنگ"));
-	m_Words.insert(make_pair(L"sixteenth", L"دو_لا_چنگ"));
+	m_Words.insert(make_pair(L"8th", L"چنگ"));
+	m_Words.insert(make_pair(L"16th", L"دو_لا_چنگ"));
 	m_Words.insert(make_pair(L"32nd", L"سه_لا_چنگ"));
 	m_Words.insert(make_pair(L"64th", L"چهار_لا_چنگ"));
 	m_Words.insert(make_pair(L"128th", L"پنج_لا_چنگ"));
@@ -239,7 +254,7 @@ CString	CTranslator::TranslateWord(CString Word)
 		// Number?
 		bool	bIsNumber = true;
 		for (TCHAR * pch = Word.GetBuffer(); *pch; pch++)
-			if (!isdigit(*pch) && *pch != '.')
+			if (!iswdigit(*pch) && *pch != '.')
 			{
 				bIsNumber = false;
 				break;

@@ -112,8 +112,7 @@ typedef struct _MusicSheet
 	{
 		char		chStep;	// C,D,E,F,G,A,B, R become Do,Re,Me,Fa,Sol,La,Si, Rest
 		// Bemole: Flat , Diez: Sharp, Bekar: Natural
-		char		chAccidental;			// 0 , Sharp, Flat, Natural
-		bool		bAccdidentalDouble;	// For Double Codes
+		char		chAccidental;			// 0 , s: Sharp, f: Flat, n: Natural, S: Double Sharp, F: Double Flat
 		int			iOctave;
 		NoteTypes	Type;
 		int			iXPos;		// XPosition in the sheet, used for direction positioning.

@@ -18,7 +18,6 @@ void	ReportError(XMLElem * pNode, CString Title)
 
 	while (pNode)
 	{
-
 		if (Text.GetLength())
 			Text = NodeToText(pNode) + CString(L"->\r\n") + Text;
 		else
@@ -347,7 +346,6 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 							afxDump << Temp;
 #endif
 							NewNote.iXPos = _safe_atoi(pCurNode->Attribute("default-x"));
-							NewNote.chAccidental = _safe_first_upper(GetXMLNestedText(pCurNode, "accidental"));
 							NewNote.iOctave = _safe_atoi(GetXMLNestedText(pCurNode, "pitch", "octave"));
 							NewNote.Type = StringToNoteType(GetXMLNestedText(pCurNode, "type"));
 							NewNote.chStep = _safe_first_upper(GetXMLNestedText(pCurNode, "pitch", "step"));
@@ -361,11 +359,21 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 								NewNote.chStep = _safe_first_upper(GetXMLNestedText(pCurNode, "unpitched", "display-step"));
 								NewNote.bUnpitched = (NewNote.chStep != NULL);
 							}
-
-							// Double Accidental
-							NewNote.bAccdidentalDouble =
-								(NewNote.chAccidental &&
-									strchr(GetXMLNestedText(pCurNode, "accidental"), '-'));
+							// Accidental
+							{
+								CStringA Accidental(GetXMLNestedText(pCurNode, "accidental"));
+								Accidental.MakeLower();
+								if (Accidental.GetLength() == 0)
+									NewNote.chAccidental = 0;
+								else if (Accidental.Find("sharp") != -1)
+									NewNote.chAccidental = (Accidental.Find("-") != -1 || Accidental.Find("double") != -1) ? 'S' : 's';
+								else if (Accidental.Find("flat") != -1)
+									NewNote.chAccidental = (Accidental.Find("-") != -1 || Accidental.Find("double") != -1) ? 'F' : 'f';
+								else if (Accidental.Find("neutral") != -1)
+									NewNote.chAccidental = 'n'; 
+								else
+									_RPT1(_CRT_ERROR, "Unexpected Accidental: %s", Accidental);
+							}
 
 							// Rest?
 							if (!NewNote.chStep && GetXMLNestedElement(pCurNode, "rest"))

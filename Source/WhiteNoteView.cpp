@@ -641,7 +641,8 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			else
 				LineText += *pText;
 			// Exept for opening brocket, add sepearator.
-			if (LineText.GetLength() && LineText[LineText.GetLength()-1] != L'[')
+			if (LineText.GetLength() && LineText[LineText.GetLength() - 1] != L'[' &&
+				(LineText.GetLength() == 1 || LineText[LineText.GetLength() - 2] != L'['))
 				LineText += "; ";
 		}
 		
