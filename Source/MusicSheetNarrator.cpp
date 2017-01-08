@@ -787,7 +787,12 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				int					iCurNote = pDir->BeforeNote.second;
 
 				// Get Position
-				if (pDir->BeforeNote.second <= (int)InVoice.Notes.size())
+				if (!InVoice.Notes.size())
+				{
+					// Use now if there is no note.
+					GetDirectionText(MT.Voices[pDir->BeforeNote.first], pDir->nType, Temp, MusicSheet::DIR_UNKNWON, pDir->Text, pDir->bAbove);
+				}
+				else if (pDir->BeforeNote.second <= (int)InVoice.Notes.size())
 				{			
 					int	iXPos = (pDir->BeforeNote.second < (int)InVoice.Notes.size()) ?
 						InVoice.Notes[iCurNote].iXPos : InVoice.Notes[iCurNote - 1].iXPos;
@@ -818,7 +823,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				}
 				else
 					_RPTF0(_CRT_ERROR, "Unexpected case.");
-
 			}
 			else
 				_RPTF1(_CRT_ERROR, "Unexpected Direction: %i", pDir->nType);
@@ -876,9 +880,26 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						nLastDirection = pDir->nType;
 					}
 
+			// Tublet start.
+			if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_TUPLET_START))
+			{
+				OutVoice.Text.push_back(L"Tuplet");
+				iInTuplet = 0;
+				while (i + iInTuplet < (int)InVoice.Notes.size() &&
+					!FOUND_IN_SET(InVoice.Notes[i + iInTuplet].Extras, MusicSheet::NE_TUPLET_STOP))
+					iInTuplet++;
+				iInTuplet++;
+
+				Temp.Format(L"\\tuplet %i/%i ", iInTuplet, iInTuplet - 1);
+				OutVoice.Lily += Temp;
+				bTubletStart = true;
+			}
+			else
+				bTubletStart = false;
+
 			// Chord Start?
-			bool	bInChord = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD);
-			bool	bChordStart = (!bInChord &&
+			bool	bInChord = (!iInTuplet) && (InVoice.Notes[i].Extras, MusicSheet::NE_CHORD);
+			bool	bChordStart = (!iInTuplet && !bInChord &&
 				i + 1 < (int)InVoice.Notes.size() &&
 				FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD));
 
@@ -898,22 +919,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				pLAL = &LilyChordLength;
 			}
 						
-			if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_TUPLET_START))
-			{
-				OutVoice.Text.push_back(L"Tuplet");
-				iInTuplet = 0;
-				while (i + iInTuplet < (int)InVoice.Notes.size() && 
-					!FOUND_IN_SET(InVoice.Notes[i + iInTuplet].Extras, MusicSheet::NE_TUPLET_STOP))
-					iInTuplet++;
-				iInTuplet++;
-
-				Temp.Format(L"\\tuplet %i/%i ", iInTuplet, iInTuplet - 1);
-				OutVoice.Lily += Temp;
-				bTubletStart = true;
-			}
-			else
-				bTubletStart = false;
-			
 			if (bChordStart || bTubletStart)
 			{
 				// If Chord is already added, just add a [ to it, otherwise add a new token for [
@@ -986,10 +991,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					nLastDirection = pDir->nType;
 				}
 		}
-		// Is this required?
+		// Is this required? Sample: Mozart-Adajio
 		if (bEndChord)
 		{
-			_RPTF0(_CRT_ERROR, "Unexpected point.");
+//			_RPTF0(_CRT_ERROR, "Unexpected point.");
 			OutVoice.Text.push_back(L" ]");
 			OutVoice.Lily += L" > " + LilyChordLength + L"\r\n";
 			if (bChordIsArpeggio)

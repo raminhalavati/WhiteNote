@@ -13,6 +13,7 @@
 #define IDD_COMMENTDIALOG               312
 #define IDD_LILYPONDINSTALLER           313
 #define IDD_TEXTOUTPUTOPTIONS           315
+#define IDD_CUSTOMIZATION               316
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -32,7 +33,11 @@
 #define IDC_EDIT2                       1053
 #define IDC_MESSAGE                     1053
 #define IDC_REPEAT_SIGNATURES           1056
-#define IDC_COMBO1                      1057
+#define IDC_SHOW_DETAILED_TEXT          1061
+#define IDC_PLAY_NAVIGATIONAL_SOUNDS    1062
+#define IDC_USE_UNICODE_CHARACTERS      1063
+#define IDC_PAGE_SIZE_STATIC            1064
+#define IDC_PAGE_SIZE                   1065
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -105,14 +110,15 @@
 #define ID_OPTIONS_SETDEFAULTXMLPATH    32877
 #define ID_NAVIGATE_LOCKVOICE           32878
 #define ID_OPTIONS_SELECTFULLMEASURE    32881
+#define ID_OPTIONS_CUSTOMIZATIONS       32882
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1058
-#define _APS_NEXT_SYMED_VALUE           316
+#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_COMMAND_VALUE         32883
+#define _APS_NEXT_CONTROL_VALUE         1066
+#define _APS_NEXT_SYMED_VALUE           317
 #endif
 #endif

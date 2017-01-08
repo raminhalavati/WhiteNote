@@ -15,6 +15,7 @@
 #include "LilyPondInstaller.h"
 #include "SimpleQuestion.h"
 #include "TextOutputOptions.h"
+#include "Customization.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,7 +31,6 @@ IMPLEMENT_DYNCREATE(CWhiteNoteView, CFormView)
 BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_WM_SIZE()
 	ON_MESSAGE(WM_USER + 0, OnChildKeyPress)
-	ON_COMMAND(ID_SETTINGS_CHANGE_PAGE_SIZE, &CWhiteNoteView::OnPlayChangepagesize)
 	ON_COMMAND(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnPlaySelectMovement)
 	ON_COMMAND(ID_NAVIGATE_GOTO_MEASURE, &CWhiteNoteView::OnPlayGotomeasure)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnUpdateSelectMovement)
@@ -53,10 +53,6 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_NEXTHAND, &CWhiteNoteView::OnUpdateNavigateNexthand)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_PREVIOUSVOICE, &CWhiteNoteView::OnUpdateNavigatePreviousvoice)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_NEXTVOICE, &CWhiteNoteView::OnUpdateNavigateNextvoice)
-	ON_COMMAND(ID_OPTIONS_BEEPONCOMMANDS, &CWhiteNoteView::OnOptionsBeeponcommands)
-	ON_UPDATE_COMMAND_UI(ID_OPTIONS_BEEPONCOMMANDS, &CWhiteNoteView::OnUpdateOptionsBeeponcommands)
-	ON_COMMAND(ID_OPTIONS_ALWAYSSHOWSIGNATURES, &CWhiteNoteView::OnOptionsAlwaysshowsignatures)
-	ON_UPDATE_COMMAND_UI(ID_OPTIONS_ALWAYSSHOWSIGNATURES, &CWhiteNoteView::OnUpdateOptionsAlwaysshowsignatures)
 	ON_COMMAND(ID_NAVIGATE_SHOW_SIGNATURE, &CWhiteNoteView::OnShowSignature)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_SHOW_SIGNATURE, &CWhiteNoteView::OnUpdateActiveWhenLoaded)
 	ON_WM_DRAWITEM()
@@ -73,8 +69,6 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_IMAGES_SHOWVOICESONSEPARATESTAFFS, &CWhiteNoteView::OnImagesShowvoicesonseparatestaffs)
 	ON_UPDATE_COMMAND_UI(ID_IMAGES_SHOWVOICESONSEPARATESTAFFS, &CWhiteNoteView::OnUpdateImagesShowvoicesonseparatestaffs)
 	ON_COMMAND(ID_IMAGES_CHANGETEMPFOLDER, &CWhiteNoteView::OnImagesChangetempfolder)
-	ON_COMMAND(ID_OPTIONS_DETAILEDTEXT, &CWhiteNoteView::OnOptionsDetailedtext)
-	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DETAILEDTEXT, &CWhiteNoteView::OnUpdateOptionsDetailedtext)
 	ON_UPDATE_COMMAND_UI(ID_FILE_RELOAD, &CWhiteNoteView::OnUpdateFileReload)
 	ON_COMMAND(ID_FILE_RELOAD, &CWhiteNoteView::OnFileReload)
 	ON_COMMAND(ID_HELP_LILYPONDWEBSITE, &CWhiteNoteView::OnHelpLilypondwebsite)
@@ -95,6 +89,7 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_COMMAND(ID_OPTIONS_SETDEFAULTXMLPATH, &CWhiteNoteView::OnOptionsSetdefaultxmlpath)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnUpdateNavigateLockvoice)
 	ON_COMMAND(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnNavigateLockvoice)
+	ON_COMMAND(ID_OPTIONS_CUSTOMIZATIONS, &CWhiteNoteView::OnOptionsCustomizations)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -191,12 +186,6 @@ void CWhiteNoteView::OnUpdateNavigateNexthand(CCmdUI *pCmdUI)
 }
 
 
-void CWhiteNoteView::OnUpdateOptionsBeeponcommands(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bBeep);
-}
-
-
 void CWhiteNoteView::OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(GetOtherBlock('v', false) != -1);
@@ -206,12 +195,6 @@ void CWhiteNoteView::OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI)
 void CWhiteNoteView::OnUpdateNavigateNextvoice(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(GetOtherBlock('v', true) != -1);
-}
-
-
-void CWhiteNoteView::OnUpdateOptionsAlwaysshowsignatures(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bShowAllSignatureText);
 }
 
 
@@ -256,12 +239,6 @@ void CWhiteNoteView::OnUpdateDeletecacheAutodeleteonexit(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(m_Defaults.bAutoDeleteCache);
 	pCmdUI->Enable(m_Lily.m_bReady);
-}
-
-
-void CWhiteNoteView::OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI)
-{
-	pCmdUI->SetCheck(m_Defaults.bDetailedText);
 }
 
 
@@ -516,17 +493,20 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 			theApp.WriteProfileInt(L"Defaults", L"LTR", m_Defaults.bLTR);
 		}
 		m_Defaults.bLTR = (theApp.GetProfileInt(L"Defaults", L"LTR", 1) != 0);
-		m_Defaults.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
-		m_Defaults.bBeep = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
-		m_Defaults.bShowAllSignatureText = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
 		m_Defaults.LilyPondPath = theApp.GetProfileString(L"Defaults", L"LilyPondPath", L"");
 		m_Defaults.DefaultXMLPath = theApp.GetProfileString(L"Defaults", L"XMLDefaultPath", L"");
 		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
-		m_Defaults.bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
+
+		m_Customizations.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
+		m_Customizations.bPlayNavigationalSounds = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
+		m_Customizations.bAlwaysShowSignatures = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
+		m_Customizations.bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
+		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 1) == 1);
+
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
 			TCHAR pf[MAX_PATH];
@@ -555,17 +535,19 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 	{
 		theApp.WriteProfileString(L"Defaults", L"Language", m_Defaults.Language);
 		theApp.WriteProfileInt(L"Defaults", L"LTR", m_Defaults.bLTR);
-		theApp.WriteProfileInt(L"Defaults", L"PageSize", m_Defaults.iPageSize);
-		theApp.WriteProfileInt(L"Defaults", L"Beep", m_Defaults.bBeep);
-		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Defaults.bShowAllSignatureText);
 		theApp.WriteProfileString(L"Defaults", L"LilyPondPath", m_Defaults.LilyPondPath);
 		theApp.WriteProfileString(L"Defaults", L"XMLDefaultPath", m_Defaults.DefaultXMLPath);
 		theApp.WriteProfileInt(L"Defaults", L"AutoRefreshImages", m_Defaults.bAutoRefreshImages);
 		theApp.WriteProfileInt(L"Defaults", L"AutoDeleteCache", m_Defaults.bAutoDeleteCache);
 		theApp.WriteProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", m_Defaults.bShowVoicesOnDifferentStaffs);
 		theApp.WriteProfileString(L"Defaults", L"TempFolder", m_Defaults.TempFolder);
-		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Defaults.bDetailedText);
 		theApp.WriteProfileInt(L"Defaults", L"AutoSaveComments", m_Defaults.bAutoSaveComments);
+
+		theApp.WriteProfileInt(L"Defaults", L"PageSize", m_Customizations.iPageSize);
+		theApp.WriteProfileInt(L"Defaults", L"Beep", m_Customizations.bPlayNavigationalSounds);
+		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Customizations.bAlwaysShowSignatures);
+		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Customizations.bShowDetailedText);
+		theApp.WriteProfileInt(L"Defaults", L"UseUincode", m_Customizations.bUseUnicodeCharacters);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -620,12 +602,12 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			m_NarrationLabel.SetWindowText(Temp);
 		}
 
-		bool	bRepeatStarters = bVoiceChanged || m_Defaults.bShowAllSignatureText || bForceSingatures;
+		bool	bRepeatStarters = bVoiceChanged || m_Customizations.bAlwaysShowSignatures || bForceSingatures;
 		
 		if (!bRepeatStarters)
 			LineText = "";
 
-		if (GetSetComment().GetLength() && !m_Defaults.bBeep)
+		if (GetSetComment().GetLength() && !m_Customizations.bPlayNavigationalSounds)
 			LineText += "Has_Comments;";
 
 		vector<CString> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
@@ -647,8 +629,19 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		}
 		
 		CString	Translation = m_Translator.TranslateText(LineText);
-		m_Playing.iMeasureEndPosition = Translation.GetLength();
 
+		// Replace Accidentals?
+		if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters)
+		{
+			Translation.Replace(L"♯♯", L"_double_sharp_");
+			Translation.Replace(L"♭♭", L"_double_flat_");
+			Translation.Replace(L"♭", L"_flat_");
+			Translation.Replace(L"♯", L"_sharp_");
+			Translation.Replace(L"♮", L"_natral_");
+		}
+
+		// Add Measure_End
+		m_Playing.iMeasureEndPosition = Translation.GetLength();
 		Translation += m_Translator.TranslateStatement(L"Measure_End");
 		m_Playing.iMeasureTotalSize = Translation.GetLength();
 		
@@ -795,23 +788,6 @@ LRESULT CWhiteNoteView::OnChildKeyPress(WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0;
-}
-
-
-void CWhiteNoteView::OnPlayChangepagesize()
-{
-	int	iNewPageSize = AskQuestion(L"Set page size:", m_Defaults.iPageSize);
-
-	if (iNewPageSize <= 0)
-		return;
-		
-	CString	Text;
-	Text.Format(L"Set page size to %i measures?", iNewPageSize);
-	if (AfxMessageBox(Text, MB_ICONQUESTION | MB_YESNO) == IDYES)
-	{
-		m_Defaults.iPageSize = iNewPageSize;
-		SerializeDefaults(false);
-	}
 }
 
 
@@ -984,7 +960,7 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 		case 'p': // Page
 			{
 				_ASSERTE(!bGoToEnd);
-				m_Playing.iMeasure += ((bNext) ? +1 : -1) * m_Defaults.iPageSize;
+				m_Playing.iMeasure += ((bNext) ? +1 : -1) * m_Customizations.iPageSize;
 				m_Playing.iMeasure = max(m_Playing.iMeasure, 0);
 				m_Playing.iMeasure = min(m_Playing.iMeasure, (int)m_pNarration->Movements[m_Playing.iMovement].Measures.size() - 1);
 				m_Playing.iVoice = 0;
@@ -1017,14 +993,6 @@ void CWhiteNoteView::SetMovement(int iMovementNo)
 }
 
 
-void CWhiteNoteView::OnOptionsBeeponcommands()
-{
-	m_Defaults.bBeep = !m_Defaults.bBeep;
-	SerializeDefaults(false);
-	RefreshNarration(false);
-}
-
-
 void CWhiteNoteView::OnLanguageEnglish()
 {
 	m_Defaults.Language = L"EN";
@@ -1042,14 +1010,6 @@ void CWhiteNoteView::OnLanguageFarsi()
 	RefreshNarration(false);
 	if (m_pNarration)
 		m_pNarrationTB->SetFocus();
-}
-
-
-void CWhiteNoteView::OnOptionsAlwaysshowsignatures()
-{
-	m_Defaults.bShowAllSignatureText = !m_Defaults.bShowAllSignatureText;
-	SerializeDefaults(false);
-	RefreshNarration(false);
 }
 
 
@@ -1121,7 +1081,7 @@ int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 // Makes a sound
 void CWhiteNoteView::VoiceMessage(CString What)
 {
-	if (m_Defaults.bBeep)
+	if (m_Customizations.bPlayNavigationalSounds)
 		try
 		{
 			CString	Path;
@@ -1132,7 +1092,7 @@ void CWhiteNoteView::VoiceMessage(CString What)
 		catch (...)
 		{
 			AfxMessageBox(L"Cannot play sounds.", MB_ICONERROR);
-			m_Defaults.bBeep = false;
+			m_Customizations.bPlayNavigationalSounds = false;
 		}
 }
 
@@ -1210,16 +1170,6 @@ void CWhiteNoteView::OnDeletecacheAutodeleteonexit()
 	m_Defaults.bAutoDeleteCache = !m_Defaults.bAutoDeleteCache;
 	SerializeDefaults(false);
 }
-
-
-void CWhiteNoteView::OnOptionsDetailedtext()
-{
-	m_Defaults.bDetailedText = !m_Defaults.bDetailedText;
-	SerializeDefaults(false);
-	if (m_pNarration)
-		OnFileReload();
-}
-
 
 void CWhiteNoteView::OnFileReload()
 {
@@ -1510,4 +1460,20 @@ void CWhiteNoteView::OnNavigateLockvoice()
 {
 	m_Status.bVoiceLockecd = !m_Status.bVoiceLockecd;
 	MessageBeep(MB_OK);
+}
+
+void CWhiteNoteView::OnOptionsCustomizations()
+{
+	CCustomization Cust;
+	Cust.m_Values = m_Customizations;
+	if (Cust.DoModal() == IDOK)
+	{
+		bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText);
+		m_Customizations = Cust.m_Values;
+		SerializeDefaults(false);
+		if (bReload)
+			GetDocument()->Reload();
+		else
+			RefreshNarration(false);
+	}
 }

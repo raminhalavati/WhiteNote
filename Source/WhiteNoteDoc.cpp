@@ -210,10 +210,10 @@ CString CWhiteNoteDoc::GetXMLFromMXL(CString MXLFilePath)
 // Reads the XML File stored in FilePath
 bool CWhiteNoteDoc::ReadXMLFile(CString FilePath)
 {
-	bool	bDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
+	bool	bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
 
 	return CMusicXMLParser().ParsXML(FilePath, m_MusicSheet) &&
-		   CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration, bDetailedText);
+		   CMusicSheetNarrator().ConvertToText(m_MusicSheet, m_Narration, bShowDetailedText);
 }
 
 // Reloads a document to reflect external or settings changes.

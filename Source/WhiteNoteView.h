@@ -11,6 +11,7 @@
 #include "MyEdit.h"
 #include "Translator.h"
 #include "WhiteNoteDoc.h"
+#include "Customization.h"
 
 class CWhiteNoteView : public CFormView
 {
@@ -32,20 +33,17 @@ public:
 	{
 		CString	Language;
 		bool	bLTR;
-		int		iPageSize;
-		bool	bBeep;
-		bool	bShowAllSignatureText;
 		CString	LilyPondPath;
 		CString	TempFolder;
 		CString	DefaultXMLPath;
 		bool	bAutoRefreshImages;
 		bool	bAutoDeleteCache;
 		bool	bShowVoicesOnDifferentStaffs;
-		bool	bDetailedText;
 		bool	bAutoSaveComments;
 		bool	bLilyPondPathWarned;
 	} m_Defaults;
 
+	Customizations m_Customizations;
 	struct
 	{
 		bool	bVoiceLockecd;
@@ -93,7 +91,6 @@ protected:
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnChildKeyPress(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnPlayChangepagesize();
 	afx_msg void OnPlaySelectMovement();
 	afx_msg void OnPlayGotomeasure();
 	afx_msg void OnFileSaveas();
@@ -111,14 +108,10 @@ public:
 	afx_msg void OnUpdateNavigateNexthand(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateNavigateNextvoice(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateOptionsBeeponcommands(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateOptionsAlwaysshowsignatures(CCmdUI *pCmdUI);
 	afx_msg void OnNavigatePreviousvoice();
 	afx_msg void OnNavigateNextvoice();
 	afx_msg void OnNavigatePrevioushand();
 	afx_msg void OnNavigateNexthand();
-	afx_msg void OnOptionsBeeponcommands();
-	afx_msg void OnOptionsAlwaysshowsignatures();
 	afx_msg void OnShowSignature();
 	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 	afx_msg void OnLilypondChangepath();
@@ -134,7 +127,6 @@ public:
 	afx_msg void OnImagesShowvoicesonseparatestaffs();
 	afx_msg void OnUpdateImagesShowvoicesonseparatestaffs(CCmdUI *pCmdUI);
 	afx_msg void OnImagesChangetempfolder();
-	afx_msg void OnOptionsDetailedtext();
 	afx_msg void OnUpdateOptionsDetailedtext(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateFileReload(CCmdUI *pCmdUI);
 	afx_msg void OnFileReload();
@@ -156,6 +148,7 @@ public:
 	afx_msg void OnOptionsSetdefaultxmlpath();
 	afx_msg void OnUpdateNavigateLockvoice(CCmdUI *pCmdUI);
 	afx_msg void OnNavigateLockvoice();
+	afx_msg void OnOptionsCustomizations();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;

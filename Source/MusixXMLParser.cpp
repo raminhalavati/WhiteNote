@@ -369,7 +369,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 									NewNote.chAccidental = (Accidental.Find("-") != -1 || Accidental.Find("double") != -1) ? 'S' : 's';
 								else if (Accidental.Find("flat") != -1)
 									NewNote.chAccidental = (Accidental.Find("-") != -1 || Accidental.Find("double") != -1) ? 'F' : 'f';
-								else if (Accidental.Find("neutral") != -1)
+								else if (Accidental.Find("natural") != -1)
 									NewNote.chAccidental = 'n'; 
 								else
 									_RPT1(_CRT_ERROR, "Unexpected Accidental: %s", Accidental);
