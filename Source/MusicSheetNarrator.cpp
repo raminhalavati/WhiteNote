@@ -339,7 +339,7 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 	{
 		bItemChanged = pPreviousSignature && (pPreviousSignature->Key.iFifths != Sigs.Key.iFifths || pPreviousSignature->Key.bMajor != Sigs.Key.bMajor);
 	
-		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"" ) + L"Key_Signature";
+		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"") + L"Key_Signature";
 
 		if (pPreviousSignature && bItemChanged)
 			Text += L"_Changes_To: ";
@@ -701,22 +701,15 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				if (IsInRange(pDir->nType, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger))
 				{
 					MusicSheet::Voice & InVoice	= pMeasure->Voices[pDir->BeforeNote.first];
-					int					iNote		= pDir->BeforeNote.second;
+					int	iNote = pDir->BeforeNote.second;
 
-					if (iNote >= (int)InVoice.Notes.size())
-						continue;
-
-					bool	bInChord = (FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD));
-
-					if (!bInChord && iNote + 1 < (int)InVoice.Notes.size())
-						bInChord = (FOUND_IN_SET(InVoice.Notes[iNote + 1].Extras, MusicSheet::NE_CHORD));
-
-					if (bInChord)
-						while (++iNote < (int)InVoice.Notes.size())
-							if (FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD))
-								pDir->BeforeNote.second++;
-							else
-								break;
+					while (iNote < (int)InVoice.Notes.size() &&
+						(FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD_START) ||
+					 	 FOUND_IN_SET(InVoice.Notes[iNote].Extras, MusicSheet::NE_CHORD_MIDDLE)))
+					{
+						pDir->BeforeNote.second++;
+						iNote++;
+					}
 				}
 
 			// Sort Fingers in one Chord
@@ -812,7 +805,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 							if (pMeasure->Voices[v].Notes[n].chStep != 'R')
 							{
 								// If it is inside an chord, move to first:
-								while (n && FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD))
+								while (n && (FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD_MIDDLE) || 
+											 FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD_END)))
 										n--;
 
 								Directions.push_back(InlineDirection(pDir->bAbove, v, n, pDir->nType));
@@ -851,14 +845,16 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					GetBarLineText(OutVoice, *pBL);
 		}
 
-		int			iInTuplet = 0;
-		bool		bTubletStart = false;
-		bool		bEndChord = false;
-		bool		bEndTuplet = false;
+		int		iInTuplet = 0;
+		bool	bTubletStart = false;
+		bool	bInChord = false;
+		bool	bChordStart = false;
+		bool	bChordEnd = false;
+		bool	bTubletEnd = false;
 		CString	LilyChordLength, *pLAL = NULL;
-		bool		bChordIsArpeggio;
-		bool		bInGrace = false;
-		
+		bool	bChordIsArpeggio = false;
+		bool	bInGrace = false;
+
 		for ALL_INDICES(InVoice.Notes, i)
 		{
 			// Signature Change?
@@ -880,8 +876,15 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 						nLastDirection = pDir->nType;
 					}
 
-			// Tublet start.
-			if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_TUPLET_START))
+			// Check Groupings
+			// In a chord set, the first one doesn't have NE_CHORD, the rest have.
+			bTubletStart = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_TUPLET_START);
+			bTubletEnd = (iInTuplet == 1);
+			bChordStart = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD_START);
+			bInChord = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD_MIDDLE);
+			bChordEnd = FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_CHORD_END);
+
+			if (bTubletStart)
 			{
 				OutVoice.Text.push_back(L"Tuplet");
 				iInTuplet = 0;
@@ -892,18 +895,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 
 				Temp.Format(L"\\tuplet %i/%i ", iInTuplet, iInTuplet - 1);
 				OutVoice.Lily += Temp;
-				bTubletStart = true;
 			}
-			else
-				bTubletStart = false;
-
-			// Chord Start?
-			bool	bInChord = (!iInTuplet) && (InVoice.Notes[i].Extras, MusicSheet::NE_CHORD);
-			bool	bChordStart = (!iInTuplet && !bInChord &&
-				i + 1 < (int)InVoice.Notes.size() &&
-				FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD));
-
-			if (bChordStart)
+			else if (bChordStart)
 			{
 				if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_ARPEGGIATE))
 				{
@@ -915,7 +908,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					OutVoice.Text.push_back(L"Chord");
 					bChordIsArpeggio = false;
 				}
-				bEndChord = true;
 				pLAL = &LilyChordLength;
 			}
 						
@@ -926,7 +918,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					(	OutVoice.Text.back() == L"Chord" || 
 						OutVoice.Text.back() == L"Arpeggiate" || 
 						OutVoice.Text.back() == L"Tuplet"))
-					OutVoice.Text.back() += L" [ ";
+					OutVoice.Text.back() += L" [";
 				else
 					OutVoice.Text.push_back(L"[");
 				if (bChordStart)
@@ -935,7 +927,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					OutVoice.Lily += L" { ";
 			}
 
-			bEndTuplet = (iInTuplet == 1);
 			GetNoteText(InVoice.Notes[i], OutVoice, iInTuplet-- > 0, bInGrace, pLAL);
 
 			if (bInGrace)
@@ -950,36 +941,34 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				if (bChordStart || bInChord)
 					// For all next notes...
 					for DRANGE(j, i + 1, (int)InVoice.Notes.size())
-						// If it is in this chord,...
-						if (FOUND_IN_SET(InVoice.Notes[j].Extras, MusicSheet::NE_CHORD))
-						{
-							// If it has ARPEGGIATE, remove it.
-							if (FOUND_IN_SET(InVoice.Notes[j].Extras, MusicSheet::NE_ARPEGGIATE))
-								InVoice.Notes[j].Extras.erase(MusicSheet::NE_ARPEGGIATE);
-						}
-						else
-							break;
-
-			// Chord Continuem or End?
-			if (iInTuplet <= 0 && (bChordStart || bInChord))
-				if ((i + 1 < (int)InVoice.Notes.size() && FOUND_IN_SET(InVoice.Notes[i + 1].Extras, MusicSheet::NE_CHORD)))
-					OutVoice.Text.push_back(L",");
-				else
-//					if (i + 1 < (int)InVoice.Notes.size())
 					{
-						OutVoice.Text.push_back(L" ]");
-						OutVoice.Lily += L" > " + LilyChordLength;
-						if (bChordIsArpeggio)
-							OutVoice.Lily += L"\\arpeggio\r\n";
-						pLAL = NULL;
-						bEndChord = false;						
+						// If it has ARPEGGIATE, remove it.
+						if (FOUND_IN_SET(InVoice.Notes[j].Extras, MusicSheet::NE_ARPEGGIATE))
+							InVoice.Notes[j].Extras.erase(MusicSheet::NE_ARPEGGIATE);
+
+						// If it is in this chord,...
+						if (FOUND_IN_SET(InVoice.Notes[j].Extras, MusicSheet::NE_CHORD_END))
+							break;
 					}
 
-			if (bEndTuplet)
+			// Chord Continuem or End?
+
+			if (iInTuplet > 0 || (bChordStart || bInChord))
+				OutVoice.Text.push_back(L",");
+			else if (bChordEnd)
 			{
-				OutVoice.Text.push_back(L" ]");
+				OutVoice.Text.push_back(L"]");
+				OutVoice.Lily += L"> " + LilyChordLength;
+				if (bChordIsArpeggio)
+					OutVoice.Lily += L"\\arpeggio\r\n";
+				pLAL = NULL;
+				bChordEnd = false;						
+			}
+			else if (bTubletEnd)
+			{
+				OutVoice.Text.push_back(L"]");
 				OutVoice.Lily += L" }\r\n";
-				bEndTuplet = false;
+				bTubletEnd = false;
 			}
 
 			nLastDirection = MusicSheet::DIR_UNKNWON;
@@ -990,16 +979,6 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 					GetDirectionText(OutVoice, pDir->nType, DirectionBufferText, nLastDirection, pDir->ExtraText, pDir->bAbove);
 					nLastDirection = pDir->nType;
 				}
-		}
-		// Is this required? Sample: Mozart-Adajio
-		if (bEndChord)
-		{
-//			_RPTF0(_CRT_ERROR, "Unexpected point.");
-			OutVoice.Text.push_back(L" ]");
-			OutVoice.Lily += L" > " + LilyChordLength + L"\r\n";
-			if (bChordIsArpeggio)
-				OutVoice.Lily += L"\\arpeggio";
-			pLAL = NULL;
 		}
 
 		MusicSheet::DirectionTypes nLastDirection = MusicSheet::DIR_UNKNWON;
@@ -1040,7 +1019,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			if (pVoice->Text[i].Left(6) == L"Chord")
 				if (pVoice->Text[i].Find(L"Fermata") != -1 || (i + 1 < (int)pVoice->Text.size() && pVoice->Text[i + 1].Find(L"Fermata") != -1))
 					AfxMessageBox(L"FOUND ONE CHORD CHANGE");
-	//Text.Replace(L"Chord Fermata on" , L"Fermata on Chord" ) ;
+	//Text.Replace(L"Chord Fermata on" , L"Fermata on Chord") ;
 #endif
 	return MT;
 }
@@ -1121,7 +1100,6 @@ bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet &
 // Makes All necessary changes.
 void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 {
-	// Propagate Accidentals...
 	for ALL(Sheet.Movements, pMovement)
 	{
 		vector<MusicSheet::Signatures>	LastSignatures;
@@ -1146,20 +1124,42 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 			else
 				pMeasure->Signatures = LastSignatures;
 
-			// If a note gets sharp or flat, all notes of the same octave and step till the end of measure
-			// have the same until something changes that. But do we want to do these sort of things?
-			for ALL(pMeasure->Voices, pVoice)
-				for ALL(pVoice->Notes, pNote)
-				{
-					if (pNote->chAccidental == 's' ||
-						pNote->chAccidental == 'f')
-						for (decltype(pVoice->Notes.begin()) pNote2 = pNote + 1; pNote2 < pVoice->Notes.end(); pNote2++)
-							if (pNote2->chStep == pNote->chStep && pNote2->iOctave == pNote->iOctave)
-								if (pNote2->chAccidental)
-									break;
-								else
-									pNote2->chAccidental = pNote->chAccidental;
-				}
+			// CONVERT NE_CHORD signs into NE_CHORD_START, NE_CHORD_MIDDLE, NE_CHORD_END
+			for ALL_INDICES(pMeasure->Voices, v)
+				for ALL_INDICES(pMeasure->Voices[v].Notes, n)
+					if (FOUND_IN_SET(pMeasure->Voices[v].Notes[n].Extras, MusicSheet::NE_CHORD))
+					{
+						int start = n - 1;
+						while (n + 1 < (int)pMeasure->Voices[v].Notes.size())
+							if (!FOUND_IN_SET(pMeasure->Voices[v].Notes[n + 1].Extras, MusicSheet::NE_CHORD))
+								break;
+							else
+								n++;
+						int end = n;
+						// Remove former NE_CHORDs
+						for (int i = start + 1; i <= end; i++)
+							pMeasure->Voices[v].Notes[i].Extras.erase(MusicSheet::NE_CHORD);
+						// ADD NEW NE_CHORD_...s
+						pMeasure->Voices[v].Notes[start].Extras.insert(MusicSheet::NE_CHORD_START);
+						pMeasure->Voices[v].Notes[end].Extras.insert(MusicSheet::NE_CHORD_END);
+						for (int i = start + 1; i < end; i++)
+							pMeasure->Voices[v].Notes[i].Extras.insert(MusicSheet::NE_CHORD_MIDDLE);
+					}
+
+			//// If a note gets sharp or flat, all notes of the same octave and step till the end of measure
+			//// have the same until something changes that. But do we want to do these sort of things?
+			//for ALL(pMeasure->Voices, pVoice)
+			//	for ALL(pVoice->Notes, pNote)
+			//	{
+			//		if (pNote->chAccidental == 's' ||
+			//			pNote->chAccidental == 'f')
+			//			for (decltype(pVoice->Notes.begin()) pNote2 = pNote + 1; pNote2 < pVoice->Notes.end(); pNote2++)
+			//				if (pNote2->chStep == pNote->chStep && pNote2->iOctave == pNote->iOctave)
+			//					if (pNote2->chAccidental)
+			//						break;
+			//					else
+			//						pNote2->chAccidental = pNote->chAccidental;
+			//	}
 
 			// Merge Metronome Directions
 			for ALL(pMovement->Measures, pMeasure)
@@ -1204,8 +1204,8 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 							}
 						while (pDir1->Text.Find(L"  ") != -1)
 							pDir1->Text.Replace(L"  ", L" ");
-						pDir1->Text.Replace(L"( )", L"");
 						pDir1->Text.Replace(L"()", L"");
+						pDir1->Text.Replace(L"( )", L"");
 						pDir1->Text = pDir1->Text.Trim(' ');
 					}
 				}

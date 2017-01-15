@@ -458,7 +458,7 @@ void CWhiteNoteView::OnSize(UINT nType, int cx, int cy)
 		CSize	Delta(Rect.Width() - m_OriginalSize.cx, Rect.Height() - m_OriginalSize.cy);
 		m_OriginalSize = Rect.Size();
 
-#define RESIZE_ITEM( X , W , H )	{( X ).GetWindowRect( Rect ) ; ScreenToClient( Rect ) ; ( X ).SetWindowPos( NULL , 0 , 0 , Rect.Width() + W * Delta.cx , Rect.Height() + H * Delta.cy , SWP_NOZORDER | SWP_NOMOVE ) ;}
+#define RESIZE_ITEM(X , W , H)	{(X).GetWindowRect(Rect) ; ScreenToClient(Rect) ; (X).SetWindowPos(NULL , 0 , 0 , Rect.Width() + W * Delta.cx , Rect.Height() + H * Delta.cy , SWP_NOZORDER | SWP_NOMOVE) ;}
 
 		RESIZE_ITEM(m_Summary, 1, 0);
 		RESIZE_ITEM(m_NarrationL, 1, 0);
@@ -495,7 +495,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bLTR = (theApp.GetProfileInt(L"Defaults", L"LTR", 1) != 0);
 		m_Defaults.LilyPondPath = theApp.GetProfileString(L"Defaults", L"LilyPondPath", L"");
 		m_Defaults.DefaultXMLPath = theApp.GetProfileString(L"Defaults", L"XMLDefaultPath", L"");
-		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 1) != 0);
+		m_Defaults.bAutoRefreshImages = (theApp.GetProfileInt(L"Defaults", L"AutoRefreshImages", 0) != 0);
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
@@ -505,7 +505,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Customizations.bPlayNavigationalSounds = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
 		m_Customizations.bAlwaysShowSignatures = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
 		m_Customizations.bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
-		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 1) == 1);
+		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 0) == 0);
 
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
@@ -621,11 +621,16 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 				else
 					continue;
 			else
+			{
+				// If closing brocket, remove previous separator
+				if (*pText == L"]" && LineText.Right(2) == L"; ")
+					LineText = LineText.Left(LineText.GetLength() - 2);
 				LineText += *pText;
+			}
+
 			// Exept for opening brocket, add sepearator.
-			if (LineText.GetLength() && LineText[LineText.GetLength() - 1] != L'[' &&
-				(LineText.GetLength() == 1 || LineText[LineText.GetLength() - 2] != L'['))
-				LineText += "; ";
+			if (LineText.GetLength() && LineText[LineText.GetLength() - 1] != L'[')
+				LineText += L"; ";
 		}
 		
 		CString	Translation = m_Translator.TranslateText(LineText);
@@ -877,15 +882,15 @@ void CWhiteNoteView::OnFileSaveas()
 		// All voices priority: First loop on measures.
 		if (ODlg.m_Options.chGroupBy == 'm') {
 			for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
-				TP(Text.Format(L"Measure %i\n", m + 1));
+				TP(Text.Format(L"Measure %i\r\n", m + 1));
 				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
 					vector<CString> Printees;
 					for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
 						if (bFullSignature || pLine->GetAt(0) != '*')
-							Printees.push_back(*pLine);
+							Printees.push_back(*pLine + L" ");
 					}
 					if (Printees.size()) {
-						TP(Text.Format(L"Staff %i; Voice %i\n", pVoice->iStaff + 1, pVoice->iVoice));
+						TP(Text.Format(L"Staff %i; Voice %i\r\n", pVoice->iStaff + 1, pVoice->iVoice));
 						for (auto& line : Printees)
 							TP(Text = line);
 						fwprintf_s(hFile, L"\r\n");
@@ -900,7 +905,7 @@ void CWhiteNoteView::OnFileSaveas()
 				for (auto& voice : measure.Voices)
 					SVs.insert(make_pair(voice.iStaff, voice.iVoice));
 			for (auto sv : SVs) {
-				TP(Text.Format(L"Staff %i; Voice %i\n", sv.first + 1, sv.second));
+				TP(Text.Format(L"Staff %i; Voice %i\r\n", sv.first + 1, sv.second));
 				for (auto& measure : m_pNarration->Movements[p].Measures) {
 					// Check if this measure has given staff and voice
 					for (auto& voice : measure.Voices) {
@@ -908,7 +913,7 @@ void CWhiteNoteView::OnFileSaveas()
 							vector<CString> Printees;
 							for (auto& line : voice.Text) {
 								if (bFullSignature || line.GetAt(0) != '*')
-									Printees.push_back(line);
+									Printees.push_back(line + L" ");
 							}
 							if (Printees.size() > 1) {
 								for (auto& line : Printees)

@@ -277,11 +277,10 @@ CString	CTranslator::TranslateWord(CString Word)
 // Translates an isolated statement.
 CString CTranslator::TranslateStatement(CString Statement)
 {
-	
 	Statement.MakeLower();
 	if (m_Language == L"EN")
 		return Statement;
-
+	
 	CString		Prefix;
 	CString		Postfix;
 	CString		Codes(L"*:[],\r\n\"");
@@ -337,13 +336,20 @@ CString CTranslator::TranslateStatement(CString Statement)
 	{
 		// The original order is:	[[double] dotted] eight rest
 		// It should become:		rest eight [[double] dotted]
+		// Exception:				whole bar rest
 		int len = (int)Tokens.size();
-		Outs.push_back(T(len - 1));
-		Outs.push_back(T(len - 2));
-		if (len > 2)
-			Outs.push_back(T(0));
-		if (len > 3)
-			Outs.push_back(T(1));
+		if (len == 3 && Tokens[0] == L"whole" && Tokens[1] == L"bar") {
+			Outs.push_back(T_(L"rest"));
+			Outs.push_back(T_(L"whole_bar"));
+		}
+		else {
+			Outs.push_back(T(len - 1));
+			Outs.push_back(T(len - 2));
+			if (len > 2)
+				Outs.push_back(T(0));
+			if (len > 3)
+				Outs.push_back(T(1));
+		}
 	}
 	else
 		// Change order if it's a note description

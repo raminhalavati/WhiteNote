@@ -11,6 +11,9 @@ typedef struct _MusicSheet
 
 	typedef enum {
 		NE_CHORD,
+		NE_CHORD_START,
+		NE_CHORD_MIDDLE,
+		NE_CHORD_END,
 		NE_TUPLET_START,
 		//NE_TUPLET_MIDDLE,
 		NE_TUPLET_STOP,

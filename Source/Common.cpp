@@ -2,12 +2,12 @@
 #include "Common.h"
 #include <math.h>
 
-int		Round( double d )
+int		Round(double d)
 {
-	double	f = floor( d ) ;
-	double	c = ceil( d ) ;
+	double	f = floor(d) ;
+	double	c = ceil(d) ;
 
-	return ( d - f < c - d ) ? ( int ) f : ( int ) c ;
+	return (d - f < c - d) ? (int) f : (int) c ;
 }
 
 int CALLBACK BrowseForFolderCallback(HWND hwnd,UINT uMsg,LPARAM lp, LPARAM pData)
@@ -32,7 +32,7 @@ int CALLBACK BrowseForFolderCallback(HWND hwnd,UINT uMsg,LPARAM lp, LPARAM pData
 	return 0;
 }
 
-bool	SelectFolder( HWND hWnd , CString Title , CString & theFolder )
+bool	SelectFolder(HWND hWnd , CString Title , CString & theFolder)
 {
 	bool	bResult = FALSE ;
 
@@ -44,7 +44,7 @@ bool	SelectFolder( HWND hWnd , CString Title , CString & theFolder )
 		LPITEMIDLIST pidl ;
 		LPMALLOC pMalloc;
 
-		if ( SUCCEEDED( SHGetMalloc( & pMalloc ) ) ) 
+		if (SUCCEEDED(SHGetMalloc(& pMalloc))) 
 		{
 			bi.hwndOwner = hWnd ;
 			bi.pidlRoot = NULL ;
@@ -52,26 +52,26 @@ bool	SelectFolder( HWND hWnd , CString Title , CString & theFolder )
 			bi.lpszTitle = Title.GetBuffer() ;
 			bi.ulFlags = BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE | BIF_EDITBOX ;
 			bi.lpfn = BrowseForFolderCallback;
-			if ( theFolder.GetLength() )
+			if (theFolder.GetLength())
 				bi.lParam = (LPARAM) theFolder.GetBuffer() ;
 			else
 				bi.lParam = NULL ;
 			
-			pidl = SHBrowseForFolder( & bi );
+			pidl = SHBrowseForFolder(& bi);
 
-			if ( pidl )
+			if (pidl)
 			{
-				if ( SHGetPathFromIDList( pidl , szPath ) ) 
+				if (SHGetPathFromIDList(pidl , szPath)) 
 					bResult = true ;
 				
-			   pMalloc->Free( pidl ) ;
+			   pMalloc->Free(pidl) ;
 			   pMalloc->Release() ;            			
 			}
 
 			theFolder = szPath ;
 		}
 
-		if ( ! bResult )
+		if (! bResult)
 			throw 0 ;
 	}
 	catch(...)
@@ -82,35 +82,35 @@ bool	SelectFolder( HWND hWnd , CString Title , CString & theFolder )
 	return bResult ;
 }
 
-void	GetFiles( vector<CString> & FileNames , CString Filter , CString Title , CString InitDir )
+void	GetFiles(vector<CString> & FileNames , CString Filter , CString Title , CString InitDir)
 {
-	CFileDialog	FDlg( true , NULL , NULL , 6 | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST , Filter ) ;
+	CFileDialog	FDlg(true , NULL , NULL , 6 | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST , Filter) ;
 
-	if ( Title.GetLength() )
+	if (Title.GetLength())
 		FDlg.m_ofn.lpstrTitle = Title.GetBuffer() ;
 
-	if ( InitDir.GetLength() )
+	if (InitDir.GetLength())
 		FDlg.m_ofn.lpstrInitialDir = InitDir.GetBuffer() ;
 
-	FDlg.m_ofn.lpstrFile = new TCHAR[ ( MAX_PATH + 1 ) * 10000 ] ;
-	FDlg.m_ofn.nMaxFile = ( MAX_PATH + 1 ) * 10000 ;
+	FDlg.m_ofn.lpstrFile = new TCHAR[ (MAX_PATH + 1) * 10000 ] ;
+	FDlg.m_ofn.nMaxFile = (MAX_PATH + 1) * 10000 ;
 	FDlg.m_ofn.lpstrFile[ 0 ] = 0 ;
 
-	if ( FDlg.DoModal() == IDOK )
+	if (FDlg.DoModal() == IDOK)
 	{
 		POSITION	Pos = FDlg.GetStartPosition() ;
 
-		while( Pos )
-			FileNames.push_back( FDlg.GetNextPathName( Pos ) ) ;		
+		while(Pos)
+			FileNames.push_back(FDlg.GetNextPathName(Pos)) ;		
 	}
 	
 	delete FDlg.m_ofn.lpstrFile ;
 }
 
 template<class T>
-tinyxml2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3  , char * pNode4 , char * pNode5 )
+tinyxml2::XMLElement * GetXMLNestedElement(T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3  , char * pNode4 , char * pNode5)
 {
-	tinyxml2::XMLElement *	pItem = pDoc->FirstChildElement( pNode0 ) ;
+	tinyxml2::XMLElement *	pItem = pDoc->FirstChildElement(pNode0) ;
 
 	char *	pNodes[ 6 ] ;
 
@@ -131,11 +131,11 @@ tinyxml2::XMLElement * GetXMLNestedElement( T * pDoc , char * pNode0 , char * pN
 }
 
 template<class T>
-const char * GetXMLNestedText( T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3 , char * pNode4 , char * pNode5 )
+const char * GetXMLNestedText(T * pDoc , char * pNode0 , char * pNode1 , char * pNode2 , char * pNode3 , char * pNode4 , char * pNode5)
 {
-	tinyxml2::XMLElement *	pItem = GetXMLNestedElement( pDoc , pNode0 , pNode1 , pNode2 , pNode3 , pNode4 , pNode5 ) ;
+	tinyxml2::XMLElement *	pItem = GetXMLNestedElement(pDoc , pNode0 , pNode1 , pNode2 , pNode3 , pNode4 , pNode5) ;
 
-	if ( pItem )
+	if (pItem)
 		return pItem->GetText() ;
 	else
 		return NULL ;
@@ -146,11 +146,11 @@ void	GetXMLNestedTemplateActivator()
 	tinyxml2::XMLDocument *	pDoc = NULL ;
 	tinyxml2::XMLElement *	pElem = NULL ;
 
-	GetXMLNestedElement( pDoc , "" ) ;
-	GetXMLNestedElement( pElem , "" ) ;
+	GetXMLNestedElement(pDoc , "") ;
+	GetXMLNestedElement(pElem , "") ;
 
-	GetXMLNestedText( pDoc , "" ) ;
-	GetXMLNestedText( pElem , "" ) ;
+	GetXMLNestedText(pDoc , "") ;
+	GetXMLNestedText(pElem , "") ;
 }
 
 // Unzip

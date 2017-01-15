@@ -15,6 +15,12 @@ Customization Window Added.
 Bug fixed for chord/tuplet priorities.
 Accents can be changed to text by user selection.
 
+Minor bug fixed in SaveAs.
+Bug fixed in REST translation.
+Texts extracted from xml are now trimmed for " \r\n\t"
+Bug fixed in chord and fingers.
+Chord, Tuplet, and Arpeggio rewritten.
+
 ADD Ghanbari to Website
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.
