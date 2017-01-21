@@ -187,6 +187,8 @@ public:
 	void ShowHideImage();
 	// Checks if LilyPond seems ok?
 	void LilyPondCheck();
+  // Shows the note that users see on their first run.
+  void ShowStartupNote();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

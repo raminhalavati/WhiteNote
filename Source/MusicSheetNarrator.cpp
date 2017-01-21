@@ -563,7 +563,7 @@ void	CMusicSheetNarrator::GetDirectionText(NarratedMusicSheet::Voice & Voice, Mu
 
 	if (!Lily.GetLength() && Text.GetLength())
 	{
-		if (Text.GetLength() > 7 && Text.Left(7) == L"Finger_")
+    if (!m_bDetailedText && Text.GetLength() > 7 && Text.Left(7) == L"Finger_")
 			Text = Text.Right(Text.GetLength() - 7);
 		Lily.Format(L"%s\\markup {%s} ", bAbove ? L"^" : L"_", Text);
 	}

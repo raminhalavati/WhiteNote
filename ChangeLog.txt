@@ -21,6 +21,11 @@ Texts extracted from xml are now trimmed for " \r\n\t"
 Bug fixed in chord and fingers.
 Chord, Tuplet, and Arpeggio rewritten.
 
+Unicode Accidentals letter changed to a.
+Clef message in Farsi changed to : form.
+Finger is added to finger's direction.
+Reminder's startup window added.
+
 ADD Ghanbari to Website
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.
