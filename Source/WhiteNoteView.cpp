@@ -1481,8 +1481,7 @@ void CWhiteNoteView::OnOptionsCustomizations()
 		SerializeDefaults(false);
 		if (bReload)
 			GetDocument()->Reload();
-		else
-			RefreshNarration(false);
+		RefreshNarration(false);
 	}
 }
 
