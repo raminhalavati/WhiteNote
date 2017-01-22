@@ -189,6 +189,7 @@ public:
 	void LilyPondCheck();
   // Shows the note that users see on their first run.
   void ShowStartupNote();
+  afx_msg void OnHelpFeaturesreminder();
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp

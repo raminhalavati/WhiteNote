@@ -90,6 +90,7 @@ BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnUpdateNavigateLockvoice)
 	ON_COMMAND(ID_NAVIGATE_LOCKVOICE, &CWhiteNoteView::OnNavigateLockvoice)
 	ON_COMMAND(ID_OPTIONS_CUSTOMIZATIONS, &CWhiteNoteView::OnOptionsCustomizations)
+  ON_COMMAND(ID_HELP_FEATURESREMINDER, &CWhiteNoteView::OnHelpFeaturesreminder)
 END_MESSAGE_MAP()
 
 // CWhiteNoteView construction/destruction
@@ -1490,25 +1491,31 @@ void CWhiteNoteView::OnOptionsCustomizations()
 void CWhiteNoteView::ShowStartupNote()
 {
   if (!theApp.GetProfileInt(L"Notifications", L"StartupNotes", 0)) {
-    // theApp.WriteProfileInt(L"Notifications", L"StartupNotes", 1);
+    theApp.WriteProfileInt(L"Notifications", L"StartupNotes", 1);
     
-    CString msg;
-    if (m_Defaults.bLTR) {
-      msg = L"Some quick notes about White Note (you can read the details in help).\r\n"
-        L"1- Program defaults are set to basic in the first run. You can modify them later in Customizations window.\r\n"
-        L"2- You only need Lilypond if you want notes' image to be shown under the text. If you keep lilypond's automatic refresh on, navigating between measures would have delays.\r\n"
-        L"3- You can decrease the amount of descriptive text and repeated signatures text in customizations.\r\n"
-        L"4- You can disable navigational alerts in customizations, but they give you good hints it you keep them.\r\n"
-        L"5- You can choose to have accidentals in unicode instead of descriptions in customizations.";
-    }
-    else {
-      msg = L"نکاتی چند در مورد نت سفید (جزییات بیشتر را در راهنما بخوانید)"
-        L"\r\n1- تنظیمات برنامه در اولین اجرا برای کاربر مبتدی تنظیم می شود و شما می توانید آن ها را در بخش تنظیمات تغییر دهید."
-        L"\r\n2- شما به نصب لیلی پاند فقط در صورتی احتیاج دارید که بخواهید تصویر نت ها را هم داشته باشید. تنظیم لیلی پاند بر روی نمایش همیشگی تصاویر جا به جایی بین میزان ها را کند می کند."
-        L"\r\n3- می توانید متن توضیحات و تکرار سر کلید را در تنظیمات کاهش دهید."
-        L"\r\n4- می توانید هشدارهای صوتی را در تنظیمات قطع کنید، ولی مفید هستند!"
-        L"\r\n5- می توانید علائم دیز، بمل، و بکار را به جای متنی با علائم یونیکد ببینید.";
-    }
-    AfxMessageBox(msg, MB_ICONINFORMATION);
+    OnHelpFeaturesreminder();
   }
+}
+
+
+void CWhiteNoteView::OnHelpFeaturesreminder()
+{
+  CString msg;
+  if (m_Defaults.bLTR) {
+    msg = L"Some quick notes about White Note (you can read the details in help).\r\n"
+      L"1- Program defaults are set to basic in the first run. You can modify them later in Customizations window.\r\n"
+      L"2- You only need Lilypond if you want notes' image to be shown under the text. If you keep lilypond's automatic refresh on, navigating between measures would have delays.\r\n"
+      L"3- You can decrease the amount of descriptive text and repeated signatures text in customizations.\r\n"
+      L"4- You can disable navigational alerts in customizations, but they give you good hints it you keep them.\r\n"
+      L"5- You can choose to have accidentals in unicode instead of descriptions in customizations.";
+  }
+  else {
+    msg = L"نکاتی چند در مورد نت سفید (جزییات بیشتر را در راهنما بخوانید)"
+      L"\r\n1- تنظیمات برنامه در اولین اجرا برای کاربر مبتدی تنظیم می شود و شما می توانید آن ها را در بخش تنظیمات تغییر دهید."
+      L"\r\n2- شما به نصب لیلی پاند فقط در صورتی احتیاج دارید که بخواهید تصویر نت ها را هم داشته باشید. تنظیم لیلی پاند بر روی نمایش همیشگی تصاویر جا به جایی بین میزان ها را کند می کند."
+      L"\r\n3- می توانید متن توضیحات و تکرار سر کلید را در تنظیمات کاهش دهید."
+      L"\r\n4- می توانید هشدارهای صوتی را در تنظیمات قطع کنید، ولی مفید هستند!"
+      L"\r\n5- می توانید علائم دیز، بمل، و بکار را به جای متنی با علائم یونیکد ببینید.";
+  }
+  AfxMessageBox(msg, MB_ICONINFORMATION);
 }
