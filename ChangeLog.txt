@@ -1,31 +1,3 @@
-All texts converted to Unicode
-English and Farsi helps separated.
-Combinations of [double] dotted with note and rest updated.
 
-Bug fixed for MXL files reload.
-Bug fixed for Lilypond-Unicode update.
-Chord presentation updated. If it has fingeres, they will come after the accord and chord tag is followed by '[' without separator.
-About updated.
-
-Arpeggiate and Tublet are update similar to Chord.
-Double Accidentals upgraded. Accidentals presentations Updated.
-
-Bug fixed for directions on voices without notes.
-Customization Window Added.
-Bug fixed for chord/tuplet priorities.
-Accents can be changed to text by user selection.
-
-Minor bug fixed in SaveAs.
-Bug fixed in REST translation.
-Texts extracted from xml are now trimmed for " \r\n\t"
-Bug fixed in chord and fingers.
-Chord, Tuplet, and Arpeggio rewritten.
-
-Unicode Accidentals letter changed to a.
-Clef message in Farsi changed to : form.
-Finger is added to finger's direction.
-Reminder's startup window added.
-
-ADD Ghanbari to Website
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

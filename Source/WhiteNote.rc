@@ -188,18 +188,19 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 361, 105
+IDD_ABOUTBOX DIALOGEX 0, 0, 361, 115
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About WhiteNote"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "WhiteNote, Version 2.4 (None Visual Access for Music Sheets)",IDC_TITLE,42,12,312,8,SS_NOPREFIX
+    LTEXT           "WhiteNote, Version 2.5 (None Visual Access for Music Sheets)",IDC_TITLE,42,12,312,8,SS_NOPREFIX
     LTEXT           "By Roya Halavati, Ramin Halavati, Shadyar Khodayari, and Mohammadreza Ghanbari.",IDC_STATIC,42,24,312,12
     LTEXT           "Special Thanks to Vahid Shokouhi for initial idea.",IDC_STATIC,42,36,312,12
     LTEXT           "This software is presented as open source and freeware. Contact us if you have any suggestions or want to use it in another application (mailto: info@white-note.com).\r\nYou can access the source code at www.github.com/raminhalavati/WhiteNote",IDC_STATIC,42,48,312,30
-    LTEXT           "Get the latest version from www.white-note.com",IDC_STATIC,42,78,312,12
-    DEFPUSHBUTTON   "OK",IDOK,306,90,50,14,WS_GROUP
+    LTEXT           "Installer created by a free version of AdvancedInstaller which supports open source software.",IDC_STATIC,42,75,312,12
+    LTEXT           "Get the latest version from www.white-note.com",IDC_STATIC,42,86,312,12
+    DEFPUSHBUTTON   "OK",IDOK,306,96,50,14,WS_GROUP
 END
 
 IDD_WHITENOTE_FORM DIALOGEX 0, 0, 656, 270
@@ -338,7 +339,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 354
         TOPMARGIN, 7
-        BOTTOMMARGIN, 98
+        BOTTOMMARGIN, 108
     END
 
     IDD_WHITENOTE_FORM, DIALOG
