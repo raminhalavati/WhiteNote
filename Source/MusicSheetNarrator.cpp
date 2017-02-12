@@ -1,7 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "MusicSheetNarrator.h"
 
-#define EOS L"; "
 CMusicSheetNarrator::CMusicSheetNarrator(void)
 {
 }
@@ -454,6 +453,8 @@ void	CMusicSheetNarrator::GetDirectionText(NarratedMusicSheet::Voice & Voice, Mu
 	if (IsInRange(nDirType, MusicSheet::DIR_first_Dynamic, MusicSheet::DIR_last_Dynamic))
 		Text += L"Dynamic_";
 
+#define DIRECTION_IS_FINGER(X) IsInRange(X, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger)
+
 	switch (nDirType)
 	{
 	case MusicSheet::DIR_DOLCE:			Text += L"Dolce"; break;
@@ -494,11 +495,11 @@ void	CMusicSheetNarrator::GetDirectionText(NarratedMusicSheet::Voice & Voice, Mu
 	case MusicSheet::DIR_WEDGE_CRESCENDO:	Text += L"Start_Crescendo"; BufferText = L"Crescendo"; Lily = L"\\<"; break;
 
 	case MusicSheet::DIR_FINGER_0:			Text += L"Open_Handed"; break;
-	case MusicSheet::DIR_FINGER_1:			Text += IsInRange(nPreviousDir, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger) ? L"1" : L"Finger_1"; break;
-	case MusicSheet::DIR_FINGER_2:			Text += IsInRange(nPreviousDir, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger) ? L"2" : L"Finger_2"; break;
-	case MusicSheet::DIR_FINGER_3:			Text += IsInRange(nPreviousDir, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger) ? L"3" : L"Finger_3"; break;
-	case MusicSheet::DIR_FINGER_4:			Text += IsInRange(nPreviousDir, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger) ? L"4" : L"Finger_4"; break;
-	case MusicSheet::DIR_FINGER_5:			Text += IsInRange(nPreviousDir, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger) ? L"5" : L"Finger_5"; break;
+	case MusicSheet::DIR_FINGER_1:			Text += DIRECTION_IS_FINGER(nPreviousDir) ? L"1" : L"Finger_1"; break;
+	case MusicSheet::DIR_FINGER_2:			Text += DIRECTION_IS_FINGER(nPreviousDir) ? L"2" : L"Finger_2"; break;
+	case MusicSheet::DIR_FINGER_3:			Text += DIRECTION_IS_FINGER(nPreviousDir) ? L"3" : L"Finger_3"; break;
+	case MusicSheet::DIR_FINGER_4:			Text += DIRECTION_IS_FINGER(nPreviousDir) ? L"4" : L"Finger_4"; break;
+	case MusicSheet::DIR_FINGER_5:			Text += DIRECTION_IS_FINGER(nPreviousDir) ? L"5" : L"Finger_5"; break;
 
 	case MusicSheet::DIR_FINGER_I:			Text += L"I"; break;
 	case MusicSheet::DIR_FINGER_M:			Text += L"M"; break;
@@ -573,8 +574,11 @@ void	CMusicSheetNarrator::GetDirectionText(NarratedMusicSheet::Voice & Voice, Mu
 		else
 			Voice.Lily += L" " + Lily;
 	
-	if (Text.GetLength())
-		Voice.Text.push_back(Text);
+  if (Text.GetLength())
+    if (DIRECTION_IS_FINGER(nDirType) && DIRECTION_IS_FINGER(nPreviousDir) && Voice.Text.size())
+      Voice.Text.back() += CString("_") + Text;
+    else
+      Voice.Text.push_back(Text);
 }
 
 CString	ConvertNumberToText(int i)
@@ -914,13 +918,13 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			if (bChordStart || bTubletStart)
 			{
 				// If Chord is already added, just add a [ to it, otherwise add a new token for [
-				if (OutVoice.Text.size() && 
+				/*if (OutVoice.Text.size() && 
 					(	OutVoice.Text.back() == L"Chord" || 
 						OutVoice.Text.back() == L"Arpeggiate" || 
 						OutVoice.Text.back() == L"Tuplet"))
 					OutVoice.Text.back() += L" [";
 				else
-					OutVoice.Text.push_back(L"[");
+					OutVoice.Text.push_back(L"[");*/
 				if (bChordStart)
 					OutVoice.Lily += L" < ";
 				else
@@ -957,7 +961,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				OutVoice.Text.push_back(L",");
 			else if (bChordEnd)
 			{
-				OutVoice.Text.push_back(L"]");
+				//OutVoice.Text.push_back(L"]");
+        OutVoice.Text.push_back(bChordIsArpeggio ? L"Arepggio_End" : L"Chord_End");
 				OutVoice.Lily += L"> " + LilyChordLength;
 				if (bChordIsArpeggio)
 					OutVoice.Lily += L"\\arpeggio\r\n";
@@ -966,7 +971,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			}
 			else if (bTubletEnd)
 			{
-				OutVoice.Text.push_back(L"]");
+				//OutVoice.Text.push_back(L"]");
+        OutVoice.Text.push_back(L"Tuplet_End");
 				OutVoice.Lily += L" }\r\n";
 				bTubletEnd = false;
 			}

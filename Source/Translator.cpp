@@ -123,8 +123,10 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"sforzando", L"اسفورزاندو"));
 	m_Words.insert(make_pair(L"stacatto", L"استکاتو"));
 
-	m_Words.insert(make_pair(L"chord", L"آکورد"));
-	m_Words.insert(make_pair(L"arpeggiate", L"آرپژ"));
+  m_Words.insert(make_pair(L"arpeggiate", L"آرپژ"));
+  m_Words.insert(make_pair(L"arpeggiate_end", L"پایان_آرپژ"));
+  m_Words.insert(make_pair(L"chord", L"آکورد"));
+  m_Words.insert(make_pair(L"chord_end", L"پایان_آکورد"));
 	m_Words.insert(make_pair(L"bass", L"باس"));
 	m_Words.insert(make_pair(L"begin_bar_line", L"دولا_خط_شروع"));
 	m_Words.insert(make_pair(L"begin_repeat", L"دو_نقطه_تکرار_سمت_راست"));
@@ -194,7 +196,8 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"tilL", L"تا"));	
 	m_Words.insert(make_pair(L"treble", L"سُل"));
 	m_Words.insert(make_pair(L"tuplet", L"تِریوله"));
-	m_Words.insert(make_pair(L"time_signature", L"میزان_نما"));
+  m_Words.insert(make_pair(L"tuplet_end", L"پایان_تِریوله"));
+  m_Words.insert(make_pair(L"time_signature", L"میزان_نما"));
 	m_Words.insert(make_pair(L"voice", L"صدا"));
 }
 

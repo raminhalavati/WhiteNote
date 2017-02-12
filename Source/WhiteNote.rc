@@ -104,7 +104,7 @@ BEGIN
         MENUITEM "Previous Voice\tAlt+Up",      ID_NAVIGATE_PREVIOUSVOICE
         MENUITEM "Next Voice\tAlt+Down",        ID_NAVIGATE_NEXTVOICE
         MENUITEM SEPARATOR
-        MENUITEM "&Show Signature Text\tCtrl+H", ID_NAVIGATE_SHOW_SIGNATURE
+        MENUITEM "&Show Signature Text\tCtrl+Space", ID_NAVIGATE_SHOW_SIGNATURE
         MENUITEM SEPARATOR
         MENUITEM "&Lock Voice\tCtrl+L",         ID_NAVIGATE_LOCKVOICE
     END
@@ -179,7 +179,7 @@ BEGIN
     VK_UP,          ID_NAVIGATE_PREVIOUSVOICE, VIRTKEY, ALT, NOINVERT
     VK_RIGHT,       ID_NAVIGATE_RIGHT_MEASURE, VIRTKEY, ALT, NOINVERT
     "M",            ID_NAVIGATE_SELECT_MOVEMENT, VIRTKEY, CONTROL, NOINVERT
-    "H",            ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, CONTROL, NOINVERT
+    VK_ESCAPE,      ID_NAVIGATE_SHOW_SIGNATURE, VIRTKEY, NOINVERT
 END
 
 
@@ -278,7 +278,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,24,306,12
     CONTROL         "Play &navigational sounds and alerts.",IDC_PLAY_NAVIGATIONAL_SOUNDS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,42,306,12
-    CONTROL         "Use unicode characters for &accidentals (Sharp, Flat, Neutral).",IDC_USE_UNICODE_CHARACTERS,
+    CONTROL         "Use unicode characters for &accidentals (Sharp, Flat, Natural).",IDC_USE_UNICODE_CHARACTERS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,60,306,12
     LTEXT           "&Page Size:",IDC_PAGE_SIZE_STATIC,6,78,48,12
     EDITTEXT        IDC_PAGE_SIZE,54,78,90,12,ES_AUTOHSCROLL
@@ -293,8 +293,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,5,0,0
- PRODUCTVERSION 2,5,0,0
+ FILEVERSION 2,5,1,0
+ PRODUCTVERSION 2,5,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -311,12 +311,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote Music Narrator"
-            VALUE "FileVersion", "2.5.0.0"
+            VALUE "FileVersion", "2.5.1.0"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software. Get the latest version from www.white-note.com"
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.5.0.0"
+            VALUE "ProductVersion", "2.5.1.0"
         END
     END
     BLOCK "VarFileInfo"

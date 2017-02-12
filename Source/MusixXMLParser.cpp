@@ -39,6 +39,31 @@ void	ReportError(XMLElem * pNode, CString Title)
 	MessageBox(NULL, Text, Title, MB_ICONERROR);
 }
 
+bool ValidDirection(MusicSheet::Measure* cur_measure, MusicSheet::Direction * dir, pair<int,int>& last_voice_note, int staff=-1, int voice=-1) {
+  // If not told by direction type, give it to last staff
+  if (staff == -1)
+    staff = cur_measure->Voices[last_voice_note.first].iStaff;
+
+  if (dir->nType != MusicSheet::DIR_UNKNWON || dir->Text.GetLength()) {
+    dir->iStaff = staff;
+    dir->iVoice = voice;
+    dir->BeforeNote = last_voice_note;
+
+    // Check Staff, if it is different from last staff, find original and keep it.									
+    if (cur_measure->Voices[last_voice_note.first].iStaff != staff) {
+      for ALL(cur_measure->Voices, pVoice)
+        if (pVoice->iStaff == staff) {
+          dir->BeforeNote.first = VEC_INDEX(pVoice, cur_measure->Voices);
+          dir->BeforeNote.second = (int)pVoice->Notes.size();
+          break;
+        }
+    }
+    return true;
+  }
+  return false;
+}
+
+
 // Parses an xml input.
 bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 {
@@ -103,7 +128,6 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 						{
 							int iStaff = max(0, _safe_atoi(GetXMLNestedText(pCurNode, "staff")) - 1);
 							int iVoice = _safe_atoi(GetXMLNestedText(pCurNode, "voice"));
-							_ASSERTE(iVoice >= 0);
 
 							while ((int)Counts.size() <= iVoice)
 								Counts.push_back(EmptyMap);
@@ -149,7 +173,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 					pCurMeasure->Voices[pVoices->second.first].iStaff = pVoices->second.second;
 
 				int	iLastX = 0;
-				pair<int, int> LastVoiceNote = make_pair(0, 0);
+				pair<int, int> LastVoiceNote = make_pair(V2VS.begin()->second.first, 0);
 
 				// Iterate All Nodes
 				for (XMLElem *	pCurNode = pMeasure->FirstChildElement();
@@ -298,43 +322,17 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 					{
 						vector<MusicSheet::Direction>	Dirs;
 						pair<int, int> SV = GetDirectionTypes(pCurNode, Dirs);
-						int		iStaff = SV.first;
-						int		iVoice = SV.second;
-
+					
 						for ALL(Dirs, pDir)
-						{
-							// If not told by direction type, give it to last staff
-							if (iStaff == -1)
-								iStaff = pCurMeasure->Voices[LastVoiceNote.first].iStaff;
-
-							if (pDir->nType != MusicSheet::DIR_UNKNWON || pDir->Text.GetLength())
-							{
-								pDir->iStaff = iStaff;
-								pDir->iVoice = iVoice;
-								pDir->BeforeNote = LastVoiceNote;
-
-								// Check Staff, if it is different from last staff, find original and keep it.									
-								if (pCurMeasure->Voices[LastVoiceNote.first].iStaff != iStaff)
-								{
-									for ALL(pCurMeasure->Voices, pVoice)
-										if (pVoice->iStaff == iStaff)
-										{
-											pDir->BeforeNote.first = VEC_INDEX(pVoice, pCurMeasure->Voices);
-											pDir->BeforeNote.second = (int)pVoice->Notes.size();
-											break;
-										}
-								}
-
-								pCurMeasure->Directions.push_back(*pDir);
-							}
-						}
-					}
+              if (ValidDirection(pCurMeasure, &*pDir, LastVoiceNote, SV.first, SV.second))
+                pCurMeasure->Directions.push_back(*pDir);
+          }
 					// Note
 					else if (pName && !strcmp(pName, "note"))
 					{
 						MusicSheet::Note	NewNote;
 
-						int		iVoice;
+						int		iVoice = LastVoiceNote.first;
 
 						// Get Data
 						{
@@ -373,6 +371,21 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 									NewNote.chAccidental = 'n'; 
 								else
 									_RPT1(_CRT_ERROR, "Unexpected Accidental: %s", Accidental);
+
+                if (!NewNote.chAccidental) {
+                  Accidental = GetXMLNestedText(pCurNode, "pitch", "alter");
+                  if (Accidental.GetLength())
+                    if (Accidental == "1")
+                      NewNote.chAccidental = 's';
+                    else if (Accidental == "-1")
+                      NewNote.chAccidental = 'f';
+                    else if (Accidental == "2")
+                      NewNote.chAccidental = 'S';
+                    else if (Accidental == "-2")
+                      NewNote.chAccidental = 'F';
+                    else
+                      _RPT1(_CRT_ERROR, "Unexpected Alter Accidental: %s", Accidental);
+                }
 							}
 
 							// Rest?
@@ -450,6 +463,26 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 								}
 								else if (Name == "fermata")
 									NewNote.Extras.insert(MusicSheet::NE_FERMATA);
+                else if (Name == "technical") {
+                  for (XMLElem * pChild = pNotation->FirstChildElement();
+                       pChild; pChild = pChild->NextSiblingElement()) {
+                    Name = CA2W(pChild->Name());
+                    if (Name == "fingering") {
+                      MusicSheet::Direction dir;
+                      dir.nType = StringToDirectionsType(pChild->GetText());
+                      if (ValidDirection(pCurMeasure, &dir, LastVoiceNote, pCurMeasure->Voices[iVoice].iStaff, iVoice))
+                        pCurMeasure->Directions.push_back(dir);
+                      else
+                        _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %s", Name);
+                    }
+                    else {
+                      _RPTF1(_CRT_ERROR, "Unexpected technical tag %s", Name);
+                    }
+                  }
+                }
+                else {
+                  _RPTF1(_CRT_ERROR, "Unexpected notation tag %s", Name);
+                }
 							}
 						}
 
@@ -466,7 +499,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 						// Add It
 						pCurMeasure->Voices[iVoice].Notes.push_back(NewNote);
 
-						LastVoiceNote.first = iVoice;
+            LastVoiceNote.first = iVoice;
 						LastVoiceNote.second = pCurMeasure->Voices[iVoice].Notes.size();
 					}
 					else if (pName && !strcmp(pName, "backup"))

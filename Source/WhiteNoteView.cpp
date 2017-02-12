@@ -26,6 +26,11 @@
 #define LILYPOND_ACTIVE
 // CWhiteNoteView
 
+#define SEP_CHAR L';'
+#define SEP_CHAR_SPACE L"; "
+//#define SEP_CHAR L' '
+//#define SEP_CHAR_SPACE L" "
+
 IMPLEMENT_DYNCREATE(CWhiteNoteView, CFormView)
 
 BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
@@ -588,19 +593,21 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff != iCurStaff)
 				{
-					LineText += CString(CurMeasure.Voices[m_Playing.iVoice].iStaff ? L"Left" : L"Right") + L"_Hand; ";
+          Temp.Format(L"%s_Hand%s", CurMeasure.Voices[m_Playing.iVoice].iStaff ? L"Left" : L"Right", SEP_CHAR_SPACE);
+          LineText += Temp;
 					break;
 				}
 
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice)
 				{
-					Temp.Format(L"Voice %i; ", CurMeasure.Voices[m_Playing.iVoice].iVoice);
+					Temp.Format(L"Voice %i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
 					LineText += Temp;
 					break;
 				}
 			Temp = LineText;
-			Temp.Remove(';');
+			if (SEP_CHAR != ' ')
+        Temp.Remove(SEP_CHAR);
 			Temp.Replace('_', ' ');
 			m_NarrationLabel.SetWindowText(Temp);
 		}
@@ -611,7 +618,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			LineText = "";
 
 		if (GetSetComment().GetLength() && !m_Customizations.bPlayNavigationalSounds)
-			LineText += "Has_Comments;";
+			LineText += CString("Has_Comments") + SEP_CHAR; // ";"
 
 		vector<CString> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
 
@@ -624,16 +631,9 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 				else
 					continue;
 			else
-			{
-				// If closing brocket, remove previous separator
-				if (*pText == L"]" && LineText.Right(2) == L"; ")
-					LineText = LineText.Left(LineText.GetLength() - 2);
 				LineText += *pText;
-			}
 
-			// Exept for opening brocket, add sepearator.
-			if (LineText.GetLength() && LineText[LineText.GetLength() - 1] != L'[')
-				LineText += L"; ";
+      LineText += SEP_CHAR_SPACE;
 		}
 		
 		CString	Translation = m_Translator.TranslateText(LineText);
@@ -645,7 +645,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			Translation.Replace(L"♭♭", L"_double_flat_");
 			Translation.Replace(L"♭", L"_flat_");
 			Translation.Replace(L"♯", L"_sharp_");
-			Translation.Replace(L"♮", L"_natral_");
+			Translation.Replace(L"♮", L"_natural_");
 		}
 
 		// Add Measure_End
