@@ -5,7 +5,7 @@ Consecutive Fingers are separated with underline instead of ;
 Space between chord last note and closing brocket added back.
 Chord/Arpeggio/Tublet range is no more presented with [], instead *_end is added.
 ';' is replacable with ' '
-
+Fingers restructured.
 
 
 UPDATE INDEX files and HELP

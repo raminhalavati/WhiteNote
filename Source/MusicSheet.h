@@ -121,6 +121,7 @@ typedef struct _MusicSheet
 		int			iXPos;		// XPosition in the sheet, used for direction positioning.
     bool    bUnpitched;
 		set<NoteExtras> Extras;
+    vector<DirectionTypes> Fingers;
 	} Note;
 
 	typedef struct _Direction

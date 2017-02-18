@@ -11,10 +11,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="www.white-note.com"/>
     <ROW Property="ARPURLUPDATEINFO" Value="www.white-note.com\en\download.htm"/>
     <ROW Property="Manufacturer" Value="White Note"/>
-    <ROW Property="ProductCode" Value="1033:{9115C3B9-8C18-4381-8DEC-6B04A742B555} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{039C596F-A5EA-4DA2-8127-895FC851303B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="WhiteNote"/>
-    <ROW Property="ProductVersion" Value="2.5" Type="32"/>
+    <ROW Property="ProductVersion" Value="2.5.1" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{F22E722B-FFB2-48C4-B733-0A7A8443DC4A}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

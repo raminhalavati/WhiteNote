@@ -468,10 +468,9 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
                        pChild; pChild = pChild->NextSiblingElement()) {
                     Name = CA2W(pChild->Name());
                     if (Name == "fingering") {
-                      MusicSheet::Direction dir;
-                      dir.nType = StringToDirectionsType(pChild->GetText());
-                      if (ValidDirection(pCurMeasure, &dir, LastVoiceNote, pCurMeasure->Voices[iVoice].iStaff, iVoice))
-                        pCurMeasure->Directions.push_back(dir);
+                      MusicSheet::DirectionTypes finger = StringToDirectionsType(pChild->GetText());
+                      if (finger != MusicSheet::DIR_UNKNWON)
+                        NewNote.Fingers.push_back(finger);
                       else
                         _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %s", Name);
                     }

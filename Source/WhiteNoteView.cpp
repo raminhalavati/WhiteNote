@@ -601,7 +601,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice)
 				{
-					Temp.Format(L"Voice %i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
+					Temp.Format(L"Voice %i%c", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
 					LineText += Temp;
 					break;
 				}
