@@ -10,6 +10,7 @@ typedef struct
 	bool	bAlwaysShowSignatures;
 	bool	bShowDetailedText;
 	bool	bUseUnicodeCharacters;
+  bool  bLettersForPersianNumbers;
 } Customizations;
 
 class CCustomization : public CDialogEx
@@ -38,5 +39,6 @@ public:
 	CButton m_ShowDetailedText;
 	CButton m_PlayNavigationalSounds;
 	CButton m_UseUnicodeCharacters;
-	CEdit m_PageSize;
+	CButton m_PersianNumbers;
+  CEdit m_PageSize;
 };

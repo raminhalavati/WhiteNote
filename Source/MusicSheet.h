@@ -178,7 +178,6 @@ typedef struct _MusicSheet
 		vector<Signatures>	Signatures;
 		vector<Direction>	Directions;
 		vector<Voice>		Voices;
-
 	} Measure;
 
 	typedef struct _Movement
@@ -191,12 +190,13 @@ typedef struct _MusicSheet
 	} Movement;
 
 	vector<CString>	Credits;
-	vector<Movement>		Movements;
-
+	vector<Movement> Movements;
+  bool merge_movements;
 	void	Reset()
 	{
 		Credits.clear();
 		Movements.clear();
+    merge_movements = false;
 	}
 } MusicSheet;
 

@@ -33,5 +33,8 @@ public:
 	CString	GetNoteTypeName(MusicSheet::Note & Note);
 
 	bool		m_bDetailedText;
+  
+  // Merges all movements of a sheet into different voices of one movement.
+  void MergeSheetMovements(MusicSheet& Sheet);
 };
 

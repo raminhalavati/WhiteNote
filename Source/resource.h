@@ -38,6 +38,8 @@
 #define IDC_USE_UNICODE_CHARACTERS      1063
 #define IDC_PAGE_SIZE_STATIC            1064
 #define IDC_PAGE_SIZE                   1065
+#define IDC_USE_UNICODE_CHARACTERS2     1066
+#define IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS 1066
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773

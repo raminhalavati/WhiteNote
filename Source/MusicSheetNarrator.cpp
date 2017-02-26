@@ -121,7 +121,13 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
     // Fingers?
     if (Note.Fingers.size()) {
       for (auto &finger: Note.Fingers) {
-        Text += (finger == *Note.Fingers.begin())? "; Finger_" : "_";
+        if (finger == *Note.Fingers.begin())
+          if (m_bDetailedText)
+            Text += "; Finger_";
+          else
+            Text += "; ";
+        else
+            Text += "_";
         Text += GetFingerText(finger);
       }
     }
@@ -265,9 +271,12 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"") + L"Clef";
 
 		if (pPreviousSignature && bItemChanged)
-			Text += L"_Changes_To: ";
+			Text += L"_Changes_To_";
 		else
-			Text += L": ";
+			Text += L"_";
+    /*  Text += L"_Changes_To: ";
+    else
+      Text += L": ";*/
 
 		int iLine = Sigs.Clefs[iStaff].iLine;
 		T1 = T2 = Sigs.Clefs[iStaff].Sign;
@@ -349,9 +358,12 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"") + L"Key_Signature";
 
 		if (pPreviousSignature && bItemChanged)
-			Text += L"_Changes_To: ";
+			Text += L"_Changes_To_";
 		else
-			Text += L": ";
+			Text += L"_";
+    /*  Text += L"_Changes_To: ";
+    else
+      Text += L": ";*/
 
 		T1 = L"";
 		switch (Sigs.Key.iFifths)
@@ -417,9 +429,12 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"") + L"Time_Signature";
 
 		if (pPreviousSignature && bItemChanged)
-			Text += L"_Changes_To: ";
+			Text += L"_Changes_To_";
 		else
-			Text += L": ";
+			Text += L"_";
+      /*Text += L"_Changes_To: ";
+    else
+      Text += L": ";*/
 
 		T1.Format(L"%i_%i", Sigs.Time.iBeats, Sigs.Time.iBeatType);
 		Text += T1;
@@ -673,7 +688,8 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 	{
 		TCHAR * StyleNames[] = { L"voiceNeutralStyle", L"voiceOneStyle", L"voiceTwoStyle", L"voiceThreeStyle", L"voiceFourStyle" };
 
-		Temp.Format(L"Measure: %i", pMeasure->iNumber + 1);
+		Temp.Format(L"Measure_%i", pMeasure->iNumber + 1);
+    //Temp.Format(L"Measure: %i", pMeasure->iNumber + 1);
 		for ALL(pMeasure->Voices, pVoice)
 		{
 			NarratedMusicSheet::Voice NewVoice;
@@ -838,7 +854,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 
 			if (bTubletStart)
 			{
-				OutVoice.Text.push_back(L"Tuplet");
+				OutVoice.Text.push_back(L"Tuplet[");
 				iInTuplet = 0;
 				while (i + iInTuplet < (int)InVoice.Notes.size() &&
 					!FOUND_IN_SET(InVoice.Notes[i + iInTuplet].Extras, MusicSheet::NE_TUPLET_STOP))
@@ -852,12 +868,12 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			{
 				if (FOUND_IN_SET(InVoice.Notes[i].Extras, MusicSheet::NE_ARPEGGIATE))
 				{
-					OutVoice.Text.push_back(L"Arpeggiate");
+					OutVoice.Text.push_back(L"Arpeggiate[");
 					bChordIsArpeggio = true;
 				}
 				else
 				{
-					OutVoice.Text.push_back(L"Chord");
+					OutVoice.Text.push_back(L"Chord[");
 					bChordIsArpeggio = false;
 				}
 				pLAL = &LilyChordLength;
@@ -908,7 +924,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 				OutVoice.Text.push_back(L",");
 			else if (bChordEnd)
 			{
-        OutVoice.Text.push_back(m_bDetailedText? (bChordIsArpeggio ? L"Arepggio_End" : L"Chord_End") : L"] ");
+        OutVoice.Text.push_back(/*m_bDetailedText? (bChordIsArpeggio ? L"Arepggio_End" : L"Chord_End") : */L"]");
 				OutVoice.Lily += L"> " + LilyChordLength;
 				if (bChordIsArpeggio)
 					OutVoice.Lily += L"\\arpeggio\r\n";
@@ -917,7 +933,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 			}
 			else if (bTubletEnd)
 			{
-        OutVoice.Text.push_back(m_bDetailedText? L"Tuplet_End" : L"] ");
+        OutVoice.Text.push_back(/*m_bDetailedText? L"Tuplet_End" : */L"]");
 				OutVoice.Lily += L" }\r\n";
 				bTubletEnd = false;
 			}
@@ -1033,6 +1049,23 @@ bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet &
 // Makes All necessary changes.
 void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 {
+  // Check if movements need to be merged.
+  if (!Sheet.merge_movements && Sheet.Movements.size() > 1) {
+    Sheet.merge_movements = true;
+    for (auto&movement : Sheet.Movements)
+      Sheet.merge_movements &= (movement.Measures.size() == Sheet.Movements[0].Measures.size());
+
+    if (Sheet.merge_movements) {
+      CString Text;
+      Text.Format(L"This sheet has %i movements, all having %i measures. "
+                  "They seem to be voices of the same movement. Do you want to merge them into one?",
+                  Sheet.Movements.size(), Sheet.Movements[0].Measures.size());
+      Sheet.merge_movements &= (AfxMessageBox(Text, MB_ICONQUESTION | MB_YESNO) == IDYES);
+    }
+  }
+  if (Sheet.merge_movements)
+    MergeSheetMovements(Sheet);
+
 	for ALL(Sheet.Movements, pMovement)
 	{
 		vector<MusicSheet::Signatures>	LastSignatures;
@@ -1247,4 +1280,10 @@ void	CMusicSheetNarrator::PostprocessSheet(MusicSheet & Sheet, NarratedMusicShee
 						}
 				}
 	}
+}
+
+// Merges all movements of a sheet into different voices of one movement.
+void CMusicSheetNarrator::MergeSheetMovements(MusicSheet& Sheet)
+{
+  Sheet.Movements[0].Name = "";
 }

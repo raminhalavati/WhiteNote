@@ -472,15 +472,17 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
                       if (finger != MusicSheet::DIR_UNKNWON)
                         NewNote.Fingers.push_back(finger);
                       else
-                        _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %s", Name);
+                        _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %S", Name);
                     }
-                    else {
-                      _RPTF1(_CRT_ERROR, "Unexpected technical tag %s", Name);
+                    else if (Name == "harmonic") {
+#pragma message("Technical->Harmonic not implemented.")
+                    } else {
+                      _RPTF1(_CRT_ERROR, "Unexpected technical tag %S", Name);
                     }
                   }
                 }
                 else {
-                  _RPTF1(_CRT_ERROR, "Unexpected notation tag %s", Name);
+                  _RPTF1(_CRT_ERROR, "Unexpected notation tag %S", Name);
                 }
 							}
 						}

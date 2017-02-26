@@ -26,7 +26,7 @@
 #define LILYPOND_ACTIVE
 // CWhiteNoteView
 
-#define SEP_CHAR L';'
+#define SEP_CHAR L";"
 #define SEP_CHAR_SPACE L"; "
 //#define SEP_CHAR L' '
 //#define SEP_CHAR_SPACE L" "
@@ -507,13 +507,14 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		m_Defaults.bAutoDeleteCache = (theApp.GetProfileInt(L"Defaults", L"AutoDeleteCache", 0) != 0);
 		m_Defaults.bShowVoicesOnDifferentStaffs = (theApp.GetProfileInt(L"Defaults", L"ShowVoicesOnDifferentStaffs", 0) != 0);
 		m_Defaults.TempFolder = theApp.GetProfileString(L"Defaults", L"TempFolder", L"");
-		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) == 1);
+		m_Defaults.bAutoSaveComments = (theApp.GetProfileInt(L"Defaults", L"AutoSaveComments", 1) != 0);
 
 		m_Customizations.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
 		m_Customizations.bPlayNavigationalSounds = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
 		m_Customizations.bAlwaysShowSignatures = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
-		m_Customizations.bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) == 1);
-		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 0) == 0);
+		m_Customizations.bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) != 0);
+		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 0) != 0);
+    m_Customizations.bLettersForPersianNumbers = (theApp.GetProfileInt(L"Defaults", L"PersianNumbersWithLetters", 1) != 0);
 
 		if (!m_Defaults.LilyPondPath.GetLength())
 		{
@@ -556,6 +557,7 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Customizations.bAlwaysShowSignatures);
 		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Customizations.bShowDetailedText);
 		theApp.WriteProfileInt(L"Defaults", L"UseUincode", m_Customizations.bUseUnicodeCharacters);
+    theApp.WriteProfileInt(L"Defaults", L"PersianNumbersWithLetters", m_Customizations.bLettersForPersianNumbers);
 	}
 
 	m_Translator.SetLanguage(m_Defaults.Language);
@@ -601,13 +603,14 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice)
 				{
-					Temp.Format(L"Voice %i%c", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
+					//Temp.Format(L"Voice %i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
+          Temp.Format(L"Voice_%i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
 					LineText += Temp;
 					break;
 				}
 			Temp = LineText;
-			if (SEP_CHAR != ' ')
-        Temp.Remove(SEP_CHAR);
+			if (SEP_CHAR != L" ")
+        Temp.Replace(SEP_CHAR, L"");
 			Temp.Replace('_', ' ');
 			m_NarrationLabel.SetWindowText(Temp);
 		}
@@ -641,12 +644,31 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		// Replace Accidentals?
 		if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters)
 		{
-			Translation.Replace(L"♯♯", L"_double_sharp_");
-			Translation.Replace(L"♭♭", L"_double_flat_");
-			Translation.Replace(L"♭", L"_flat_");
-			Translation.Replace(L"♯", L"_sharp_");
-			Translation.Replace(L"♮", L"_natural_");
+      pair<TCHAR*, TCHAR*> Replacements[] = {
+        make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"), 
+        make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"), 
+        make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"), 
+        make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"), 
+        make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
+      CString from, to;
+      for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 3; j++) {
+          from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
+          to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
+          Translation.Replace(from, to);
+        }
+      }        
 		}
+
+    // Replace Persian numbers with letters.
+    if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+      TCHAR* Digits[] = {L"_صفر_", L"_یک_", L"_دو_", L"_سه_", L"_چهار_", L"_پنج_", L"_شش_", L"_هفت_", L"_هشت_", L"_نه_", L"_ده_"};
+      for (int i = 0 ; i <=10 ; i++) {
+        CString digit;
+        digit.Format(L"_%i_", i);
+        Translation.Replace(digit, Digits[i]);
+      }
+    }
 
 		// Add Measure_End
 		m_Playing.iMeasureEndPosition = Translation.GetLength();
@@ -1476,7 +1498,9 @@ void CWhiteNoteView::OnOptionsCustomizations()
 	Cust.m_Values = m_Customizations;
 	if (Cust.DoModal() == IDOK)
 	{
-		bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText);
+		bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText) ||
+      (Cust.m_Values.bLettersForPersianNumbers != m_Customizations.bLettersForPersianNumbers) ||
+      (Cust.m_Values.bUseUnicodeCharacters != m_Customizations.bUseUnicodeCharacters);
 		m_Customizations = Cust.m_Values;
 		SerializeDefaults(false);
 		if (bReload)
