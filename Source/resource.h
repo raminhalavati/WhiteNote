@@ -14,6 +14,7 @@
 #define IDD_LILYPONDINSTALLER           313
 #define IDD_TEXTOUTPUTOPTIONS           315
 #define IDD_CUSTOMIZATION               316
+#define IDD_MOVEMENTSELECTION           317
 #define IDC_NARRATION                   1000
 #define IDC_NARRATION_LEFT              1000
 #define IDC_NARRATION_RIGHT             1001
@@ -38,8 +39,9 @@
 #define IDC_USE_UNICODE_CHARACTERS      1063
 #define IDC_PAGE_SIZE_STATIC            1064
 #define IDC_PAGE_SIZE                   1065
-#define IDC_USE_UNICODE_CHARACTERS2     1066
 #define IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS 1066
+#define IDC_MOVEMENTS_LIST              1067
+#define IDC_MOVEMENT_NUMBER             1068
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772
 #define ID_PLAY_VOICE2                  32773
@@ -119,9 +121,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32884
-#define _APS_NEXT_CONTROL_VALUE         1066
-#define _APS_NEXT_SYMED_VALUE           317
+#define _APS_NEXT_CONTROL_VALUE         1069
+#define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

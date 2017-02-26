@@ -115,6 +115,7 @@
     <ClInclude Include="LilyPondInstaller.h" />
     <ClInclude Include="LilyPondWrapper.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MovementSelection.h" />
     <ClInclude Include="MusicSheet.h" />
     <ClInclude Include="MusicSheetNarrator.h" />
     <ClInclude Include="MusixXMLParser.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="LilyPondInstaller.cpp" />
     <ClCompile Include="LilyPondWrapper.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MovementSelection.cpp" />
     <ClCompile Include="MusicSheetNarrator.cpp" />
     <ClCompile Include="MusixXMLParser.cpp" />
     <ClCompile Include="MyEdit.cpp" />

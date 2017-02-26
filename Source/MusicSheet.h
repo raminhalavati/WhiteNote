@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+
 #include <set>
+#include <vector>
+
 using namespace std;
 
 typedef struct _MusicSheet
@@ -183,20 +185,16 @@ typedef struct _MusicSheet
 	typedef struct _Movement
 	{
 		CString		Name;
-
-		//vector<DirectionTypes>	Directions ;
-
 		vector<Measure>	Measures;
 	} Movement;
 
 	vector<CString>	Credits;
 	vector<Movement> Movements;
-  bool merge_movements;
+  
 	void	Reset()
 	{
 		Credits.clear();
 		Movements.clear();
-    merge_movements = false;
 	}
 } MusicSheet;
 
@@ -229,6 +227,8 @@ typedef struct _NarratedMusicSheet
 	void Clear()
 	{
 		Credits = L"";
+    similar_movements = false;
 		Movements.clear();
 	};
+  bool similar_movements;
 } NarratedMusicSheet;

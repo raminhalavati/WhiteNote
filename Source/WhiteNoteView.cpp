@@ -12,10 +12,12 @@
 #include "WhiteNoteView.h"
 
 #include "CommentDialog.h"
+#include "Customization.h"
 #include "LilyPondInstaller.h"
+#include "MovementSelection.h"
 #include "SimpleQuestion.h"
 #include "TextOutputOptions.h"
-#include "Customization.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -399,7 +401,7 @@ void CWhiteNoteView::OnInitialUpdate()
     }
 
 		m_Summary.SetWindowText(Summary);
-		SetMovement(0);
+		SetMovement(-1);
 		
 		m_pNarrationTB->EnableWindow();
 		m_NarrationLabel.EnableWindow();
@@ -592,6 +594,9 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			int	iCurStaff = CurMeasure.Voices[m_Playing.iVoice].iStaff;
 			int	iCurVoice = CurMeasure.Voices[m_Playing.iVoice].iVoice;
 			
+      if (m_pNarration->Movements.size() > 1)
+        LineText.Format(L"%s%s", m_pNarration->Movements[m_Playing.iMovement].MovementName, SEP_CHAR_SPACE);
+
 			for ALL(CurMeasure.Voices, pVoice)
 				if (pVoice->iStaff != iCurStaff)
 				{
@@ -829,18 +834,10 @@ void CWhiteNoteView::OnPlaySelectMovement()
 {
 	RETURN_IF_NOT_LOADED;
 
-	CString	Text;
-	Text.Format(L"Select movement number between 1 and %i", m_pNarration->Movements.size());
+  CMovementSelection movement_selection(m_pNarration, m_Playing.iMovement);
 
-	int	iMovementNo = AskQuestion(Text, m_Playing.iMovement + 1) - 1;
-
-	if (iMovementNo == -2)
-		return;
-	else
-		if (IsInRange(iMovementNo, 0, (int)m_pNarration->Movements.size()-1))
-			SetMovement(iMovementNo);
-		else
-			AfxMessageBox(L"Selection is out of range.", MB_ICONERROR);
+  if (movement_selection.DoModal() == IDOK)
+    SetMovement(movement_selection.current_movement_);
 }
 
 
@@ -1020,9 +1017,14 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 // Sets the Current Movement
 void CWhiteNoteView::SetMovement(int iMovementNo)
 {
+  // Reset if it's required or we are not in similar movements.
+  if (iMovementNo == -1 || !m_pNarration->similar_movements) {
+    m_Playing.iMeasure = m_Playing.iVoice = 0;
+    m_Playing.iLastMeasure = -1;
+    iMovementNo = 0;
+  }
+
 	m_Playing.iMovement = iMovementNo;
-	m_Playing.iMeasure = m_Playing.iVoice = 0;
-	m_Playing.iLastMeasure = -1;
 	RefreshNarration(true);
 }
 

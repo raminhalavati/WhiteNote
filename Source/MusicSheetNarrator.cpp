@@ -1018,17 +1018,12 @@ bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet &
 			NarratedMusicSheet::MovementText	PT;
 			// Name
 			{
-				if (Sheet.Movements.size() > 1)
-					Text.Format(L"Movement: %i", (pMovement - Sheet.Movements.begin()) + 1);
+        if (pMovement->Name.GetLength())
+          PT.MovementName = pMovement->Name;
+        else if (Sheet.Movements.size() > 1)
+          PT.MovementName.Format(L"Movement_%i", (pMovement - Sheet.Movements.begin()) + 1);
 				else
-					Text = L"";
-				if (pMovement->Name.GetLength())
-				{
-					if (Text.GetLength())
-						Text += L", ";
-					Text += pMovement->Name;
-				}
-				PT.MovementName = Text;
+          PT.MovementName = L"";
 			}
 			MusicSheet::Signatures * pPreviousSignature = NULL;
 			for ALL_INDICES(pMovement->Measures, i)
@@ -1049,24 +1044,7 @@ bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet &
 // Makes All necessary changes.
 void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
 {
-  // Check if movements need to be merged.
-  if (!Sheet.merge_movements && Sheet.Movements.size() > 1) {
-    Sheet.merge_movements = true;
-    for (auto&movement : Sheet.Movements)
-      Sheet.merge_movements &= (movement.Measures.size() == Sheet.Movements[0].Measures.size());
-
-    if (Sheet.merge_movements) {
-      CString Text;
-      Text.Format(L"This sheet has %i movements, all having %i measures. "
-                  "They seem to be voices of the same movement. Do you want to merge them into one?",
-                  Sheet.Movements.size(), Sheet.Movements[0].Measures.size());
-      Sheet.merge_movements &= (AfxMessageBox(Text, MB_ICONQUESTION | MB_YESNO) == IDYES);
-    }
-  }
-  if (Sheet.merge_movements)
-    MergeSheetMovements(Sheet);
-
-	for ALL(Sheet.Movements, pMovement)
+  for ALL(Sheet.Movements, pMovement)
 	{
 		vector<MusicSheet::Signatures>	LastSignatures;
 		
@@ -1216,13 +1194,12 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
         for ALL_INDICES(voice.Notes, iNote)
           // If a note has more than 1 finger
           if (voice.Notes[iNote].Fingers.size() > 1) {
-            auto& not_found = voice.Notes[iNote].Extras.end();
             // And it is not last note of the chord, but in a chord
-            if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) == not_found &&
-                (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_START) != not_found ||
-                 voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_MIDDLE) != not_found)) {
+            if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) == voice.Notes[iNote].Extras.end() &&
+                (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_START) != voice.Notes[iNote].Extras.end() ||
+                 voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_MIDDLE) != voice.Notes[iNote].Extras.end())) {
               // Find the first note in chord.
-              while (iNote && voice.Notes[iNote - 1].Extras.find(MusicSheet::NE_CHORD_START) == not_found)
+              while (iNote && voice.Notes[iNote - 1].Extras.find(MusicSheet::NE_CHORD_START) == voice.Notes[iNote - 1].Extras.end())
                 iNote--;
 
               int iChordStart = iNote;
@@ -1320,10 +1297,11 @@ void	CMusicSheetNarrator::PostprocessSheet(MusicSheet & Sheet, NarratedMusicShee
 						}
 				}
 	}
-}
 
-// Merges all movements of a sheet into different voices of one movement.
-void CMusicSheetNarrator::MergeSheetMovements(MusicSheet& Sheet)
-{
-  Sheet.Movements[0].Name = "";
+  // Check if movements need to be merged.
+  if (!Narration.similar_movements && Sheet.Movements.size() > 1) {
+    Narration.similar_movements = true;
+    for (auto&movement : Sheet.Movements)
+      Narration.similar_movements &= (movement.Measures.size() == Sheet.Movements[0].Measures.size());
+  }
 }
