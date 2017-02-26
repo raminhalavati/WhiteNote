@@ -370,7 +370,6 @@ CString CTranslator::TranslateStatement(CString Statement)
 		// Change order if it's a note description
 		if (Tokens.size() > 3 && Tokens.back() == "note")
 		{
-      _ASSERTE(find(Tokens.begin(), Tokens.end(), L"dotted") == Tokens.end());
 			// The original order is:		D 5 [[double] dotted] eight note
 			// it should be changed to:		note D eight [[double] dotted] octave 5
 			int len = (int)Tokens.size();

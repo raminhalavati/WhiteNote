@@ -660,12 +660,16 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
       }        
 		}
 
+    // Remove semicolon after open and closing brackets.
+    Translation.Replace(L"[;", L"[");
+    Translation.Replace(L"];", L"]");
+
     // Replace Persian numbers with letters.
     if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-      TCHAR* Digits[] = {L"_صفر_", L"_یک_", L"_دو_", L"_سه_", L"_چهار_", L"_پنج_", L"_شش_", L"_هفت_", L"_هشت_", L"_نه_", L"_ده_"};
-      for (int i = 0 ; i <=10 ; i++) {
+      TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
+      for (int i = 0 ; i < 10 ; i++) {
         CString digit;
-        digit.Format(L"_%i_", i);
+        digit.Format(L"%i", i);
         Translation.Replace(digit, Digits[i]);
       }
     }

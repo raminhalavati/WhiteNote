@@ -1211,6 +1211,46 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
         }
       }
 
+      // If a note has more than one finger, and its in a chord, move them all to the end or distribute them evenly.
+      for (auto &voice : pMeasure->Voices)
+        for ALL_INDICES(voice.Notes, iNote)
+          // If a note has more than 1 finger
+          if (voice.Notes[iNote].Fingers.size() > 1) {
+            auto& not_found = voice.Notes[iNote].Extras.end();
+            // And it is not last note of the chord, but in a chord
+            if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) == not_found &&
+                (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_START) != not_found ||
+                 voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_MIDDLE) != not_found)) {
+              // Find the first note in chord.
+              while (iNote && voice.Notes[iNote - 1].Extras.find(MusicSheet::NE_CHORD_START) == not_found)
+                iNote--;
+
+              int iChordStart = iNote;
+              // Collect all chord fingers.
+              vector<MusicSheet::DirectionTypes> Fingers;
+              while(true)
+              {
+                for (auto& finger : voice.Notes[iNote].Fingers)
+                  Fingers.push_back(finger);
+                voice.Notes[iNote].Fingers.clear();
+
+                if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) != voice.Notes[iNote].Extras.end() || 
+                    iNote + 1 == voice.Notes.size())
+                  break;
+                else
+                  iNote++;
+              }
+              // Add them all to the end.
+              sort(Fingers.begin(), Fingers.end());
+              if (Fingers.size() == iNote - iChordStart + 1) {
+                for (int i = iChordStart; i <= iNote; i++)
+                  voice.Notes[i].Fingers.push_back(Fingers[i - iChordStart]);
+              }
+              else
+                voice.Notes[iNote].Fingers = Fingers;
+            }
+          }
+
 		} // Measure
 	} // Movement
 }
