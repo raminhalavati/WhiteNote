@@ -1,16 +1,17 @@
 Alter-Accidental (Sibilius Style) added.
 Ctrl+H changed to Ctrl+Space
-Sibilius style Fingering added.
+New Fingering added.
 Consecutive Fingers are separated with underline instead of ;
 Space between chord last note and closing brocket added back.
 Chord/Arpeggio/Tublet range is no more presented with [], instead *_end is added.
 ';' is replacable with ' '
 Fingers restructured.
-Persian letters are shown with letters by default.
+Persian digits quoted in _ are shown with letters by default.
 Opening bracket added to Chord, etc. Ending replaced back to ]
 Bug fixed for accidentals with unicode for extra _
 Bug fixed for space between ending bracket and ; in English.
 Movement selection window updated and measure number is kept for files with similar movements.
+Direction texts are trimmed for \r\n, space replaced to underline, and quoted.
 
 Update Help: Persian letters.
 UPDATE INDEX files and HELP

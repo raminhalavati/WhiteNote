@@ -5,6 +5,10 @@
 
 using namespace std;
 
+#define NOTE_IS_CHORD_START(NOTE) (NOTE.Extras.find(MusicSheet::NE_CHORD_START) != NOTE.Extras.end())
+#define NOTE_IS_CHORD_MIDDLE(NOTE) (NOTE.Extras.find(MusicSheet::NE_CHORD_MIDDLE) != NOTE.Extras.end())
+#define NOTE_IS_CHORD_END(NOTE) (NOTE.Extras.find(MusicSheet::NE_CHORD_END) != NOTE.Extras.end())
+
 typedef struct _MusicSheet
 {
 	typedef enum { TYPE_WHOLE, TYPE_HALF, TYPE_QUARTER, TYPE_EIGHTH, TYPE_SIXTEENTH, 

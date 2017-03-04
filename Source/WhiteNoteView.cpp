@@ -673,9 +673,10 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
     if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
       TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
       for (int i = 0 ; i < 10 ; i++) {
-        CString digit;
-        digit.Format(L"%i", i);
-        Translation.Replace(digit, Digits[i]);
+        CString from, to;
+        from.Format(L"_%i_", i);
+        to.Format(L"_%s_", Digits[i]);
+        Translation.Replace(from, to);
       }
     }
 

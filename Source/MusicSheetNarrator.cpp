@@ -735,7 +735,11 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
         }
         else if (pDir->nType == MusicSheet::DIR_UNKNWON)
         {
-          Directions.push_back(InlineDirection(pDir->bAbove, pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType, pDir->Text));
+          CString Text;
+          Text = pDir->Text.Trim(L"\r\n");
+          Text.Replace(L' ', L'_');
+          Text.Format(L"\"%s\"", Text);
+          Directions.push_back(InlineDirection(pDir->bAbove, pDir->BeforeNote.first, pDir->BeforeNote.second, pDir->nType, Text));
 #pragma message("\t-->\tUnknown Directions are no more moved to the beginning.")
         }
         else if (IsInRange(pDir->nType, MusicSheet::DIR_first_TempoText, MusicSheet::DIR_last_TempoText)
@@ -1195,11 +1199,9 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
           // If a note has more than 1 finger
           if (voice.Notes[iNote].Fingers.size() > 1) {
             // And it is not last note of the chord, but in a chord
-            if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) == voice.Notes[iNote].Extras.end() &&
-                (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_START) != voice.Notes[iNote].Extras.end() ||
-                 voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_MIDDLE) != voice.Notes[iNote].Extras.end())) {
+            if (NOTE_IS_CHORD_START(voice.Notes[iNote]) || NOTE_IS_CHORD_MIDDLE(voice.Notes[iNote])) {
               // Find the first note in chord.
-              while (iNote && voice.Notes[iNote - 1].Extras.find(MusicSheet::NE_CHORD_START) == voice.Notes[iNote - 1].Extras.end())
+              while (iNote && NOTE_IS_CHORD_MIDDLE(voice.Notes[iNote]))
                 iNote--;
 
               int iChordStart = iNote;
@@ -1211,11 +1213,10 @@ void	CMusicSheetNarrator::PreprocessSheet(MusicSheet & Sheet)
                   Fingers.push_back(finger);
                 voice.Notes[iNote].Fingers.clear();
 
-                if (voice.Notes[iNote].Extras.find(MusicSheet::NE_CHORD_END) != voice.Notes[iNote].Extras.end() || 
-                    iNote + 1 == voice.Notes.size())
-                  break;
-                else
+                if (!NOTE_IS_CHORD_END(voice.Notes[iNote]))
                   iNote++;
+                else
+                  break;                  
               }
               // Add them all to the end.
               sort(Fingers.begin(), Fingers.end());
