@@ -10,7 +10,7 @@ CMusicSheetNarrator::~CMusicSheetNarrator(void)
 {
 }
 
-CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::_Note & Note)
+CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::Note & Note)
 {
 	CString	Text;
 	
@@ -60,7 +60,7 @@ CString	CMusicSheetNarrator::GetNoteTypeName(MusicSheet::_Note & Note)
 	return Text;
 }
 
-void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet, bool & bInGrace, CString * pChordLength)
+void	CMusicSheetNarrator::GetNoteText(MusicSheet::Note & Note, NarratedMusicSheet::Voice & Voice, bool bInTuplet, bool & bInGrace, CString * pChordLength)
 {
 	CString	Text, Temp;
 
@@ -117,17 +117,29 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::_Note & Note, NarratedMusicShe
 			if (m_bDetailedText)
 				Text += L"_Note";
 		}
-		
+
+		// String/Feret
+    if (Note.string_fret.first != -1 && Note.string_fret.second != -1) {
+      Temp.Format(L"; String_%i_Fret_%i", Note.string_fret.first, Note.string_fret.second);
+      Text += Temp;
+    } else if (Note.string_fret.first != -1) {
+      Temp.Format(L"; String_%i", Note.string_fret.first);
+      Text += Temp;
+    } else if (Note.string_fret.second != -1) {
+      Temp.Format(L"; Fret_%i", Note.string_fret.second);
+      Text += Temp;
+    }
+
     // Fingers?
     if (Note.Fingers.size()) {
       for (auto &finger: Note.Fingers) {
         if (finger == *Note.Fingers.begin())
           if (m_bDetailedText)
-            Text += "; Finger_";
+            Text += L"; Finger_";
           else
-            Text += "; ";
+            Text += L"; ";
         else
-            Text += "_";
+            Text += L"_";
         Text += GetFingerText(finger);
       }
     }
@@ -417,8 +429,7 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		{
 			T2.Format(L"\\key %s \\%s\r\n", T1, Sigs.Key.bMajor ? L"major" : L"minor");
 			Voice.Lily += T2;
-		}
-		
+		}		
 	}
 
 	// Time Signature
@@ -436,7 +447,7 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
     else
       Text += L": ";*/
 
-		T1.Format(L"%i_%i", Sigs.Time.iBeats, Sigs.Time.iBeatType);
+		T1.Format(L"%i/%i", Sigs.Time.iBeats, Sigs.Time.iBeatType);
 		Text += T1;
 		Voice.Text.push_back(Text);
 		

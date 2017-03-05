@@ -12,6 +12,8 @@ Bug fixed for accidentals with unicode for extra _
 Bug fixed for space between ending bracket and ; in English.
 Movement selection window updated and measure number is kept for files with similar movements.
 Direction texts are trimmed for \r\n, space replaced to underline, and quoted.
+Fret, String, Hammer-On, and Pull-Off added.
+Time Signature presentation is change, specially for Farsi.
 
 Update Help: Persian letters.
 UPDATE INDEX files and HELP

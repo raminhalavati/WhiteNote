@@ -37,6 +37,10 @@ typedef struct _MusicSheet
 		NE_SLUR_END,
 		NE_TIED_START,
 		NE_TIED_END,
+    NE_HAMMER_ON_START,
+    NE_HAMMER_ON_STOP,
+    NE_PULL_OFF_START,
+    NE_PULL_OFF_STOP,
 		NE_UNKNOWN
 	} NoteExtras;
 
@@ -117,8 +121,15 @@ typedef struct _MusicSheet
 		DIR_UNKNWON
 	} DirectionTypes;
 
-	typedef struct _Note
+	struct Note
 	{
+    Note() {
+      chStep = chAccidental = 0;
+      iOctave = iXPos = -1;
+      Type = TYPE_UNKNOWN;
+      string_fret = make_pair(-1, -1);
+    };
+
 		char		chStep;	// C,D,E,F,G,A,B, R become Do,Re,Me,Fa,Sol,La,Si, Rest
 		// Bemole: Flat , Diez: Sharp, Bekar: Natural
 		char		chAccidental;			// 0 , s: Sharp, f: Flat, n: Natural, S: Double Sharp, F: Double Flat
@@ -128,7 +139,8 @@ typedef struct _MusicSheet
     bool    bUnpitched;
 		set<NoteExtras> Extras;
     vector<DirectionTypes> Fingers;
-	} Note;
+    pair<int, int> string_fret;
+	};
 
 	typedef struct _Direction
 	{

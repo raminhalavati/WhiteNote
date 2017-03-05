@@ -669,14 +669,24 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
     Translation.Replace(L"[;", L"[");
     Translation.Replace(L"];", L"]");
 
+    // Replace time signature for Farsi
+    if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+      for (int i = 1 ; i < Translation.GetLength() - 1; i++)
+        if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
+          Translation.SetAt(i,  L'_');
+          Translation.Insert(i + 2, L'م');
+        }
+    }
     // Replace Persian numbers with letters.
     if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
       TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
       for (int i = 0 ; i < 10 ; i++) {
         CString from, to;
-        from.Format(L"_%i_", i);
-        to.Format(L"_%s_", Digits[i]);
-        Translation.Replace(from, to);
+        for (TCHAR *ch = L"_ ;,م"; *ch; ch++) {
+          from.Format(L"_%i%c", i, *ch);
+          to.Format(L"_%s%c", Digits[i], *ch);
+          Translation.Replace(from, to);
+        }
       }
     }
 

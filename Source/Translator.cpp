@@ -166,10 +166,12 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"fermata", L"علامت_فرمات"));
 	m_Words.insert(make_pair(L"finger", L"انگشت"));
 	m_Words.insert(make_pair(L"fingers", L"انگشتان"));
+  m_Words.insert(make_pair(L"fret", L"فِرِت"));
 	m_Words.insert(make_pair(L"first_volta_end", L"پایان_ولت_یک"));
 	m_Words.insert(make_pair(L"first_volta_start", L"شروع_ولت_یک"));
 	m_Words.insert(make_pair(L"for_instrument", L"برای_ساز"));
-	m_Words.insert(make_pair(L"key_signature", L"علامت_سر_کلید"));
+  m_Words.insert(make_pair(L"grace", L"تزیینی"));
+  m_Words.insert(make_pair(L"key_signature", L"علامت_سر_کلید"));
 	m_Words.insert(make_pair(L"end_bar_line", L"دولا_خط_پایان"));
 	m_Words.insert(make_pair(L"end_repeat", L"دو_نقطه_تکرار_سمت_چپ"));
 	m_Words.insert(make_pair(L"end_tied_line", L"پایان_خط_اتحاد"));
@@ -202,7 +204,8 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"start", L"شروع"));
 	m_Words.insert(make_pair(L"start_legato_line", L"شروع_خط_لگاتو"));
 	m_Words.insert(make_pair(L"start_tied_line", L"شروع_خط_اتحاد"));
-	m_Words.insert(make_pair(L"stop", L"پایان"));
+	m_Words.insert(make_pair(L"string", L"سیم"));
+  m_Words.insert(make_pair(L"stop", L"پایان"));
 	m_Words.insert(make_pair(L"tab", L"تب"));
 	m_Words.insert(make_pair(L"tempo", L"تِمپو"));
 	m_Words.insert(make_pair(L"tilL", L"تا"));	

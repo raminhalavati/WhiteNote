@@ -414,7 +414,7 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
 								for (XMLElem * pNotation = GetXMLNestedElement(pCurNode, "notations")->FirstChildElement();
 									pNotation; pNotation = pNotation->NextSiblingElement())
 							{
-								CString Name = CA2W(pNotation->Name());
+								CStringA Name = pNotation->Name();
 
 								if (Name == "slur")
 								{
@@ -472,12 +472,53 @@ bool CMusicXMLParser::ParsXML(CString FileName, MusicSheet & Sheet)
                       if (finger != MusicSheet::DIR_UNKNWON)
                         NewNote.Fingers.push_back(finger);
                       else
-                        _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %S", Name);
+                        _RPTF1(_CRT_ERROR, "Unexpected technical-fingering tag %s", Name);
                     }
                     else if (Name == "harmonic") {
 #pragma message("Technical->Harmonic not implemented.")
-                    } else {
-                      _RPTF1(_CRT_ERROR, "Unexpected technical tag %S", Name);
+                    }
+                    else if (Name == "string") {
+                      NewNote.string_fret.first = atoi(pChild->GetText());
+                    }
+                    else if (Name == "fret") {
+                      NewNote.string_fret.second = atoi(pChild->GetText());
+                    }
+                    else if (Name == "hammer-on") {
+                      CStringA Temp = pChild->Attribute("type");
+                      if (Temp == "start")
+                        NewNote.Extras.insert(MusicSheet::NE_HAMMER_ON_START);
+                      else  if (Temp == "stop")
+                        NewNote.Extras.insert(MusicSheet::NE_HAMMER_ON_STOP);
+                      else
+                        _RPTF1(_CRT_ERROR, "Unexpected hammer tag %s", Temp);
+                    } 
+                    else if (Name == "pull-off") {
+                      CStringA Temp = pChild->Attribute("type");
+                      if (Temp == "start")
+                        NewNote.Extras.insert(MusicSheet::NE_PULL_OFF_START);
+                      else  if (Temp == "stop")
+                        NewNote.Extras.insert(MusicSheet::NE_PULL_OFF_STOP);
+                      else
+                        _RPTF1(_CRT_ERROR, "Unexpected hammer tag %s", Temp);
+                    }
+                    else {
+                      _RPTF1(_CRT_ERROR, "Unexpected technical tag %s", Name);
+                    }
+                  }
+                }
+                else if (Name == "dynamics") {
+                  CStringA Temp;
+                  for (XMLElem * pChild = pNotation->FirstChildElement();
+                       pChild; pChild = pChild->NextSiblingElement()) {
+                    MusicSheet::Direction Dir;
+                    Dir.nType = StringToDirectionsType(pChild->Name());
+                    if (Dir.nType != MusicSheet::DIR_UNKNWON) {
+                      Dir.bAbove = true;
+                      _ASSERTE(iVoice >= 0 && iVoice < (int) pCurMeasure->Voices.size());
+                      Dir.BeforeNote = make_pair(iVoice, pCurMeasure->Voices[iVoice].Notes.size());
+                      Dir.iStaff = pCurMeasure->Voices[iVoice].iStaff;
+                      Dir.iVoice = iVoice;
+                      pCurMeasure->Directions.push_back(Dir);
                     }
                   }
                 }
