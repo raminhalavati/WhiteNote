@@ -165,12 +165,13 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"equal_to", L"مساوی_با"));
 	m_Words.insert(make_pair(L"fermata", L"علامت_فرمات"));
 	m_Words.insert(make_pair(L"finger", L"انگشت"));
+  m_Words.insert(make_pair(L"{{finger}}", L"{{انگشت}}"));
 	m_Words.insert(make_pair(L"fingers", L"انگشتان"));
   m_Words.insert(make_pair(L"fret", L"فِرِت"));
 	m_Words.insert(make_pair(L"first_volta_end", L"پایان_ولت_یک"));
 	m_Words.insert(make_pair(L"first_volta_start", L"شروع_ولت_یک"));
 	m_Words.insert(make_pair(L"for_instrument", L"برای_ساز"));
-  m_Words.insert(make_pair(L"grace", L"تزیینی"));
+  m_Words.insert(make_pair(L"grace", L"زینت"));
   m_Words.insert(make_pair(L"key_signature", L"علامت_سر_کلید"));
 	m_Words.insert(make_pair(L"end_bar_line", L"دولا_خط_پایان"));
 	m_Words.insert(make_pair(L"end_repeat", L"دو_نقطه_تکرار_سمت_چپ"));
@@ -186,7 +187,9 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"movement", L"موومان"));
 	m_Words.insert(make_pair(L"minor", L"مینور"));
 	m_Words.insert(make_pair(L"note", L"نت"));
-	m_Words.insert(make_pair(L"octave", L"اکتاو"));
+  m_Words.insert(make_pair(L"{{note}}", L"{{نت}}"));
+  m_Words.insert(make_pair(L"octave", L"اکتاو"));
+	m_Words.insert(make_pair(L"{{octave}}", L"{{اکتاو}}"));
 	m_Words.insert(make_pair(L"octave_shift_down", L"شروع اکتاو پایین تر"));
 	m_Words.insert(make_pair(L"octave_shift_up", L"شروع اکتاو بالا تر"));
 	m_Words.insert(make_pair(L"octave_shift_stop", L"پایان تغییر اکتاو "));
@@ -208,7 +211,9 @@ void CTranslator::SetLanguage(CString Language)
   m_Words.insert(make_pair(L"stop", L"پایان"));
 	m_Words.insert(make_pair(L"tab", L"تب"));
 	m_Words.insert(make_pair(L"tempo", L"تِمپو"));
-	m_Words.insert(make_pair(L"tilL", L"تا"));	
+  m_Words.insert(make_pair(L"third_volta_end", L"پایان_ولت_سه"));
+  m_Words.insert(make_pair(L"third_volta_start", L"شروع_ولت_سه"));
+  m_Words.insert(make_pair(L"tilL", L"تا"));	
 	m_Words.insert(make_pair(L"treble", L"سُل"));
 	m_Words.insert(make_pair(L"tuplet", L"تِریوله"));
   m_Words.insert(make_pair(L"tuplet_end", L"پایان_تِریوله"));
@@ -296,6 +301,7 @@ CString	CTranslator::TranslateWord(CString Word)
 CString CTranslator::TranslateStatement(CString Statement)
 {
 	Statement.MakeLower();
+
 	if (m_Language == L"EN")
 		return Statement;
 	
@@ -371,7 +377,7 @@ CString CTranslator::TranslateStatement(CString Statement)
 	}
 	else
 		// Change order if it's a note description
-		if (Tokens.size() > 3 && Tokens.back() == "note")
+		if (Tokens.size() > 3 && Tokens.back() == "{{note}}")
 		{
 			// The original order is:		D 5 [[double] dotted] eight note
 			// it should be changed to:		note D eight [[double] dotted] octave 5
@@ -383,7 +389,7 @@ CString CTranslator::TranslateStatement(CString Statement)
 				Outs.push_back(T(2));
 			if (Tokens.size() > 5)
 				Outs.push_back(T(3));
-			Outs.push_back(T_(L"octave"));
+			Outs.push_back(CString("{{") + T_(L"octave") + CString("}}"));
 			Outs.push_back(D(1));
 
 		}

@@ -14,6 +14,9 @@ Movement selection window updated and measure number is kept for files with simi
 Direction texts are trimmed for \r\n, space replaced to underline, and quoted.
 Fret, String, Hammer-On, and Pull-Off added.
 Time Signature presentation is change, specially for Farsi.
+Detailed Text concentraited to RefreshNarration and makrked with {{}}
+Barlines bug fixed.
+Moving to next/previous step, in similar-movements mode, it goes to next/previous movement.
 
 Update Help: Persian letters.
 UPDATE INDEX files and HELP

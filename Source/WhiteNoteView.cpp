@@ -168,7 +168,7 @@ void CWhiteNoteView::OnUpdateLeftMeasure(CCmdUI *pCmdUI)
 {
 	bool	bReverse = m_Defaults.Language == L"FA";
 
-	pCmdUI->Enable(m_pNarration != NULL); // GetOtherBlock('m', bReverse) != -1);
+	pCmdUI->Enable(m_pNarration != NULL);
 	pCmdUI->SetText(bReverse ? L"&Next Measure\tAlt+Left" : L"&Previous Measure\tAlt+Left");
 }
 
@@ -177,7 +177,7 @@ void CWhiteNoteView::OnUpdateRightMeasure(CCmdUI *pCmdUI)
 {
 	bool	bReverse = m_Defaults.Language == L"FA";
 
-	pCmdUI->Enable(m_pNarration != NULL); //GetOtherBlock('m', !bReverse) != -1);
+	pCmdUI->Enable(m_pNarration != NULL);
 	pCmdUI->SetText(bReverse ? L"&Previous Measure\tAlt + Right" : L"&Next Measure\tAlt + Right");
 }
 
@@ -594,34 +594,31 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			int	iCurStaff = CurMeasure.Voices[m_Playing.iVoice].iStaff;
 			int	iCurVoice = CurMeasure.Voices[m_Playing.iVoice].iVoice;
 			
-      if (m_pNarration->Movements.size() > 1)
-        LineText.Format(L"%s%s", m_pNarration->Movements[m_Playing.iMovement].MovementName, SEP_CHAR_SPACE);
+			if (m_pNarration->Movements.size() > 1)
+				LineText.Format(L"%s%s", m_pNarration->Movements[m_Playing.iMovement].MovementName, SEP_CHAR_SPACE);
 
 			for ALL(CurMeasure.Voices, pVoice)
-				if (pVoice->iStaff != iCurStaff)
-				{
-          Temp.Format(L"%s_Hand%s", CurMeasure.Voices[m_Playing.iVoice].iStaff ? L"Left" : L"Right", SEP_CHAR_SPACE);
-          LineText += Temp;
-					break;
-				}
+			  if (pVoice->iStaff != iCurStaff){
+				Temp.Format(L"%s_Hand%s", CurMeasure.Voices[m_Playing.iVoice].iStaff ? L"Left" : L"Right", SEP_CHAR_SPACE);
+				LineText += Temp;
+				break;
+			  }
 
 			for ALL(CurMeasure.Voices, pVoice)
-				if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice)
-				{
-					//Temp.Format(L"Voice %i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
-          Temp.Format(L"Voice_%i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
-					LineText += Temp;
-					break;
-				}
+			  if (pVoice->iStaff == iCurStaff && pVoice->iVoice != iCurVoice) {
+				//Temp.Format(L"Voice %i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
+				Temp.Format(L"Voice_%i%s", CurMeasure.Voices[m_Playing.iVoice].iVoice, SEP_CHAR);
+				LineText += Temp;
+				break;
+			  }
 			Temp = LineText;
 			if (SEP_CHAR != L" ")
-        Temp.Replace(SEP_CHAR, L"");
+			  Temp.Replace(SEP_CHAR, L"");
 			Temp.Replace('_', ' ');
 			m_NarrationLabel.SetWindowText(Temp);
 		}
 
 		bool	bRepeatStarters = bVoiceChanged || m_Customizations.bAlwaysShowSignatures || bForceSingatures;
-		
 		if (!bRepeatStarters)
 			LineText = "";
 
@@ -630,64 +627,81 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 
 		vector<CString> & Measure = CurMeasure.Voices[m_Playing.iVoice].Text;
 
-		for ALL(Measure, pText)
-		{
-			// If it is astrix marked, it should be shown only at the beginning of the line.
-			if (pText->GetAt(0) == '*')
-				if (bRepeatStarters)
-					LineText += pText->GetBuffer() + 1;
-				else
-					continue;
+		for ALL(Measure, pText) {
+		  // If it is astrix marked, it should be shown only at the beginning of the line.
+		  if (pText->GetAt(0) == '*')
+			if (bRepeatStarters)
+			  LineText += pText->GetBuffer() + 1;
 			else
-				LineText += *pText;
+			  continue;
+		  else
+			LineText += *pText;
 
-      LineText += SEP_CHAR_SPACE;
+		  LineText += SEP_CHAR_SPACE;
 		}
 		
 		CString	Translation = m_Translator.TranslateText(LineText);
 
 		// Replace Accidentals?
-		if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters)
-		{
-      pair<TCHAR*, TCHAR*> Replacements[] = {
-        make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"), 
-        make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"), 
-        make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"), 
-        make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"), 
-        make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
-      CString from, to;
-      for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 3; j++) {
-          from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
-          to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
-          Translation.Replace(from, to);
-        }
-      }        
+		if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters) {
+		  pair<TCHAR*, TCHAR*> Replacements[] = {
+			make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"), 
+			make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"), 
+			make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"), 
+			make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"), 
+			make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
+		  
+		  CString from, to;
+		  for (int i = 0; i < 5; i++) {
+			  for (int j = 0; j < 3; j++) {
+			    from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
+			    to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
+			    Translation.Replace(from, to);
+			  }
+		  }        
 		}
 
-    // Remove semicolon after open and closing brackets.
-    Translation.Replace(L"[;", L"[");
-    Translation.Replace(L"];", L"]");
+		// Remove semicolon after open and closing brackets.
+		Translation.Replace(L"[;", L"[");
+		Translation.Replace(L"];", L"]");
 
-    // Replace time signature for Farsi
-    if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-      for (int i = 1 ; i < Translation.GetLength() - 1; i++)
-        if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
-          Translation.SetAt(i,  L'_');
-          Translation.Insert(i + 2, L'م');
-        }
-    }
-    // Replace Persian numbers with letters.
-    if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-      TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
-      for (int i = 0 ; i < 10 ; i++) {
-        CString from, to;
-        for (TCHAR *ch = L"_ ;,م"; *ch; ch++) {
-          from.Format(L"_%i%c", i, *ch);
-          to.Format(L"_%s%c", Digits[i], *ch);
-          Translation.Replace(from, to);
-        }
+		// Replace time signature for Farsi
+		if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+		  for (int i = 1 ; i < Translation.GetLength() - 1; i++)
+			if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
+			  Translation.SetAt(i,  L'_');
+			  Translation.Insert(i + 2, L'م');
+			}
+		}
+
+		// Replace Persian numbers with letters.
+		if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+		  TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
+		  for (int i = 0 ; i < 10 ; i++) {
+			  CString from, to;
+			  for (TCHAR *ch = L"_ ;,م"; *ch; ch++) {
+			    from.Format(L"_%i%c", i, *ch);
+			    to.Format(L"_%s%c", Digits[i], *ch);
+			    Translation.Replace(from, to);
+			  }
+		  }
+		}
+
+    // Remove items that should be removed in not detailed text.
+    if (m_Customizations.bShowDetailedText) {
+      Translation.Replace(L"{{", L"");
+      Translation.Replace(L"}}", L"");
+    } else {
+      int pos;
+      while ((pos = Translation.Find(L"{{")) != -1) {
+        int pos2 = Translation.Find(L"}}", pos + 2);
+        if (pos2 == -1)
+          break;
+        Translation = Translation.Left(pos) + Translation.Right(Translation.GetLength() - pos2 - 2);
       }
+      Translation.Replace(L"__", L"_");
+      Translation.Replace(L"_;", L";");
+      Translation.Replace(L" _", L" ");
     }
 
 		// Add Measure_End
@@ -702,32 +716,31 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 
 		// Sound
 		CString	Sound(L"");
-		if (m_Playing.iLastMeasure != -1)
-		{
-			NarratedMusicSheet::MeasureText & PrevMeasure = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iLastMeasure];
-			for ALL_INDICES(CurMeasure.Voices, v)
-			{
-				bool	bCurHas = CurMeasure.Voices[v].Text.size() > 2;
-				bool	bPrevHas = PrevMeasure.Voices[v].Text.size() > 2;
+		if (m_Playing.iLastMeasure != -1) {
+		  NarratedMusicSheet::MeasureText & PrevMeasure = m_pNarration->Movements[m_Playing.iMovement].Measures[m_Playing.iLastMeasure];
+		  for ALL_INDICES(CurMeasure.Voices, v) {
+			  bool	bCurHas = CurMeasure.Voices[v].Text.size() > 2;
+			  bool	bPrevHas = PrevMeasure.Voices[v].Text.size() > 2;
 
-				if (bCurHas && !bPrevHas)
-					Sound = L"MoveUp";
-				else if (!bCurHas && bPrevHas)
-					Sound = L"MoveDown";
-				if (Sound.GetLength())
-					break;
+			  if (bCurHas && !bPrevHas)
+			    Sound = L"MoveUp";
+			  else if (!bCurHas && bPrevHas)
+			    Sound = L"MoveDown";
+			  if (Sound.GetLength())
+			    break;
 			}
 		}
+
 		if (GetSetComment().GetLength())
-			Sound = L"Comment";
+		  Sound = L"Comment";
 		else if (!Sound.GetLength())
-			Sound = m_Playing.iLastMeasure == m_Playing.iMeasure ? L"VoiceChange" : L"MeasureChange";
+		  Sound = m_Playing.iLastMeasure == m_Playing.iMeasure ? L"VoiceChange" : L"MeasureChange";
 		VoiceMessage(Sound);
 		m_Playing.iLastMeasure = m_Playing.iMeasure;
 		if (m_Defaults.bAutoRefreshImages)
-			UpdateImage();
+		  UpdateImage();
 		else
-			ShowHideImage();
+		  ShowHideImage();
 	}
 	catch (...)
 	{
@@ -845,10 +858,10 @@ void CWhiteNoteView::OnPlaySelectMovement()
 {
 	RETURN_IF_NOT_LOADED;
 
-  CMovementSelection movement_selection(m_pNarration, m_Playing.iMovement);
+  CMovementSelection movement_selection(m_pNarration, m_Playing.iMovement - 1);
 
   if (movement_selection.DoModal() == IDOK)
-    SetMovement(movement_selection.current_movement_);
+    SetMovement(movement_selection.current_movement_ + 1);
 }
 
 
@@ -1030,11 +1043,11 @@ void CWhiteNoteView::SetMovement(int iMovementNo)
 {
   // Reset if it's required or we are not in similar movements.
   if (iMovementNo == -1 || !m_pNarration->similar_movements) {
-    m_Playing.iMeasure = m_Playing.iVoice = 0;
+    m_Playing.iMeasure = 0;
     m_Playing.iLastMeasure = -1;
     iMovementNo = 0;
   }
-
+  m_Playing.iVoice = 0;
 	m_Playing.iMovement = iMovementNo;
 	RefreshNarration(true);
 }
@@ -1107,6 +1120,23 @@ int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
 			if (Voices[0].iStaff != Voices[m_Playing.iVoice].iStaff)
 				return 0;
 		}
+    // If there is no more staffs in current movement, check if Movement change helps.
+    if (m_pNarration->similar_movements) {
+      if (bNext) {
+        if (m_Playing.iMovement + 1 < (int)m_pNarration->Movements.size()) {
+          // Move to next Movement, return voice 0 of the new movement.
+          m_Playing.iMovement++;          
+          return 0;
+        }
+      }
+      else {
+        if (m_Playing.iMovement) {
+          // Move to previous movement, return last voice.
+          m_Playing.iMovement--;
+          return (int)m_pNarration->Movements[m_Playing.iMovement].Measures[0].Voices.size() - 1;
+        }
+      }
+    }
 		break;
 
 	case 'v':
@@ -1515,13 +1545,13 @@ void CWhiteNoteView::OnOptionsCustomizations()
 	Cust.m_Values = m_Customizations;
 	if (Cust.DoModal() == IDOK)
 	{
-		bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText) ||
+		/*bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText) ||
       (Cust.m_Values.bLettersForPersianNumbers != m_Customizations.bLettersForPersianNumbers) ||
-      (Cust.m_Values.bUseUnicodeCharacters != m_Customizations.bUseUnicodeCharacters);
+      (Cust.m_Values.bUseUnicodeCharacters != m_Customizations.bUseUnicodeCharacters);*/
 		m_Customizations = Cust.m_Values;
 		SerializeDefaults(false);
-		if (bReload)
-			GetDocument()->Reload();
+		/*if (bReload)
+			GetDocument()->Reload();*/
 		RefreshNarration(false);
 	}
 }

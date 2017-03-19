@@ -114,8 +114,7 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::Note & Note, NarratedMusicShee
 		{
 			Text += L"_";
 			Text += GetNoteTypeName(Note);
-			if (m_bDetailedText)
-				Text += L"_Note";
+			Text += L"_{{Note}}";
 		}
 
 		// String/Feret
@@ -134,10 +133,7 @@ void	CMusicSheetNarrator::GetNoteText(MusicSheet::Note & Note, NarratedMusicShee
     if (Note.Fingers.size()) {
       for (auto &finger: Note.Fingers) {
         if (finger == *Note.Fingers.begin())
-          if (m_bDetailedText)
-            Text += L"; Finger_";
-          else
-            Text += L"; ";
+          Text += L"; {{Finger}}_";
         else
             Text += L"_";
         Text += GetFingerText(finger);
@@ -648,6 +644,7 @@ void	CMusicSheetNarrator::GetBarLineText(NarratedMusicSheet::Voice & Voice, Musi
 		Voice.Text.push_back(ConvertNumberToText(BL.iVoltaNumber) + L"_Volta_Start");
 		#pragma message("Missing Lily")
 		Voice.Lily += L" \\bar \"\"";
+    return;
 
 	case MusicSheet::BarLine::BL_END:
 		Voice.Text.push_back(L"End_Bar_Line");
@@ -1001,12 +998,10 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 }
 
 // Converts the sheet into text
-bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet & Narration, bool bDetailed)
+bool	CMusicSheetNarrator::ConvertToText(MusicSheet & Sheet, NarratedMusicSheet & Narration)
 {
 	try
 	{
-		m_bDetailedText = bDetailed;
-
 		Narration.Clear();
 
 		CString	Text;
