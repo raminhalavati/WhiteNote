@@ -580,6 +580,75 @@ void CWhiteNoteView::OnShowSignature()
 	RefreshNarration(false, false, true);
 }
 
+// Postprocesses the text to be displayed.
+CString CWhiteNoteView::PostprocessText(CString& RawText) {
+  CString	Translation = m_Translator.TranslateText(RawText);
+
+  // Replace Accidentals?
+  if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters) {
+    pair<TCHAR*, TCHAR*> Replacements[] = {
+      make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"),
+      make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"),
+      make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"),
+      make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"),
+      make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
+
+    CString from, to;
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 3; j++) {
+        from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
+        to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
+        Translation.Replace(from, to);
+      }
+    }
+  }
+
+  // Remove semicolon after open and closing brackets.
+  Translation.Replace(L"[;", L"[");
+  Translation.Replace(L"];", L"]");
+
+  //// Replace time signature for Farsi
+  //if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+  //  for (int i = 1; i < Translation.GetLength() - 1; i++)
+  //    if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
+  //      Translation.SetAt(i, L'_');
+  //      Translation.Insert(i + 2, L'م');
+  //    }
+  //}
+
+  // Replace Persian numbers with letters.
+  if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
+    TCHAR* Digits[] = { L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه" };
+    for (int i = 0; i < 10; i++) {
+      CString from, to;
+      for (TCHAR *ch = L"_ ;,"; *ch; ch++) { // L"_ ;,م" Changed from Farsi Signature.
+        from.Format(L"_%i%c", i, *ch);
+        to.Format(L"_%s%c", Digits[i], *ch);
+        Translation.Replace(from, to);
+      }
+    }
+  }
+
+  // Remove items that should be removed in not detailed text.
+  if (m_Customizations.bShowDetailedText) {
+    Translation.Replace(L"{{", L"");
+    Translation.Replace(L"}}", L"");
+  }
+  else {
+    int pos;
+    while ((pos = Translation.Find(L"{{")) != -1) {
+      int pos2 = Translation.Find(L"}}", pos + 2);
+      if (pos2 == -1)
+        break;
+      Translation = Translation.Left(pos) + Translation.Right(Translation.GetLength() - pos2 - 2);
+    }
+    Translation.Replace(L"__", L"_");
+    Translation.Replace(L"_;", L";");
+    Translation.Replace(L" _", L" ");
+  }
+  return Translation;
+}
+
 // Refreshes lines based on current selected line.
 void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bForceSingatures)
 {
@@ -640,69 +709,7 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 		  LineText += SEP_CHAR_SPACE;
 		}
 		
-		CString	Translation = m_Translator.TranslateText(LineText);
-
-		// Replace Accidentals?
-		if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters) {
-		  pair<TCHAR*, TCHAR*> Replacements[] = {
-			make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"), 
-			make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"), 
-			make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"), 
-			make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"), 
-			make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
-		  
-		  CString from, to;
-		  for (int i = 0; i < 5; i++) {
-			  for (int j = 0; j < 3; j++) {
-			    from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
-			    to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
-			    Translation.Replace(from, to);
-			  }
-		  }        
-		}
-
-		// Remove semicolon after open and closing brackets.
-		Translation.Replace(L"[;", L"[");
-		Translation.Replace(L"];", L"]");
-
-		// Replace time signature for Farsi
-		if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-		  for (int i = 1 ; i < Translation.GetLength() - 1; i++)
-			if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
-			  Translation.SetAt(i,  L'_');
-			  Translation.Insert(i + 2, L'م');
-			}
-		}
-
-		// Replace Persian numbers with letters.
-		if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-		  TCHAR* Digits[] = {L"صفر", L"یک", L"دو", L"سه", L"چهار", L"پنج", L"شش", L"هفت", L"هشت", L"نه"};
-		  for (int i = 0 ; i < 10 ; i++) {
-			  CString from, to;
-			  for (TCHAR *ch = L"_ ;,م"; *ch; ch++) {
-			    from.Format(L"_%i%c", i, *ch);
-			    to.Format(L"_%s%c", Digits[i], *ch);
-			    Translation.Replace(from, to);
-			  }
-		  }
-		}
-
-    // Remove items that should be removed in not detailed text.
-    if (m_Customizations.bShowDetailedText) {
-      Translation.Replace(L"{{", L"");
-      Translation.Replace(L"}}", L"");
-    } else {
-      int pos;
-      while ((pos = Translation.Find(L"{{")) != -1) {
-        int pos2 = Translation.Find(L"}}", pos + 2);
-        if (pos2 == -1)
-          break;
-        Translation = Translation.Left(pos) + Translation.Right(Translation.GetLength() - pos2 - 2);
-      }
-      Translation.Replace(L"__", L"_");
-      Translation.Replace(L"_;", L";");
-      Translation.Replace(L" _", L" ");
-    }
+    CString Translation = PostprocessText(LineText);
 
 		// Add Measure_End
 		m_Playing.iMeasureEndPosition = Translation.GetLength();
@@ -920,63 +927,92 @@ void CWhiteNoteView::OnFileSaveas()
 	if (m_pNarration->Credits.GetLength())
 		fwprintf_s(hFile, L"%s\r\n", (LPCTSTR) m_pNarration->Credits);
 
-#define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(m_Translator.TranslateText(Text).GetBuffer()));}
-	// For each movement
-	for ALL_INDICES(m_pNarration->Movements, p) {
-		CString	Text, Temp;
-		if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
-			TP(Text.Format(L"Movement %i: %S\r\n", p + 1, m_pNarration->Movements[p].MovementName));
+  CString	Text, Temp;
+  bool& bFullSignature = ODlg.m_Options.bRepeatSignatures;
 
-		bool& bFullSignature = ODlg.m_Options.bRepeatSignatures;
+#define TP(X) { X; fwprintf_s(hFile, (TCHAR *)(PostprocessText(Text).GetBuffer()));}
 
-		// All voices priority: First loop on measures.
-		if (ODlg.m_Options.chGroupBy == 'm') {
-			for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
-				TP(Text.Format(L"Measure %i\r\n", m + 1));
-				for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
-					vector<CString> Printees;
-					for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
-						if (bFullSignature || pLine->GetAt(0) != '*')
-							Printees.push_back(*pLine + L" ");
-					}
-					if (Printees.size()) {
-						TP(Text.Format(L"Staff %i; Voice %i\r\n", pVoice->iStaff + 1, pVoice->iVoice));
-						for (auto& line : Printees)
-							TP(Text = line);
-						fwprintf_s(hFile, L"\r\n");
-					}
-				}
-			}
-		}
-		else {
-			// Get All Staffs and voices
-			set<pair<int, int>> SVs;
-			for (auto& measure : m_pNarration->Movements[p].Measures)
-				for (auto& voice : measure.Voices)
-					SVs.insert(make_pair(voice.iStaff, voice.iVoice));
-			for (auto sv : SVs) {
-				TP(Text.Format(L"Staff %i; Voice %i\r\n", sv.first + 1, sv.second));
-				for (auto& measure : m_pNarration->Movements[p].Measures) {
-					// Check if this measure has given staff and voice
-					for (auto& voice : measure.Voices) {
-						if (voice.iStaff == sv.first && voice.iVoice == sv.second) {
-							vector<CString> Printees;
-							for (auto& line : voice.Text) {
-								if (bFullSignature || line.GetAt(0) != '*')
-									Printees.push_back(line + L" ");
-							}
-							if (Printees.size() > 1) {
-								for (auto& line : Printees)
-									TP(Text = line);
-								fwprintf_s(hFile, L"\r\n");
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+  if (m_pNarration->similar_movements && ODlg.m_Options.chGroupBy == 'm') {
+    for ALL_INDICES(m_pNarration->Movements[0].Measures, m) {
+      TP(Text.Format(L"Measure %i\r\n", m + 1));
+      for ALL_INDICES(m_pNarration->Movements, p) {
+        for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
+          vector<CString> Printees;
+          for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
+            if (bFullSignature || pLine->GetAt(0) != '*')
+              Printees.push_back(*pLine + L" ");
+          }
+          if (Printees.size()) {
+            Text.Format(L"%s", m_pNarration->Movements[p].MovementName);
+            if (m_pNarration->Movements[p].Measures[m].Voices.size() > 1)
+              Temp.Format(L"; Staff %i; Voice %i\r\n", pVoice->iStaff + 1, pVoice->iVoice);
+            else
+              Temp = L"\r\n";
+            TP(Text += Temp);
+            for (auto& line : Printees)
+              TP(Text = line);
+            fwprintf_s(hFile, L"\r\n");
+          }
+        }
+      }
+    }
+  }
+  else {
+    // For each movement
+    for ALL_INDICES(m_pNarration->Movements, p) {
+      if (m_pNarration->Movements.size() || m_pNarration->Movements[p].MovementName.GetLength())
+        TP(Text.Format(L"Movement %i: %s\r\n", p + 1, m_pNarration->Movements[p].MovementName.GetBuffer()));
 
+      // All voices priority: First loop on measures.
+      if (ODlg.m_Options.chGroupBy == 'm') {
+        for ALL_INDICES(m_pNarration->Movements[p].Measures, m) {
+          TP(Text.Format(L"Measure %i\r\n", m + 1));
+          for ALL(m_pNarration->Movements[p].Measures[m].Voices, pVoice) {
+            vector<CString> Printees;
+            for ALL_EXCEPT_FIRST(pVoice->Text, pLine) {
+              if (bFullSignature || pLine->GetAt(0) != '*')
+                Printees.push_back(*pLine + L" ");
+            }
+            if (Printees.size()) {
+              if (m_pNarration->Movements[p].Measures[m].Voices.size() > 1)
+                TP(Text.Format(L"Staff %i; Voice %i\r\n", pVoice->iStaff + 1, pVoice->iVoice));
+              for (auto& line : Printees)
+                TP(Text = line);
+              fwprintf_s(hFile, L"\r\n");
+            }
+          }
+        }
+      }
+      else {
+        // Get All Staffs and voices
+        set<pair<int, int>> SVs;
+        for (auto& measure : m_pNarration->Movements[p].Measures)
+          for (auto& voice : measure.Voices)
+            SVs.insert(make_pair(voice.iStaff, voice.iVoice));
+        for (auto sv : SVs) {
+          if (m_pNarration->Movements[p].Measures[0].Voices.size() > 1)
+            TP(Text.Format(L"Staff %i; Voice %i\r\n", sv.first + 1, sv.second));
+          for (auto& measure : m_pNarration->Movements[p].Measures) {
+            // Check if this measure has given staff and voice
+            for (auto& voice : measure.Voices) {
+              if (voice.iStaff == sv.first && voice.iVoice == sv.second) {
+                vector<CString> Printees;
+                for (auto& line : voice.Text) {
+                  if (bFullSignature || line.GetAt(0) != '*')
+                    Printees.push_back(line + L" ");
+                }
+                if (Printees.size() > 1) {
+                  for (auto& line : Printees)
+                    TP(Text = line);
+                  fwprintf_s(hFile, L"\r\n");
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 	fclose(hFile);
 }
 

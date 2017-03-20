@@ -13,11 +13,13 @@ Bug fixed for space between ending bracket and ; in English.
 Movement selection window updated and measure number is kept for files with similar movements.
 Direction texts are trimmed for \r\n, space replaced to underline, and quoted.
 Fret, String, Hammer-On, and Pull-Off added.
-Time Signature presentation is change, specially for Farsi.
+Time Signature presentation is change, specially for Farsi.// Reverted
 Detailed Text concentraited to RefreshNarration and makrked with {{}}
 Barlines bug fixed.
 Moving to next/previous step, in similar-movements mode, it goes to next/previous movement.
+Ctrl+Space shortcut corrected.
+Text serialization improved.
 
-Update Help: Persian letters.
+
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

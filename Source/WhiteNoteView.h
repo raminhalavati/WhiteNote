@@ -149,6 +149,7 @@ public:
 	afx_msg void OnUpdateNavigateLockvoice(CCmdUI *pCmdUI);
 	afx_msg void OnNavigateLockvoice();
 	afx_msg void OnOptionsCustomizations();
+  afx_msg void OnHelpFeaturesreminder();
 
 	CMyEdit	*	m_pNarrationTB;
 	CMyEdit		m_NarrationL;
@@ -189,7 +190,8 @@ public:
 	void LilyPondCheck();
   // Shows the note that users see on their first run.
   void ShowStartupNote();
-  afx_msg void OnHelpFeaturesreminder();
+  // Postprocesses the text to be displayed.
+  CString PostprocessText(CString& RawText);
 };
 
 #ifndef _DEBUG  // debug version in WhiteNoteView.cpp
