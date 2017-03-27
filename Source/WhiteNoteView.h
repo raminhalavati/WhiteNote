@@ -169,7 +169,7 @@ public:
 	// Sets the Current Movement
 	void SetMovement(int iMovementNo);
 	// Returns the index of Previous/Next measure/staff/voice, -1 if not available.
-	int GetOtherBlock(char chWhat, bool bNext);
+	int GetOtherBlock(char chWhat, bool bNext, bool bApply);
 	// Makes a sound
 	void VoiceMessage(CString What);
 	// Updates measure image.

@@ -184,25 +184,25 @@ void CWhiteNoteView::OnUpdateRightMeasure(CCmdUI *pCmdUI)
 
 void CWhiteNoteView::OnUpdateNavigatePrevioushand(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('s', false) != -1);
+	pCmdUI->Enable(GetOtherBlock('s', false, false) != -1);
 }
 
 
 void CWhiteNoteView::OnUpdateNavigateNexthand(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('s', true) != -1);
+	pCmdUI->Enable(GetOtherBlock('s', true, false) != -1);
 }
 
 
 void CWhiteNoteView::OnUpdateNavigatePreviousvoice(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('v', false) != -1);
+	pCmdUI->Enable(GetOtherBlock('v', false, false) != -1);
 }
 
 
 void CWhiteNoteView::OnUpdateNavigateNextvoice(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GetOtherBlock('v', true) != -1);
+	pCmdUI->Enable(GetOtherBlock('v', true, false) != -1);
 }
 
 
@@ -652,7 +652,7 @@ CString CWhiteNoteView::PostprocessText(CString& RawText) {
 // Refreshes lines based on current selected line.
 void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bForceSingatures)
 {
-	RETURN_IF_NOT_LOADED;
+  	RETURN_IF_NOT_LOADED;
 
 	try
 	{
@@ -1034,7 +1034,7 @@ bool CWhiteNoteView::Move(char chWhat, bool bNext, bool bGoToEnd) // 'p'age , 'm
 		case 's': // Staff
 		case 'v': // Voice
 		{
-			int	iOther = GetOtherBlock(chWhat, bNext);
+			int	iOther = GetOtherBlock(chWhat, bNext, true);
 			if (iOther != -1)
 			{
 				if (chWhat == 'm')
@@ -1125,7 +1125,7 @@ void CWhiteNoteView::OnLilypondPrecreateallimages()
 }
 
 // Returns the index of Previous/Next measure/staff/voice, -1 if not available.
-int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
+int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext, bool bApply)
 {
 	RETURN_IF_NOT_LOADED - 1;
 
@@ -1161,14 +1161,16 @@ int CWhiteNoteView::GetOtherBlock(char chWhat, bool bNext)
       if (bNext) {
         if (m_Playing.iMovement + 1 < (int)m_pNarration->Movements.size()) {
           // Move to next Movement, return voice 0 of the new movement.
-          m_Playing.iMovement++;          
+          if (bApply)
+            m_Playing.iMovement++;          
           return 0;
         }
       }
       else {
         if (m_Playing.iMovement) {
           // Move to previous movement, return last voice.
-          m_Playing.iMovement--;
+          if (bApply)
+            m_Playing.iMovement--;
           return (int)m_pNarration->Movements[m_Playing.iMovement].Measures[0].Voices.size() - 1;
         }
       }

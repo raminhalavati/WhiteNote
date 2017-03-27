@@ -731,7 +731,7 @@ NarratedMusicSheet::MeasureText	CMusicSheetNarrator::GetMeasureText(MusicSheet::
 	vector<InlineDirection>	Directions;
 	{
     for ALL(pMeasure->Directions, pDir) {
-      _ASSERTE(!IsInRange(pDir->nType, MusicSheet::DIR_first_guitar_Finger, MusicSheet::DIR_last_guitar_Finger) &&
+      _ASSERTE(//!IsInRange(pDir->nType, MusicSheet::DIR_first_guitar_Finger, MusicSheet::DIR_last_guitar_Finger) &&
                !IsInRange(pDir->nType, MusicSheet::DIR_first_Finger, MusicSheet::DIR_last_Finger));
 
         if (IsInRange(pDir->nType, MusicSheet::DIR_first_Wedge, MusicSheet::DIR_last_Wedge) ||

@@ -19,7 +19,7 @@ Barlines bug fixed.
 Moving to next/previous step, in similar-movements mode, it goes to next/previous movement.
 Ctrl+Space shortcut corrected.
 Text serialization improved.
-
+Bug fixed: OnUpdate functions which used GetNextBlock resulted in movement change.
 
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

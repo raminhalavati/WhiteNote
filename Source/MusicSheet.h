@@ -103,14 +103,15 @@ typedef struct _MusicSheet
 		DIR_FINGER_3,
 		DIR_FINGER_4,
 		DIR_FINGER_5,
-		DIR_last_Finger,
+		//DIR_last_Finger,
 
-		DIR_first_guitar_Finger,
+		//DIR_first_guitar_Finger,
 		DIR_FINGER_I,
 		DIR_FINGER_A,
 		DIR_FINGER_M,
 		DIR_FINGER_P,
-		DIR_last_guitar_Finger,
+		//DIR_last_guitar_Finger,
+    DIR_last_Finger,
 
 		DIR_OCTAVE_SHIFT_UP,
 		DIR_OCTAVE_SHIFT_DOWN,
