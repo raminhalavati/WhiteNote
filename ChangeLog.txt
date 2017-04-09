@@ -20,6 +20,10 @@ Moving to next/previous step, in similar-movements mode, it goes to next/previou
 Ctrl+Space shortcut corrected.
 Text serialization improved.
 Bug fixed: OnUpdate functions which used GetNextBlock resulted in movement change.
+Bug fixed: Signatures, and translations when having unicode characters.
+More choices for showing signatures when measures/voices change.
+Ability to not show measure_end.
 
+Add to Help: Measure end, signature on staff change.
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.

@@ -274,7 +274,10 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 	// Clefs	
 	if (iStaff < (int)Sigs.Clefs.size() && Sigs.Clefs[iStaff].Sign.GetLength())
 	{
-		bItemChanged = pPreviousSignature && (pPreviousSignature->Clefs[iStaff].Sign != Sigs.Clefs[iStaff].Sign || pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
+		bItemChanged = pPreviousSignature && (iStaff >= (int)pPreviousSignature->Clefs.size() || 
+                                          pPreviousSignature->Clefs[iStaff].Sign != Sigs.Clefs[iStaff].Sign || 
+                                          
+pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
 
 		Text = CString((pPreviousSignature && !bItemChanged) ? L"*" : L"") + L"Clef";
 
@@ -379,21 +382,21 @@ void	CMusicSheetNarrator::GetSignaturesText(NarratedMusicSheet::Voice & Voice, M
 		case 0:
 			T1 = Sigs.Key.bMajor ? L"C" : L"A";
 			break;
-		case 7:	T1 = L"_C♯";
-		case 6:	T1 = L"_E♯" + T1;
-		case 5:	T1 = L"_A♯" + T1;
-		case 4:	T1 = L"_D♯" + T1;
-		case 3:	T1 = L"_G♯" + T1;
-		case 2:	T1 = L"_C♯" + T1;
-		case 1:	T1 = L"F♯" + T1;	
+		case 7:	T1 = L"_♯C";
+		case 6:	T1 = L"_♯E" + T1;
+		case 5:	T1 = L"_♯A" + T1;
+		case 4:	T1 = L"_♯D" + T1;
+		case 3:	T1 = L"_♯G" + T1;
+		case 2:	T1 = L"_♯C" + T1;
+		case 1:	T1 = L"♯F" + T1;	
 			break;		
-		case -7:	T1 = L"_F♭";
-		case -6:	T1 = L"_C♭";
-		case -5:	T1 = L"_G♭";		
-		case -4:	T1 = L"_D♭";			
-		case -3:	T1 = L"_A♭";			
-		case -2:	T1 = L"_E♭";			
-		case -1:	T1 = L"B♭";
+		case -7:	T1 = L"_♭F";
+		case -6:	T1 = L"_♭C" + T1;
+		case -5:	T1 = L"_♭G" + T1;
+		case -4:	T1 = L"_♭D" + T1;
+		case -3:	T1 = L"_♭A" + T1;
+		case -2:	T1 = L"_♭E" + T1;
+		case -1:	T1 = L"♭B" + T1;
 			break;
 		
 		default:	T1 += L"UNKNOWN_KEY";

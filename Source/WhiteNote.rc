@@ -267,25 +267,28 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,174,78,50,14
 END
 
-IDD_CUSTOMIZATION DIALOGEX 0, 0, 321, 143
+IDD_CUSTOMIZATION DIALOGEX 0, 0, 321, 173
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Customizations"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    CONTROL         "Show &signature texts in all measures.",IDC_REPEAT_SIGNATURES,
+    CONTROL         "Repeat &signature texts when measure changes.",IDC_REPEAT_SIGNATURES,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,6,306,12
-    CONTROL         "Show note descriptions with &detailed text (include 'note' and 'octave' in text).",IDC_SHOW_DETAILED_TEXT,
+    CONTROL         "Repeat signature texts when &voice changes.",IDC_REPEAT_SIGNATURES_WHEN_VOICE_CHANGES,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,24,306,12
-    CONTROL         "Play &navigational sounds and alerts.",IDC_PLAY_NAVIGATIONAL_SOUNDS,
+    CONTROL         "Show note descriptions with &detailed text (include 'note' and 'octave' in text).",IDC_SHOW_DETAILED_TEXT,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,42,306,12
-    CONTROL         "Use unicode characters for &accidentals (Sharp, Flat, Natural).",IDC_USE_UNICODE_CHARACTERS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,60,306,12
-    CONTROL         "Show &Persian numbers with letters.",IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS,
+    CONTROL         "Show measure &ends.",IDC_SHOW_MEASURE_ENDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,60,306,12
+    CONTROL         "Play &navigational sounds and alerts.",IDC_PLAY_NAVIGATIONAL_SOUNDS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,78,306,12
-    LTEXT           "&Page Size:",IDC_PAGE_SIZE_STATIC,6,96,48,12
-    EDITTEXT        IDC_PAGE_SIZE,54,96,90,12,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,204,120,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,258,120,50,14
+    CONTROL         "Use unicode characters for &accidentals (Sharp, Flat, Natural).",IDC_USE_UNICODE_CHARACTERS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,96,306,12
+    CONTROL         "Show &Persian numbers with letters.",IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,114,306,12
+    LTEXT           "&Page Size:",IDC_PAGE_SIZE_STATIC,6,132,48,12
+    EDITTEXT        IDC_PAGE_SIZE,54,132,90,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,204,156,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,258,156,50,14
 END
 
 IDD_MOVEMENTSELECTION DIALOGEX 0, 0, 197, 200
@@ -308,8 +311,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,5,10,0
- PRODUCTVERSION 2,5,10,0
+ FILEVERSION 2,5,12,0
+ PRODUCTVERSION 2,5,12,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -326,12 +329,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote Music Narrator"
-            VALUE "FileVersion", "2.5.10.0"
+            VALUE "FileVersion", "2.5.12.0"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software. Get the latest version from www.white-note.com"
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.5.10.0"
+            VALUE "ProductVersion", "2.5.12.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -410,7 +413,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 314
         TOPMARGIN, 7
-        BOTTOMMARGIN, 136
+        BOTTOMMARGIN, 166
     END
 
     IDD_MOVEMENTSELECTION, DIALOG

@@ -7,8 +7,10 @@ typedef struct
 {
 	int		iPageSize;
 	bool	bPlayNavigationalSounds;
-	bool	bAlwaysShowSignatures;
+	bool	bRepeatSignaturesOnMeasureChange;
+  bool	bRepeatSignaturesOnVoiceChange;
 	bool	bShowDetailedText;
+  bool	bShowMeasureEnds;
 	bool	bUseUnicodeCharacters;
   bool  bLettersForPersianNumbers;
 } Customizations;
@@ -35,8 +37,10 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedOk();
-	CButton m_AlwaysShowSignatures;
+	CButton m_RepeatSignaturesOnMeasureChange;
+  CButton m_RepeatSignaturesOnVoiceChange;
 	CButton m_ShowDetailedText;
+  CButton m_ShowMeasureEnds;
 	CButton m_PlayNavigationalSounds;
 	CButton m_UseUnicodeCharacters;
 	CButton m_PersianNumbers;

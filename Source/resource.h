@@ -34,6 +34,7 @@
 #define IDC_EDIT2                       1053
 #define IDC_MESSAGE                     1053
 #define IDC_REPEAT_SIGNATURES           1056
+#define IDC_REPEAT_SIGNATURES_WHEN_VOICE_CHANGES 1057
 #define IDC_SHOW_DETAILED_TEXT          1061
 #define IDC_PLAY_NAVIGATIONAL_SOUNDS    1062
 #define IDC_USE_UNICODE_CHARACTERS      1063
@@ -41,6 +42,8 @@
 #define IDC_PAGE_SIZE                   1065
 #define IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS 1066
 #define IDC_MOVEMENTS_LIST              1067
+#define IDC_SHOW_DETAILED_TEXT2         1067
+#define IDC_SHOW_MEASURE_ENDS           1067
 #define IDC_MOVEMENT_NUMBER             1068
 #define ID_PLAY_ALLVOICES               32771
 #define ID_PLAY_VOICE1                  32772

@@ -24,8 +24,10 @@ CCustomization::~CCustomization()
 void CCustomization::DoDataExchange(CDataExchange* pDX)
 {
   CDialogEx::DoDataExchange(pDX);
-  DDX_Control(pDX, IDC_REPEAT_SIGNATURES, m_AlwaysShowSignatures);
+  DDX_Control(pDX, IDC_REPEAT_SIGNATURES, m_RepeatSignaturesOnMeasureChange);
+  DDX_Control(pDX, IDC_REPEAT_SIGNATURES_WHEN_VOICE_CHANGES, m_RepeatSignaturesOnVoiceChange);
   DDX_Control(pDX, IDC_SHOW_DETAILED_TEXT, m_ShowDetailedText);
+  DDX_Control(pDX, IDC_SHOW_MEASURE_ENDS, m_ShowMeasureEnds);
   DDX_Control(pDX, IDC_PLAY_NAVIGATIONAL_SOUNDS, m_PlayNavigationalSounds);
   DDX_Control(pDX, IDC_USE_UNICODE_CHARACTERS, m_UseUnicodeCharacters);
   DDX_Control(pDX, IDC_PAGE_SIZE, m_PageSize);
@@ -45,8 +47,10 @@ BOOL CCustomization::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	m_AlwaysShowSignatures.SetCheck(m_Values.bAlwaysShowSignatures);
+	m_RepeatSignaturesOnMeasureChange.SetCheck(m_Values.bRepeatSignaturesOnMeasureChange);
+  m_RepeatSignaturesOnVoiceChange.SetCheck(m_Values.bRepeatSignaturesOnVoiceChange);
 	m_ShowDetailedText.SetCheck(m_Values.bShowDetailedText);
+  m_ShowMeasureEnds.SetCheck(m_Values.bShowMeasureEnds);
 	m_PlayNavigationalSounds.SetCheck(m_Values.bPlayNavigationalSounds);
 	m_UseUnicodeCharacters.SetCheck(m_Values.bUseUnicodeCharacters);
   m_PersianNumbers.SetCheck(m_Values.bLettersForPersianNumbers);
@@ -61,8 +65,10 @@ BOOL CCustomization::OnInitDialog()
 
 void CCustomization::OnBnClickedOk()
 {
-	m_Values.bAlwaysShowSignatures = m_AlwaysShowSignatures.GetCheck() == BST_CHECKED;
-	m_Values.bShowDetailedText = m_ShowDetailedText.GetCheck() == BST_CHECKED;
+	m_Values.bRepeatSignaturesOnMeasureChange = m_RepeatSignaturesOnMeasureChange.GetCheck() == BST_CHECKED;
+  m_Values.bRepeatSignaturesOnVoiceChange = m_RepeatSignaturesOnVoiceChange.GetCheck() == BST_CHECKED;
+  m_Values.bShowDetailedText = m_ShowDetailedText.GetCheck() == BST_CHECKED;
+  m_Values.bShowMeasureEnds= m_ShowMeasureEnds.GetCheck() == BST_CHECKED;
 	m_Values.bPlayNavigationalSounds = m_PlayNavigationalSounds.GetCheck() == BST_CHECKED;
 	m_Values.bUseUnicodeCharacters = m_UseUnicodeCharacters.GetCheck() == BST_CHECKED;
   m_Values.bLettersForPersianNumbers = m_PersianNumbers.GetCheck() == BST_CHECKED;

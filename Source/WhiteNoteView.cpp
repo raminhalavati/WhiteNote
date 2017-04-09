@@ -513,9 +513,12 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 
 		m_Customizations.iPageSize = theApp.GetProfileInt(L"Defaults", L"PageSize", 8);
 		m_Customizations.bPlayNavigationalSounds = (theApp.GetProfileInt(L"Defaults", L"Beep", 1) != 0);
-		m_Customizations.bAlwaysShowSignatures = (theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0);
+    bool bFormerShowAllSignatures = theApp.GetProfileInt(L"Defaults", L"ShowAllSignature", 1) != 0;
+		m_Customizations.bRepeatSignaturesOnMeasureChange = (theApp.GetProfileInt(L"Defaults", L"RepeatSignaturesOnMeasureChange", bFormerShowAllSignatures) != 0);
+    m_Customizations.bRepeatSignaturesOnVoiceChange = (theApp.GetProfileInt(L"Defaults", L"RepeatSignaturesOnVoiceChange", bFormerShowAllSignatures) != 0);
 		m_Customizations.bShowDetailedText = (theApp.GetProfileInt(L"Defaults", L"DetailedText", 1) != 0);
-		m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 0) != 0);
+    m_Customizations.bShowMeasureEnds = (theApp.GetProfileInt(L"Defaults", L"ShowMeasureEnds", 1) != 0);
+    m_Customizations.bUseUnicodeCharacters = (theApp.GetProfileInt(L"Defaults", L"UseUnicode", 0) != 0);
     m_Customizations.bLettersForPersianNumbers = (theApp.GetProfileInt(L"Defaults", L"PersianNumbersWithLetters", 1) != 0);
 
 		if (!m_Defaults.LilyPondPath.GetLength())
@@ -556,9 +559,11 @@ void CWhiteNoteView::SerializeDefaults(bool bLoad)
 
 		theApp.WriteProfileInt(L"Defaults", L"PageSize", m_Customizations.iPageSize);
 		theApp.WriteProfileInt(L"Defaults", L"Beep", m_Customizations.bPlayNavigationalSounds);
-		theApp.WriteProfileInt(L"Defaults", L"ShowAllSignature", m_Customizations.bAlwaysShowSignatures);
-		theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Customizations.bShowDetailedText);
-		theApp.WriteProfileInt(L"Defaults", L"UseUincode", m_Customizations.bUseUnicodeCharacters);
+		theApp.WriteProfileInt(L"Defaults", L"RepeatSignaturesOnMeasureChange", m_Customizations.bRepeatSignaturesOnMeasureChange);
+    theApp.WriteProfileInt(L"Defaults", L"RepeatSignaturesOnVoiceChange", m_Customizations.bRepeatSignaturesOnVoiceChange);
+    theApp.WriteProfileInt(L"Defaults", L"DetailedText", m_Customizations.bShowDetailedText);
+    theApp.WriteProfileInt(L"Defaults", L"ShowMeasureEnds", m_Customizations.bShowMeasureEnds);
+		theApp.WriteProfileInt(L"Defaults", L"UseUnicode", m_Customizations.bUseUnicodeCharacters);
     theApp.WriteProfileInt(L"Defaults", L"PersianNumbersWithLetters", m_Customizations.bLettersForPersianNumbers);
 	}
 
@@ -687,9 +692,13 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 			m_NarrationLabel.SetWindowText(Temp);
 		}
 
-		bool	bRepeatStarters = bVoiceChanged || m_Customizations.bAlwaysShowSignatures || bForceSingatures;
-		if (!bRepeatStarters)
-			LineText = "";
+    // If signature is not forced, and voice is not changed, don't say staff and movement.
+    if(!bForceSingatures && !bVoiceChanged )
+      LineText = "";
+
+		bool	bRepeatSignatures = (bVoiceChanged && m_Customizations.bRepeatSignaturesOnVoiceChange)  || 
+                              m_Customizations.bRepeatSignaturesOnMeasureChange || 
+                              bForceSingatures;
 
 		if (GetSetComment().GetLength() && !m_Customizations.bPlayNavigationalSounds)
 			LineText += CString("Has_Comments") + SEP_CHAR; // ";"
@@ -698,13 +707,13 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 
 		for ALL(Measure, pText) {
 		  // If it is astrix marked, it should be shown only at the beginning of the line.
-		  if (pText->GetAt(0) == '*')
-			if (bRepeatStarters)
-			  LineText += pText->GetBuffer() + 1;
-			else
-			  continue;
-		  else
-			LineText += *pText;
+      if (pText->GetAt(0) == '*')
+        if (bRepeatSignatures)
+          LineText += pText->GetBuffer() + 1;
+        else
+          continue;
+      else
+        LineText += *pText;
 
 		  LineText += SEP_CHAR_SPACE;
 		}
@@ -713,7 +722,8 @@ void CWhiteNoteView::RefreshNarration(bool bVoiceChanged, bool bGoToEnd, bool bF
 
 		// Add Measure_End
 		m_Playing.iMeasureEndPosition = Translation.GetLength();
-		Translation += m_Translator.TranslateStatement(L"Measure_End");
+    if (m_Customizations.bShowMeasureEnds)
+      Translation += m_Translator.TranslateStatement(L"Measure_End");
 		m_Playing.iMeasureTotalSize = Translation.GetLength();
 		
 		m_pNarrationTB->SetWindowText(Translation);
@@ -1583,13 +1593,8 @@ void CWhiteNoteView::OnOptionsCustomizations()
 	Cust.m_Values = m_Customizations;
 	if (Cust.DoModal() == IDOK)
 	{
-		/*bool bReload = (Cust.m_Values.bShowDetailedText != m_Customizations.bShowDetailedText) ||
-      (Cust.m_Values.bLettersForPersianNumbers != m_Customizations.bLettersForPersianNumbers) ||
-      (Cust.m_Values.bUseUnicodeCharacters != m_Customizations.bUseUnicodeCharacters);*/
 		m_Customizations = Cust.m_Values;
 		SerializeDefaults(false);
-		/*if (bReload)
-			GetDocument()->Reload();*/
 		RefreshNarration(false);
 	}
 }
