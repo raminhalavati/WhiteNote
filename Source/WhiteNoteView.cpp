@@ -38,9 +38,9 @@ IMPLEMENT_DYNCREATE(CWhiteNoteView, CFormView)
 BEGIN_MESSAGE_MAP(CWhiteNoteView, CFormView)
 	ON_WM_SIZE()
 	ON_MESSAGE(WM_USER + 0, OnChildKeyPress)
-	ON_COMMAND(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnPlaySelectMovement)
-	ON_COMMAND(ID_NAVIGATE_GOTO_MEASURE, &CWhiteNoteView::OnPlayGotomeasure)
-	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_SELECT_MOVEMENT, &CWhiteNoteView::OnUpdateSelectMovement)
+	ON_COMMAND(ID_NAVIGATE_GOTO_MOVEMENT, &CWhiteNoteView::OnNavigateGotoMovement)
+	ON_COMMAND(ID_NAVIGATE_GOTO_MEASURE, &CWhiteNoteView::OnNavigateGotoMeasure)
+	ON_UPDATE_COMMAND_UI(ID_NAVIGATE_GOTO_MOVEMENT, &CWhiteNoteView::OnUpdateSelectMovement)
 	ON_COMMAND(ID_FILE_SAVEAS, &CWhiteNoteView::OnFileSaveas)
 	ON_COMMAND(ID_NAVIGATE_RIGHT_MEASURE, &CWhiteNoteView::OnRightMeasure)
 	ON_COMMAND(ID_NAVIGATE_LEFT_MEASURE, &CWhiteNoteView::OnLeftMeasure)
@@ -871,18 +871,18 @@ LRESULT CWhiteNoteView::OnChildKeyPress(WPARAM wParam, LPARAM lParam)
 }
 
 
-void CWhiteNoteView::OnPlaySelectMovement()
+void CWhiteNoteView::OnNavigateGotoMovement()
 {
 	RETURN_IF_NOT_LOADED;
 
-  CMovementSelection movement_selection(m_pNarration, m_Playing.iMovement - 1);
+  CMovementSelection movement_selection(m_pNarration, m_Playing.iMovement);
 
   if (movement_selection.DoModal() == IDOK)
-    SetMovement(movement_selection.current_movement_ + 1);
+    SetMovement(movement_selection.current_movement_);
 }
 
 
-void CWhiteNoteView::OnPlayGotomeasure()
+void CWhiteNoteView::OnNavigateGotoMeasure()
 {
 	RETURN_IF_NOT_LOADED;
 

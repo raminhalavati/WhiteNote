@@ -63,7 +63,7 @@
 #define ID_FILE_SAVEMP3                 32797
 #define ID_FILE_SAVEAS                  32798
 #define ID_PLAY_S                       32803
-#define ID_NAVIGATE_SELECT_MOVEMENT     32804
+#define ID_NAVIGATE_GOTO_MOVEMENT     32804
 #define ID_SETTINGS_CHANGE_PAGE_SIZE    32805
 #define ID_PLAY_CHANGELINESIZE          32806
 #define ID_NAVIGATE_RIGHT_MEASURE       32811

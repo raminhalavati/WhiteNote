@@ -91,8 +91,8 @@ protected:
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnChildKeyPress(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnPlaySelectMovement();
-	afx_msg void OnPlayGotomeasure();
+	afx_msg void OnNavigateGotoMovement();
+	afx_msg void OnNavigateGotoMeasure();
 	afx_msg void OnFileSaveas();
 	afx_msg void OnRightMeasure();
 	afx_msg void OnLeftMeasure();

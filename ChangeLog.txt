@@ -23,6 +23,8 @@ Bug fixed: OnUpdate functions which used GetNextBlock resulted in movement chang
 Bug fixed: Signatures, and translations when having unicode characters.
 More choices for showing signatures when measures/voices change.
 Ability to not show measure_end.
+Major/Minor is no more said at the end of keys.
+Movement number's bug fixed.
 
 Add to Help: Measure end, signature on staff change.
 UPDATE INDEX files and HELP

@@ -33,5 +33,4 @@ public:
 
   NarratedMusicSheet * sheet_;
   int current_movement_;
-  char last_change_;
 };

@@ -186,6 +186,7 @@ void CTranslator::SetLanguage(CString Language)
 	m_Words.insert(make_pair(L"metronome", L"مترونوم"));
 	m_Words.insert(make_pair(L"movement", L"موومان"));
 	m_Words.insert(make_pair(L"minor", L"مینور"));
+  m_Words.insert(make_pair(L"none", L"ندارد"));
 	m_Words.insert(make_pair(L"note", L"نت"));
   m_Words.insert(make_pair(L"{{note}}", L"{{نت}}"));
   m_Words.insert(make_pair(L"octave", L"اکتاو"));

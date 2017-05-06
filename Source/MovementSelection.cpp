@@ -58,8 +58,7 @@ BOOL CMovementSelection::OnInitDialog()
     m_MovementsList.InsertString(movement, temp);
   }
   m_MovementsList.SetCurSel(current_movement_);
-  last_change_ = NULL;
-
+  
   return TRUE;  // return TRUE unless you set the focus to a control
                 // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -67,37 +66,38 @@ BOOL CMovementSelection::OnInitDialog()
 
 void CMovementSelection::OnEnChangeMovementNumber()
 {
-  last_change_ = 'e';
+  CString temp;
+  m_MovementNumber.GetWindowText(temp);
+  current_movement_ = _wtoi(temp) - 1 ;
+  if (0 <= current_movement_ && current_movement_ < (int)sheet_->Movements.size() && m_MovementsList.GetCurSel() !=current_movement_)
+    m_MovementsList.SetCurSel(current_movement_);
 }
 
 
 void CMovementSelection::OnLbnSelchangeMovementsList()
 {
-  last_change_ = 'l';
+  current_movement_ = m_MovementsList.GetCurSel();
+  if (current_movement_ != -1) {
+    CString old_value, new_value;
+    new_value.Format(L"%i", current_movement_ + 1);
+    m_MovementNumber.GetWindowText(old_value);
+    if (old_value != new_value)
+      m_MovementNumber.SetWindowText(new_value);
+  }
 }
 
 
 void CMovementSelection::OnBnClickedOk()
 {
-  if (last_change_ == 'e') {
-    CString temp;
-    m_MovementNumber.GetWindowText(temp);
-    current_movement_ = _wtoi(temp);
-    if (!current_movement_ || current_movement_ > (int)sheet_->Movements.size()) {
-      AfxMessageBox(L"Selected movement is out of range.", MB_ICONERROR);
-      return;
-    }
-    else
-      current_movement_--;
+  /*CString temp;
+  m_MovementNumber.GetWindowText(temp);
+  current_movement_ = _wtoi(temp);
+  if (!current_movement_ || current_movement_ > (int)sheet_->Movements.size()) {
+    AfxMessageBox(L"Selected movement is out of range.", MB_ICONERROR);
+    return;
   }
-  else if (last_change_ == 'l') {
-    current_movement_ = m_MovementsList.GetCurSel();
-    if (current_movement_ == -1) {
-      AfxMessageBox(L"No movement is selected.", MB_ICONERROR);
-      return;
-    }
-  }
-
-  CDialog::OnOK();
+  else
+    current_movement_--;
+  */CDialog::OnOK();
 }
 

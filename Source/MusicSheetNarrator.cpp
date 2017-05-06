@@ -380,7 +380,8 @@ pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
 		switch (Sigs.Key.iFifths)
 		{
 		case 0:
-			T1 = Sigs.Key.bMajor ? L"C" : L"A";
+			//T1 = Sigs.Key.bMajor ? L"C" : L"A";
+      T1 = "None";
 			break;
 		case 7:	T1 = L"_♯C";
 		case 6:	T1 = L"_♯E" + T1;
@@ -401,7 +402,8 @@ pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
 		
 		default:	T1 += L"UNKNOWN_KEY";
 		}
-		Voice.Text.push_back(Text + T1 + L"_" + (Sigs.Key.bMajor? L"Major" : L"Minor"));
+		//Voice.Text.push_back(Text + T1 + L"_" + (Sigs.Key.bMajor? L"Major" : L"Minor"));
+    Voice.Text.push_back(Text + T1);
 
 		// LILY
 		switch (Sigs.Key.iFifths)
@@ -446,7 +448,7 @@ pPreviousSignature->Clefs[iStaff].iLine != Sigs.Clefs[iStaff].iLine);
     else
       Text += L": ";*/
 
-		T1.Format(L"%i/%i", Sigs.Time.iBeats, Sigs.Time.iBeatType);
+		T1.Format(L"%i_%i", Sigs.Time.iBeats, Sigs.Time.iBeatType);
 		Text += T1;
 		Voice.Text.push_back(Text);
 		
