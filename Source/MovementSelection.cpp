@@ -89,15 +89,10 @@ void CMovementSelection::OnLbnSelchangeMovementsList()
 
 void CMovementSelection::OnBnClickedOk()
 {
-  /*CString temp;
-  m_MovementNumber.GetWindowText(temp);
-  current_movement_ = _wtoi(temp);
-  if (!current_movement_ || current_movement_ > (int)sheet_->Movements.size()) {
+  if (current_movement_ < 0 || current_movement_ >= (int)sheet_->Movements.size()) {
     AfxMessageBox(L"Selected movement is out of range.", MB_ICONERROR);
     return;
   }
-  else
-    current_movement_--;
-  */CDialog::OnOK();
+  CDialog::OnOK();
 }
 
