@@ -281,7 +281,7 @@ BEGIN
     CONTROL         "Show measure &ends.",IDC_SHOW_MEASURE_ENDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,60,306,12
     CONTROL         "Play &navigational sounds and alerts.",IDC_PLAY_NAVIGATIONAL_SOUNDS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,78,306,12
-    CONTROL         "Use unicode characters for &accidentals (Sharp, Flat, Natural).",IDC_USE_UNICODE_CHARACTERS,
+    CONTROL         "Use unicode characters for &accidentals in English.",IDC_USE_UNICODE_CHARACTERS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,96,306,12
     CONTROL         "Show &Persian numbers with letters.",IDC_SHOW_PERSIAN_NUMBERS_WITH_LETTERS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,114,306,12
