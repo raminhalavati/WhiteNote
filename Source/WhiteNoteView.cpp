@@ -587,37 +587,53 @@ void CWhiteNoteView::OnShowSignature()
 
 // Postprocesses the text to be displayed.
 CString CWhiteNoteView::PostprocessText(CString& RawText) {
-  CString	Translation = m_Translator.TranslateText(RawText);
+  CString	translation = m_Translator.TranslateText(RawText);
 
   // Replace Accidentals?
   if (m_Defaults.bLTR && !m_Customizations.bUseUnicodeCharacters) {
-    pair<TCHAR*, TCHAR*> Replacements[] = {
-      make_pair((TCHAR*)L"♯♯", (TCHAR*)L"double_sharp"),
-      make_pair((TCHAR*)L"♭♭", (TCHAR*)L"double_flat"),
-      make_pair((TCHAR*)L"♭", (TCHAR*)L"flat"),
-      make_pair((TCHAR*)L"♯", (TCHAR*)L"sharp"),
-      make_pair((TCHAR*)L"♮", (TCHAR*)L"natural"), };
+    pair<TCHAR*, TCHAR*> replacements[] = {
+      make_pair((TCHAR*)L"♯♯", (TCHAR*)L"Double_Sharp"),
+      make_pair((TCHAR*)L"♭♭", (TCHAR*)L"Double_Flat"),
+      make_pair((TCHAR*)L"♭", (TCHAR*)L"Flat"),
+      make_pair((TCHAR*)L"♯", (TCHAR*)L"Sharp"),
+      make_pair((TCHAR*)L"♮", (TCHAR*)L"Natural"), };
 
-    CString from, to;
-    for (int i = 0; i < 5; i++) {
-      for (int j = 0; j < 3; j++) {
-        from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
-        to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
-        Translation.Replace(from, to);
+    for (const auto& replacement : replacements) {
+      while (true) {
+        int pos = translation.Find(replacement.first);
+        if (pos == -1)
+          break;
+        CString to = replacement.second;
+
+        if (pos != 0 && translation[pos - 1] != L' ' && translation[pos - 1] != L'_')
+          to.Insert(0, L'_');
+        else if (pos != translation.GetLength() - 1 && translation[pos + 1] != L' ' && translation[pos + 1] != L'_')
+          to += L"_";
+        translation = translation.Left(pos) + to + translation.Right(translation.GetLength() - pos - wcslen(replacement.first));
       }
     }
+    // Replaced the fllowing with above code. Remove if it works fine.
+    //CString from, to;
+    //for (int i = 0; i < 5; i++) {
+    //  for (int j = 0; j < 3; j++) {
+    //    from.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].first, j != 2 ? L"_" : L"");
+    //    to.Format(L"%s%s%s", j != 1 ? L"_" : L"", Replacements[i].second, j != 2 ? L"_" : L"");
+    //    Translation.Replace(from, to);
+    //  }
+    //  //Translation.Replace(Replacements[i].first, Replacements[i].second);
+    //}
   }
 
   // Remove semicolon after open and closing brackets.
-  Translation.Replace(L"[;", L"[");
-  Translation.Replace(L"];", L"]");
+  translation.Replace(L"[;", L"[");
+  translation.Replace(L"];", L"]");
 
   //// Replace time signature for Farsi
   //if (!m_Defaults.bLTR && m_Customizations.bLettersForPersianNumbers) {
-  //  for (int i = 1; i < Translation.GetLength() - 1; i++)
-  //    if (Translation[i] == L'/' && iswdigit(Translation[i - 1]) && iswdigit(Translation[i + 1])) {
-  //      Translation.SetAt(i, L'_');
-  //      Translation.Insert(i + 2, L'م');
+  //  for (int i = 1; i < translation.GetLength() - 1; i++)
+  //    if (translation[i] == L'/' && iswdigit(translation[i - 1]) && iswdigit(translation[i + 1])) {
+  //      translation.SetAt(i, L'_');
+  //      translation.Insert(i + 2, L'م');
   //    }
   //}
 
@@ -629,29 +645,29 @@ CString CWhiteNoteView::PostprocessText(CString& RawText) {
       for (TCHAR *ch = L"_ ;,"; *ch; ch++) { // L"_ ;,م" Changed from Farsi Signature.
         from.Format(L"_%i%c", i, *ch);
         to.Format(L"_%s%c", Digits[i], *ch);
-        Translation.Replace(from, to);
+        translation.Replace(from, to);
       }
     }
   }
 
   // Remove items that should be removed in not detailed text.
   if (m_Customizations.bShowDetailedText) {
-    Translation.Replace(L"{{", L"");
-    Translation.Replace(L"}}", L"");
+    translation.Replace(L"{{", L"");
+    translation.Replace(L"}}", L"");
   }
   else {
     int pos;
-    while ((pos = Translation.Find(L"{{")) != -1) {
-      int pos2 = Translation.Find(L"}}", pos + 2);
+    while ((pos = translation.Find(L"{{")) != -1) {
+      int pos2 = translation.Find(L"}}", pos + 2);
       if (pos2 == -1)
         break;
-      Translation = Translation.Left(pos) + Translation.Right(Translation.GetLength() - pos2 - 2);
+      translation = translation.Left(pos) + translation.Right(translation.GetLength() - pos2 - 2);
     }
-    Translation.Replace(L"__", L"_");
-    Translation.Replace(L"_;", L";");
-    Translation.Replace(L" _", L" ");
+    translation.Replace(L"__", L"_");
+    translation.Replace(L"_;", L";");
+    translation.Replace(L" _", L" ");
   }
-  return Translation;
+  return translation;
 }
 
 // Refreshes lines based on current selected line.

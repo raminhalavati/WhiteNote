@@ -311,8 +311,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,6,0,0
- PRODUCTVERSION 2,6,0,0
+ FILEVERSION 2,6,0,1
+ PRODUCTVERSION 2,6,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -329,12 +329,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rama"
             VALUE "FileDescription", "WhiteNote Music Narrator"
-            VALUE "FileVersion", "2.6.0.0"
+            VALUE "FileVersion", "2.6.0.1"
             VALUE "InternalName", "WhiteNote.exe"
             VALUE "LegalCopyright", "This is a free and open source software. Get the latest version from www.white-note.com"
             VALUE "OriginalFilename", "WhiteNote.exe"
             VALUE "ProductName", "WhiteNote"
-            VALUE "ProductVersion", "2.6.0.0"
+            VALUE "ProductVersion", "2.6.0.1"
         END
     END
     BLOCK "VarFileInfo"

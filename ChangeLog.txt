@@ -1,4 +1,4 @@
-
+Updated accidentals to unicode covertor.
 
 UPDATE INDEX files and HELP
 UPDATE NEWS, Correct Version and Download files.
